@@ -1,0 +1,89 @@
+<html>
+<head>
+<meta charset="utf-8">
+<link href="style.css" rel="stylesheet">
+</head>
+<body>
+<div id="container">
+	<div class="border">
+		<div class="close">&#10005;</div>
+		<div class="minimize">&#150;</div>
+		<div class="settings"><img src="settings.svg"></div>
+		<div class="sync"><img src="sync.svg"></div>
+	</div>
+	<div id="actualWeather">
+		<div id="city"></div>
+		<div id="code"></div>
+		<div class="details">
+			<div class="left" id="temperature"></div>
+			<div class="right">
+				     <span id="windSpeed"></span> <span id="windUnit"></span><br>
+				     <span id="humidity"></span>
+			</div>
+		</div>
+		<div class="week">
+			<div id="0">
+				<span class="day"></span>
+				<span class="code"></span>
+				<span class="temp"></span>
+			</div>
+			<div id="1">
+				<span class="day"></span>
+				<span class="code"></span>
+				<span class="temp"></span>
+			</div>
+			<div id="2">
+				<span class="day"></span>
+				<span class="code"></span>
+				<span class="temp"></span>
+			</div>
+			<div id="3">
+				<span class="day"></span>
+				<span class="code"></span>
+				<span class="temp"></span>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="locationModal">
+	<input type="text" placeholder="Location"><span class="loader"></span><br>
+	e.g London England, Tokyo
+	<div class="full">
+		<div class="toggleswitch measurement">
+			<span data-type="c">R</span><span data-type="f">T</span><span data-type="k">K</span>
+		</div>
+		<div class="toggleswitch speed">
+			<span data-type="mph">mph</span><span data-type="kph">kph</span><span data-type="ms">m/s</span>
+		</div>
+		<div class="launcher">
+			<input type="checkbox" id="launcherswitch"><label for="launcherswitch">Show Launcher Count</label>
+		</div>
+                <div class="color">
+			<span data-color="gradient"></span>
+			<span data-color="A200FF"></span>
+			<span data-color="FF0097"></span>
+			<span data-color="00ABA9"></span>
+			<span data-color="8CBF26"></span>
+			<span data-color="772953"></span>
+			<span data-color="333333"></span>
+			<span data-color="F09609"></span>
+			<span data-color="1BA1E2"></span>
+			<span data-color="FF8E83"></span>
+			<span data-color="339933"></span>
+		</div>
+                <a class="btn" href="https://sites.google.com/site/typhoonweatherapp/credits">CREDITS</a>&nbsp;<a class="btn" href="https://github.com/apandada1/typhoon">CONTRIBUTE</a><br>
+                <span class="credits">Do you have any idea about new features?</span>
+                <span class="contact">Please <a class="btn" href="https://sites.google.com/site/typhoonweatherapp/contact">CONTACT US</a> if you have.</span>
+	</div>
+</div>
+<div id="errorMessage">
+	Could not connect.Check your internet connection.
+	<br>
+	<button class="btn">Retry</button>
+</div>
+
+<script src="jquery.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
+

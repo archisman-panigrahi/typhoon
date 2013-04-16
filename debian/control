@@ -1,0 +1,21 @@
+Source: typhoon
+Section: python
+Priority: extra
+Build-Depends: debhelper (>= 8),
+ python (>= 2.6.6-3~),
+ python-distutils-extra (>= 2.10)
+Maintainer: Archisman Panigrahi <apandada1@gmail.com>
+Standards-Version: 3.9.3
+X-Python-Version: >= 2.6
+
+Package: typhoon
+Architecture: all
+Depends: ${misc:Depends},
+ ${python:Depends},
+ gir1.2-glib-2.0,
+ gir1.2-gtk-3.0,
+ gir1.2-unity-5.0,
+ gir1.2-webkit-3.0,
+ yelp
+Description: Check the weather Typhoon.
+ UNKNOWN
