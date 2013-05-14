@@ -6,3 +6,13 @@ Exec=typhoon
 Icon=typhoon
 Terminal=false
 Type=Application
+
+[Desktop Action Screen]
+Name=Take a Screenshot of the Whole Screen
+Exec=typhoon
+OnlyShowIn=Unity;
+ 
+[Desktop Action Window]
+Name=Take a Screenshot of the Current Window
+Exec=typhoon
+OnlyShowIn=Unity;

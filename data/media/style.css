@@ -146,7 +146,7 @@ p, span, div {
 	font-size: 0;
 }
 .details .left {
-	font-size: 65px;
+	font-size: 70px;
 	width: 50%;
 	letter-spacing: -7px;
 	text-align: right;
@@ -188,7 +188,7 @@ font-size: 0;
 }
 .week .temp span {
 	padding-left: 5px;
-	color: #ddd;
+	color: white;
 }
 .week .code {
 	display: block;
