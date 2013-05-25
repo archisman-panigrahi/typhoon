@@ -104,7 +104,7 @@ p, span, div {
 	background: rgba(0,0,0,0.2);
 }
 #container {
-	height: 500px;
+	height: 475px;
 	width: 300px;
 	position: relative;
 	background: #299ae5;
@@ -119,7 +119,7 @@ p, span, div {
 	font-family: "ClimaconsRegular";
 	font-size: 175px;
 	position: absolute;
-	top: 95px;
+	top: 70px;
 	text-align: center;
 	width: 100%;
 	left: 22px;
@@ -142,7 +142,7 @@ p, span, div {
 	top: 45px;
 	width: 100%;
 }
-.details {
+.details {	
 	font-size: 0;
 }
 .details .left {
@@ -152,12 +152,12 @@ p, span, div {
 	text-align: right;
 	display: inline-block;
 	box-sizing: border-box;
-	padding-right: 10px;
+	padding-right: 3px;
 }
 .details .right {
 	font-size: 27px;
 	box-sizing: border-box;
-	padding-left: 30px;
+	padding-left: 50px;
 	display: inline-block;
 	width: 50%;
 	text-align: left;
@@ -167,12 +167,12 @@ p, span, div {
 height: 20%;
 width: 100%;
 position: absolute;
-bottom: 10px;
+bottom: 20px;
 font-size: 0;
 }
 .week div {
 	display: inline-block;
-	width: 25%;
+	width: 50%;
 	text-align: center;
 	font-size: 18px;
 	height: 110px;
