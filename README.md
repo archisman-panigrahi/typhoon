@@ -5,10 +5,8 @@ Typhoon
 - Based on Stormcloud by Jono Cooper.
 - Thanks to Adam Whitcroft for Climacons.
 - Weather by Yahoo!.
-- Made with quickly.
 - Inspired by Richard M. Stallman, Linus Torvals, Mark Shuttleworth, Jono Cooper, Micheal Harker.
-- Designed, developed and maintained by Archisman Panigrahi.
-
+- Currently developed and maintained by Archisman Panigrahi.
 Contributers:
 --------------
-- Still none :(
+- Esteban (Found the way to make the app visible in every workspace) 

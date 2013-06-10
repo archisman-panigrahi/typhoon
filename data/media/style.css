@@ -152,16 +152,16 @@ p, span, div {
 	text-align: right;
 	display: inline-block;
 	box-sizing: border-box;
-	padding-right: 3px;
+	padding-right: 20px;
 }
 .details .right {
 	font-size: 27px;
 	box-sizing: border-box;
-	padding-left: 45px;
+	padding-left: 20px;
 	display: inline-block;
 	width: 50%;
 	text-align: left;
-	letter-spacing: -2px;
+	letter-spacing: 0px;
 }
 .week {
 height: 20%;
@@ -172,7 +172,7 @@ font-size: 0;
 }
 .week div {
 	display: inline-block;
-	width: 50%;
+	width: 25%;
 	text-align: center;
 	font-size: 18px;
 	height: 110px;
