@@ -8,7 +8,7 @@ Typhoon
 - Inspired by Richard M. Stallman, Linus Torvals, Mark Shuttleworth, Jono Cooper, Micheal Harker.
 - Currently developed and maintained by Archisman Panigrahi.
 
-Contributers:
+Contributors:
 --------------
 
 - Esteban (Found the way to make the app visible in every workspace) 
