@@ -7,6 +7,8 @@ Typhoon
 - Powered by Yahoo!Weather.
 - Inspired by Richard Stallman, Linus Torvalds, Mark Shuttleworth, Jono Cooper, Micheal Harker.
 - Currently developed and maintained by Archisman Panigrahi.
+
 Contributors:
---------------
+-------------
+
 - Esteban (Found the way to make the app visible in every workspace) 
