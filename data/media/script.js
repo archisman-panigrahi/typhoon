@@ -129,7 +129,7 @@ function render(location) {
 			}
 
 			//Show Icon
-			$('.border .sync, .border .settings').css("opacity", "0.5")
+			$('.border .sync, .border .settings').css("opacity", "0.8")
 			$('#actualWeather').fadeIn(500)
 			$("#locationModal").fadeOut(500)
 			// spin the thing for 500ms longer than it actually takes, because
@@ -270,7 +270,7 @@ $(document).ready(function() {
 		setInterval(function() {
 			console.log("Updating Data...")
 			$(".border .sync").click()
-		}, 300000)
+		}, 600000)
 	}
 });
 
@@ -326,7 +326,7 @@ function init_settings() {
 			setInterval(function() {
 				console.log("Updating Data...")
 				$(".border .sync").click()
-			}, 300000)
+			}, 600000)
 		}
 	})
 
