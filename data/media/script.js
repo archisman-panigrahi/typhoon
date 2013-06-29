@@ -63,7 +63,7 @@ function generateStats(data, callback) {
 	//Weekly Weather
 	weekArr = $(data).filterNode("item").children().filterNode("yweather:forecast")
 	weather.week = []
-	for (var i=0; i<4; i++) {
+	for (var i=0; i<5; i++) {
 		weather.week[i] = {}
 		weather.week[i].day = $(weekArr[i]).attr("day")
 		weather.week[i].code = $(weekArr[i]).attr("code")
@@ -116,7 +116,7 @@ function render(location) {
 			background(weather.temperature)
 
 			//Weekly Bro.
-			for (var i=0; i<4; i++) {
+			for (var i=0; i<5; i++) {
 				$('#' + i + ' .day').text(weather.week[i].day)
 				$('#' + i + ' .code').text(weather_code(weather.week[i].code))
 				if (localStorage.typhoon_measurement == "c") {

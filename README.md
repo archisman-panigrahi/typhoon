@@ -9,6 +9,6 @@ Typhoon
 - Currently developed and maintained by Archisman Panigrahi.
 
 Contributors:
--------------
+--------------
 
 - Esteban (Found the way to make the app visible in every workspace) 

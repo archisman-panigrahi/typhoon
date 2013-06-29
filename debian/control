@@ -17,5 +17,5 @@ Depends: ${misc:Depends},
  gir1.2-unity-5.0,
  gir1.2-webkit-3.0,
  yelp
-Description: UNKNOWN
- UNKNOWN
+Description: Typhoon is a Symple weather app.
+ Typhoon is a Symple weather app.
