@@ -172,7 +172,7 @@ font-size: 0;
 }
 .week div {
 	display: inline-block;
-	width: 25%;
+	width: 20%;
 	text-align: center;
 	font-size: 18px;
 	height: 110px;
@@ -311,7 +311,7 @@ font-size: 0;
     text-decoration: none;
     color: #ffffff; }
 #locationModal a:hover {
-      text-decoration: underline; 
+      text-decoration: none; 
 }
 .color {
 	font-size: 0;
