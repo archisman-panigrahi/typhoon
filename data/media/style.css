@@ -285,10 +285,10 @@ p, span, div {
     background-image: url(tick.svg);
 }
 #locationModal .loader {
-    font-size: 30px;
+    font-size: 27px;
     display: inline-block;
     vertical-align: top;
-    line-height: 25px;
+    line-height: 30px;
     height: 28px;
     padding: 0 2px 0 5px;
     margin-top: 4px;
