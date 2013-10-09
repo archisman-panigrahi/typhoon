@@ -1,0 +1,22 @@
+{
+  "main": "index.html",
+  "name": "Typhoon",
+  "version": "0.8.1",
+  "keywords": [ "typhoon", "weather", "yahoo" ],
+  "window": {
+    "toolbar": false,
+    "icon": "typhoon.png",
+    "width": 300,
+    "height": 500,
+    "position": "mouse",
+    "min_width": 300,
+    "min_height": 500,
+    "max_width": 300,
+    "max_height": 500,
+    "frame": false,
+    "show": true
+  },
+  "webkit": {
+    "plugin": false
+  }
+}

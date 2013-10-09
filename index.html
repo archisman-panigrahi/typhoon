@@ -1,0 +1,92 @@
+<html>
+<head>
+<meta charset="utf-8">
+<link href="style.css" rel="stylesheet">
+</head>
+<body>
+<div id="container">
+	<div class="border">
+		<div class="close">&#10005;</div>
+        <div class="minimize">&#150;</div>
+		<div class="settings"><img src="settings.svg"></div>
+		<div class="sync"><img src="sync.svg"></div>
+	</div>
+	<div id="actualWeather">
+		<div id="city"></div>
+		<div id="code"></div>
+		<div class="details">
+			<div class="left" id="temperature"></div>
+			<div class="right">
+				     <span id="windSpeed"></span> <span id="windUnit"></span><br>
+				     <span id="humidity"></span>
+			</div>
+		</div>
+		<div class="week">
+			<div id="0">
+				<span class="day"></span>
+				<span class="code"></span>
+				<span class="temp"></span>
+			</div>
+			<div id="1">
+				<span class="day"></span>
+				<span class="code"></span>
+				<span class="temp"></span>
+			</div>
+		        <div id="2">
+				<span class="day"></span>
+				<span class="code"></span>
+				<span class="temp"></span>
+			</div>
+			<div id="3">
+				<span class="day"></span>
+				<span class="code"></span>
+				<span class="temp"></span>
+			</div>
+            <div id="4">
+				<span class="day"></span>
+				<span class="code"></span>
+				<span class="temp"></span>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="locationModal">
+	<input type="text" placeholder="Location"><span class="loader"></span><br>
+	e.g London England, Tokyo<br>
+<h3><a href="https://sites.google.com/site/typhoonweatherapp/support-1">SUPPORT</a></h3></span>
+	<div class="full">
+		<div class="toggleswitch measurement">
+			<span data-type="c">R</span><span data-type="f">T</span><span data-type="k">K</span>
+		</div>
+		<div class="toggleswitch speed">
+			<span data-type="mph">mph</span><span data-type="kph">kph</span><span data-type="ms">m/s</span>
+		</div>
+                <div class="color">
+			<span data-color="gradient"></span>
+			<span data-color="575591"></span>
+			<span data-color="FF0097"></span>
+			<span data-color="00ABA9"></span>
+			<span data-color="8CBF26"></span>
+			<span data-color="A05000"></span>
+			<span data-color="333333"></span>
+			<span data-color="F09609"></span>
+			<span data-color="1BA1E2"></span>
+			<span data-color="FF8E83"></span>
+			<span data-color="339933"></span>
+		</div>
+        <br>
+                <a class="btn" href="https://sites.google.com/site/typhoonweatherapp/credits">CREDITS</a>&nbsp;<a class="btn" href="https://github.com/apandada1/typhoon">CONTRIBUTE</a><br><br>
+	
+        Source code is released under <a href="http://www.gnu.org/licenses/gpl.html">GPL-3</a><br>
+	</div>
+</div>
+<div id="errorMessage">
+	Could not connect to Yahoo!Weather.<br>
+	Check your internet connection.<br>
+	<button class="btn">TRY AGAIN</button>
+</div>
+
+<script src="jquery.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
