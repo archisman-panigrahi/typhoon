@@ -11,7 +11,7 @@
   font-family: 'Ubuntu Condensed';
   font-style: normal;
   font-weight: 400;
-  src: local('Ubuntu Condensed'), local('UbuntuCondensed-Regular'), url('fonts/ubuntu.woff') format('woff');
+  src: url('fonts/ubuntu.woff') format('woff'), url('fonts/ubuntu.ttf') format('truetype');
 }
 body {
 	color: #fff;
