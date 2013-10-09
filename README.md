@@ -11,4 +11,4 @@ You'll need [node-webkit](https://github.com/rogerwang/node-webkit/) to run this
 path\to\nw.exe path\to\typhoon-repository
 ```
 
-<h3>Also a prebuilt <a href="https://dl.dropboxusercontent.com/u/84627545/typhoon.exe">typhoon.exe</a> file is available.</h3>
+<h3>A prebuilt <a href="https://dl.dropboxusercontent.com/u/84627545/typhoon.exe">typhoon.exe</a> file is also available.</h3>
