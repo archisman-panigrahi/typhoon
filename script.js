@@ -9,6 +9,7 @@ $(function() {
 		win = gui.Window.get()
 		win.show()
 		//win.showDevTools()
+        document.title = "Typhoon"
 
 		//Bind Handlers
 		$(".minimize").click(function() {
@@ -301,17 +302,9 @@ function init_settings() {
     
 
 	//Prevents Dragging on certain elements
-	$('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal, #errorMessage').mouseover(function() {
-		document.title = "disabledrag"
-	}).mouseout(function() {
-		document.title = "enabledrag"
-        
-	}).click(function() {
+	$('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal, #errorMessage').click(function() {
 		if ($(this).hasClass("close")) {
-			document.title = 'close'
             window.close()
-		} else if ($(this).hasClass("minimize")) {
-			document.title = 'minimize'
 		} else if ($(this).hasClass("settings")) {
 			show_settings("all")
 		} else if ($(this).hasClass("sync")) {
@@ -379,19 +372,6 @@ function init_settings() {
 	$('.color span').click(function() {
 		localStorage.typhoon_color = $(this).attr("data-color")
 		background(null)
-	})
-
-	if (localStorage.typhoon_launcher == "checked") {
-		$('#locationModal .launcher input').attr("checked", "checked")
-		document.title = "enable_launcher"
-	}
-	$('#locationModal .launcher input').click(function() {
-		localStorage.typhoon_launcher = $('#locationModal .launcher input').attr("checked")
-		if (localStorage.typhoon_launcher == "checked") {
-			document.title = "enable_launcher"
-		} else {
-			document.title = "disable_launcher"
-		}
 	})
 
 	//CSS
