@@ -8,10 +8,13 @@
     font-style: normal;
 }
 @font-face {
-  font-family: 'Ubuntu Condensed';
-  font-style: normal;
-  font-weight: 400;
-  src: url('fonts/ubuntu.woff') format('woff'), url('fonts/ubuntu.ttf') format('truetype');
+    font-family:'Ubuntu Condensed';
+    src: url('fonts/ubuntu-condensed.eot');
+    src: /*url('fonts/ubuntu-condensed.eot?#iefix') format('embedded-opentype'),*/
+         url('fonts/ubuntu-condensed.woff') format('woff'),
+         url('fonts/ubuntu-condensed.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
 }
 body {
 	color: #fff;
@@ -295,7 +298,6 @@ font-size: 0;
 	padding: 0px 14px 0px;
 	vertical-align: top;
 }
-
 #locationModal .launcher {
 	margin-top: 10px;
 }

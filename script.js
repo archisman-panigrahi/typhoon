@@ -357,7 +357,6 @@ function init_settings() {
 	localStorage.typhoon_measurement = localStorage.typhoon_measurement || "c"
 	localStorage.typhoon_speed = localStorage.typhoon_speed || "kph"
 	localStorage.typhoon_color =  localStorage.typhoon_color || "gradient"
-	localStorage.typhoon_launcher = localStorage.typhoon_launcher || "checked"
 
 	$('#locationModal .measurement [data-type=' + localStorage.typhoon_measurement + ']').addClass('selected')
 	$('#locationModal .speed [data-type=' + localStorage.typhoon_speed + ']').addClass('selected')
