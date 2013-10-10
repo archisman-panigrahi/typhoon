@@ -10,8 +10,7 @@
 @font-face {
     font-family:'Ubuntu Condensed';
     src: url('fonts/ubuntu-condensed.eot');
-    src: /*url('fonts/ubuntu-condensed.eot?#iefix') format('embedded-opentype'),*/
-         url('fonts/ubuntu-condensed.woff') format('woff'),
+    src: url('fonts/ubuntu-condensed.woff') format('woff'),
          url('fonts/ubuntu-condensed.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
