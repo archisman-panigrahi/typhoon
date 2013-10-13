@@ -19,9 +19,9 @@
 import sys
 import os.path
 import unittest
-sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), "..")))
-
 from typhoon import AboutTyphoonDialog
+
+sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), "..")))
 
 class TestExample(unittest.TestCase):
     def setUp(self):
