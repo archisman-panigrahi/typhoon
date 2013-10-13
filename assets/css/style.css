@@ -17,7 +17,11 @@ img:hover {
   margin: 0 auto;
 }
 a {
+  color: #fff;
   text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
 }
 [class*="btn"] {
   display: inline-block;
@@ -34,6 +38,7 @@ a {
 }
 [class*="btn"]:hover {
   opacity: 1.0;
+  text-decoration: none;
 }
 .btn-ubuntu {
   background-color: #dd4814;
@@ -49,7 +54,7 @@ a {
 }
 h1 {
   margin: 0 0 10px;
-  font-size: 65px;
+  font-size: 60px;
   letter-spacing: -2px;
   text-align: center;
   text-shadow: 1px 1px 3px rgba(0,0,0,.5);
