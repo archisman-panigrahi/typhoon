@@ -15,7 +15,8 @@
     "max_height": 500,
     "frame": false,
     "show": true,
-    "resizable": false
+    "resizable": false,
+    "maximize": false
   },
   "webkit": {
     "plugin": false
