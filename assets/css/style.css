@@ -20,8 +20,12 @@ a {
   color: #fff;
   text-decoration: none;
 }
-a:hover {
-  text-decoration: underline;
+a:not([class*="btn"]) {
+  color: #f3f3f3;
+  border-bottom: 1px transparent;
+}
+a:not([class*="btn"]):hover {
+  border-bottom: 1px solid;
 }
 [class*="btn"] {
   display: inline-block;
@@ -38,7 +42,6 @@ a:hover {
 }
 [class*="btn"]:hover {
   opacity: 1.0;
-  text-decoration: none;
 }
 .btn-ubuntu {
   background-color: #dd4814;
