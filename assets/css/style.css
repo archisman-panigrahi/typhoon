@@ -1,0 +1,65 @@
+body {
+  padding: 2%;
+  font-family: Lato, sans-serif;
+  color: #fff;
+  background: url("../img/background.png") no-repeat center center fixed;
+  background-size: cover;
+}
+img {
+  opacity: 0.7;
+}
+img:hover {
+  opacity: 0.9;
+}
+.content {
+  position: relative;
+  max-width: 96%;
+  margin: 0 auto;
+}
+a {
+  text-decoration: none;
+}
+[class*="btn"] {
+  display: inline-block;
+  padding: 7px;
+  margin-bottom: 3px;
+  font-weight: bold;
+  color: #fff;
+  text-indent: 5px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  opacity: 0.9;
+  -webkit-box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+          box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+[class*="btn"]:hover {
+  opacity: 1.0;
+}
+.btn-ubuntu {
+  background-color: #dd4814;
+}
+.btn-windows {
+  background-color: #56c5ff;
+}
+.btn-source {
+  background-color: #bada55;
+}
+.btn-site {
+  background-color: #f3b200;
+}
+h1 {
+  margin: 0 0 10px;
+  font-size: 65px;
+  letter-spacing: -2px;
+  text-align: center;
+  text-shadow: 1px 1px 3px rgba(0,0,0,.5);
+}
+p {
+  margin-bottom: 10px;
+  text-align: center;
+}
+.lead {
+  font-size: 25px;
+  letter-spacing: -1px;
+  text-shadow: 1px 1px 10px rgba(0,0,0,.4);
+}
