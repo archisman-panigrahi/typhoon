@@ -1,6 +1,6 @@
 <h1>Typhoon</h1>
 This is the Windows version.<br>
-![Typhoon](https://dl.dropboxusercontent.com/u/84627545/typhoon.PNG)
+![Typhoon](https://raw.github.com/apandada1/typhoon/gh-pages/assets/img/typhoon.png)
 <h2>How to run it?</h2>
 You'll need <a href="https://github.com/rogerwang/node-webkit/">node-webkit</a> to run this app from its source code.
 
