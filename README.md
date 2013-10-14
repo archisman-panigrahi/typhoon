@@ -10,4 +10,7 @@ You'll need <a href="https://github.com/rogerwang/node-webkit/">node-webkit</a> 
 ```
 path\to\nw.exe path\to\typhoon-repository
 ```
-<h3>A prebuilt <a href="https://dl.dropboxusercontent.com/u/84627545/Typhoon_setup.exe">full installer</a> and a portable <a href="https://dl.dropboxusercontent.com/u/84627545/typhoon.exe">typhoon.exe</a> are also available.</h3>
+<h2>Downloads</h2>
+<h3>v0.8.1-2</h3>
+<li>[Typhoon_setup.exe](https://dl.dropboxusercontent.com/u/84627545/Typhoon_setup.exe)(Full installer)</li>
+<li>[Portable Edition](https://dl.dropboxusercontent.com/u/84627545/typhoon.exe)</li>
