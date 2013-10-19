@@ -13,4 +13,5 @@ path\to\nw.exe path\to\typhoon-repository
 <h2>Downloads</h2>
 <h3>v0.8.1-2</h3>
 <li>[Typhoon_setup.exe](https://dl.dropboxusercontent.com/u/84627545/Typhoon_setup.exe)(Full installer)</li>
-<li>[Portable Edition](https://dl.dropboxusercontent.com/u/84627545/typhoon.exe)</li>
+<h2>What's new</h2>
+v0.8.1-3 is coming soon with Fixed closed button in Windows XP and manual Updating system.
