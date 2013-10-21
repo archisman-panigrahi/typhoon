@@ -16,10 +16,10 @@
     font-style: normal;
 }
 @font-face {
-    font-family:'monospace';
-    src: url('fonts/monospace.eot');
-    src: url('fonts/monospace.woff') format('woff'),
-         url('fonts/monospace.ttf') format('truetype');
+    font-family:'Anonymous';
+    src: url('fonts/Anonymous.eot');
+    src: url('fonts/Anonymous.woff') format('woff'),
+         url('fonts/Anonymous.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -84,7 +84,7 @@ p, span, div {
 	-webkit-transform-origin: 0 0;
 }
 .close {
-	font-family: 'monospace';
+	font-family: 'Anonymous';
 	font-size: 15px;
 	width: 30px;
 	height: 30px;
@@ -100,7 +100,7 @@ p, span, div {
 	background: rgba(0,0,0,0.2);
 }
 .minimize {
-	font-family: 'monospace';
+	font-family: 'Anonymous';
 	font-size: 20px;
 	width: 30px;
 	height: 30px;
