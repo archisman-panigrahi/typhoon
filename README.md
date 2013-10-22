@@ -15,7 +15,7 @@ You'll need [node-webkit](https://github.com/rogerwang/node-webkit/) to run this
 
 ### v0.8.1-2
 
-[Typhoon Installer](https://dl.dropboxusercontent.com/u/84627545/Typhoon_setup.exe)
+[Windows Installer](https://dl.dropboxusercontent.com/u/84627545/Typhoon_setup.exe)
 
 ## News
 
