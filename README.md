@@ -13,10 +13,6 @@ You'll need [node-webkit](https://github.com/rogerwang/node-webkit/) to run this
 
 ## Downloads
 
-### v0.8.1-2
+### v0.8.1-3
 
-[Windows Installer](https://dl.dropboxusercontent.com/u/84627545/Typhoon_setup.exe)
-
-## News
-
-v0.8.1-3 is coming soon with Fixed closed button in Windows XP and manual Updating system.
+[Windows Installer](https://dl.dropboxusercontent.com/u/84627545/Typhoon%200.8.1-3_setup.exe)
