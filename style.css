@@ -33,6 +33,7 @@ body {
     -ms-user-select: none;
     -o-user-select: none;
     user-select: none;
+    overflow: hidden;
     -webkit-app-region: drag;
 }
 p, span, div {
@@ -242,8 +243,6 @@ font-size: 0;
 	padding: 25px;
 	-webkit-transform-origin: 0 0;
     -webkit-app-region: no-drag;
-    bottom: 0;
-    overflow: hidden;
 }
 #locationModal .icon {
     opacity: 0.8;
