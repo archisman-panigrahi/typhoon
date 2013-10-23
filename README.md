@@ -15,4 +15,4 @@ You'll need [node-webkit](https://github.com/rogerwang/node-webkit/) to run this
 
 ### v0.8.1-3
 
-[Windows Installer](https://dl.dropboxusercontent.com/u/84627545/Typhoon%200.8.1-3_setup.exe)
+[Windows Installer](https://github.com/apandada1/typhoon/releases/download/v0.8.1-3/Typhoon.0.8.1-3_setup.exe)
