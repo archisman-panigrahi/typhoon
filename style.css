@@ -245,10 +245,11 @@ font-size: 0;
     bottom: 0;
     overflow: hidden;
 }
-#locationModal .update {
+#locationModal .icon {
     opacity: 0.8;
+    padding: 38px;
 }
-#locationModal .update:hover {
+#locationModal .icon:hover {
     opacity: 1 !important;
 }
 #locationModal input[type=text] {
