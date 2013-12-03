@@ -1,0 +1,74 @@
+# Serbian translation file for Typhoon.
+# Copyright (C) 2013
+# This file is distributed under the same license as the typhoon package.
+# Zlatan Vasović <legospace9876@gmail.com>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Typhoon\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-06-17 15:58+0530\n"
+"PO-Revision-Date: 2013-12-03 11:20+0100\n"
+"Last-Translator: Zlatan Vasović <legospace9876@gmail.com>\n"
+"Language-Team: Serbian <sr@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: Serbian\n"
+
+#: ../typhoon/__init__.py:35
+msgid "Show debug messages (-vv debugs typhoon_lib also)"
+msgstr "Прикажи поруке за отклањање грешака (-vv такође отклања грешке у typhoon_lib)"
+
+#: ../typhoon.desktop.in.h:1 ../data/ui/TyphoonWindow.ui.h:1
+msgid "Typhoon"
+msgstr "Typhoon"
+
+#: ../typhoon.desktop.in.h:2
+msgid "Weather application"
+msgstr "Временска апликација"
+
+#: ../data/ui/PreferencesTyphoonDialog.ui.h:1
+msgid "Typhoon Preferences"
+msgstr "Typhoon подешавања"
+
+#: ../data/ui/PreferencesTyphoonDialog.ui.h:2
+msgid "_Example entry:"
+msgstr "_Пример уноса:"
+
+#: ../data/ui/AboutTyphoonDialog.ui.h:1
+msgid ""
+"# Copyright (C) 2013 Archisman Panigrahi <apandada1@gmail.com>\n"
+"# Thanks to <adamwhitcroft.com> for Climacons!\n"
+"# This program is free software: you can redistribute it and/or modify it \n"
+"# under the terms of the GNU General Public License version 3, as "
+"published \n"
+"# by the Free Software Foundation.\n"
+"# \n"
+"# This program is distributed in the hope that it will be useful, but \n"
+"# WITHOUT ANY WARRANTY; without even the implied warranties of \n"
+"# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR \n"
+"# PURPOSE.  See the GNU General Public License for more details.\n"
+"# \n"
+"# You should have received a copy of the GNU General Public License along \n"
+"# with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
+msgstr ""
+"# Copyright (C) 2013 Archisman Panigrahi <apandada1@gmail.com>\n"
+"# Хвала <adamwhitcroft.com> за Climacons!\n"
+"# Овај програм је слободан софтвер: можете га редистрибуирати и/или мењати \n"
+"# под условима GNU Опште јавне лиценце верзија 3, \n"
+"# објављене од стране Free Software Foundation.\n"
+"# \n"
+"# Овај програм је дистрибуиран у нади да ће бити користан, али \n"
+"# БЕЗ БИЛО КАКВЕ ГАРАНЦИЈЕ; чак и без подразумеване гаранције \n"
+"# ПРОДАЈЕ, ЗАДОВОЉАВАЈУЋЕГ КВАЛИТЕТА или ПОГОДНОСТИ ЗА ОДРЕЂЕНЕ \n"
+"# НАМЕРЕ.  Погледајте GNU Општу јавну лиценцу за више детаља.\n"
+"# \n"
+"# Требало би да добијете копију GNU Опште јавне лиценце уз\n"
+"# овај програм.  Ако нисте, погледајте <http://www.gnu.org/licenses/>.\n"
+
+#: ../data/ui/AboutTyphoonDialog.ui.h:15
+msgid "Copyright (C) 2013 Archisman Panigrahi <apandada1@gmail.com>"
+msgstr "Copyright (C) 2013 Archisman Panigrahi <apandada1@gmail.com>"
