@@ -242,11 +242,12 @@ font-size: 0;
 	top: 60px;
 	padding: 25px;
 	-webkit-transform-origin: 0 0;
-    -webkit-app-region: no-drag;
+    -webkit-app-region: drag;
 }
 #locationModal .icon {
     opacity: 0.8;
     padding: 38px;
+    -webkit-app-region: no-drag;
 }
 #locationModal .icon:hover {
     opacity: 1 !important;
@@ -259,6 +260,7 @@ font-size: 0;
 	font-family: "Ubuntu Condensed";
 	font-size: 15px;
 	outline: 0;
+    -webkit-app-region: no-drag;
 }
 #locationModal input[type=checkbox] {
 	border: 2px solid #222;
@@ -270,6 +272,7 @@ font-size: 0;
 	background-size: 90%;
 	background-repeat: no-repeat;
 	background-position: 50%;
+    -webkit-app-region: no-drag;
 }
 #locationModal .measurement {
 	font-family: "ClimaconsRegular";
@@ -277,6 +280,7 @@ font-size: 0;
 }
 #locationModal .measurement span {
 	padding: 0 7px 5px 10px;
+    -webkit-app-region: no-drag;
 }
 #locationModal .speed span {
 	line-height: 35px;
@@ -285,6 +289,7 @@ font-size: 0;
 	box-sizing: border-box;
 	height: 41px;
 	text-align: center;
+    -webkit-app-region: no-drag;
 }
 .toggleswitch {
 	margin-top: 10px;
@@ -312,9 +317,7 @@ font-size: 0;
 	padding: 0px 14px 0px;
 	vertical-align: top;
 }
-#locationModal .launcher {
-	margin-top: 10px;
-}
+
 #locationModal label {
 	margin-left: 5px;
 	vertical-align: top;
@@ -334,19 +337,23 @@ font-size: 0;
 #locationModal .loader.loading {
 	font-family: "ClimaconsRegular";
 	padding-right: 0;
+    -webkit-app-region: drag;
 }
 #locationModal .loader.tick {
 	outline: 2px solid #333;
 	background: #222;
 	-webkit-transition: 150ms ease background;
 	cursor: pointer;
+    -webkit-app-region: no-drag;
 }
 #locationModal .loader.tick:hover {
 	background: #333;
 }
 #locationModal a {
     text-decoration: none;
-    color: #ffffff; }
+    color: #ffffff; 
+    -webkit-app-region: no-drag;
+}
 #locationModal a:hover {
     text-decoration: none; 
 }
@@ -356,6 +363,7 @@ font-size: 0;
 	margin-top: 10px;
 	display: inline-block;
 	border: 2px solid #333;
+    -webkit-app-region: no-drag;
 }
 .color span {
 	height: 14px;
@@ -384,6 +392,7 @@ span[data-color=gradient] {
 	letter-spacing: 0;
 	margin-top: 10px;
 	display: inline-block;
+    -webkit-app-region: no-drag;
 }
 .btn:hover {
 	background: #555;
