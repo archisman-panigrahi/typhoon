@@ -57,7 +57,7 @@ class TyphoonWindow(Window):
 
         try:
             launcher = Unity.LauncherEntry.get_for_desktop_id("typhoon.desktop")
-            launcher.set_property("count_visible", True)
+            launcher.set_property("count_visible", False)
         except NameError:
             pass
 
