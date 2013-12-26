@@ -1,6 +1,6 @@
 # Typhoon
 
-This is the Windows version.
+This version of Typhoon is optimised for [node-webkit](https://github.com/rogerwang/node-webkit/) and is used in Windows.
 
 ![Typhoon](https://raw.github.com/apandada1/typhoon/gh-pages/assets/img/typhoon.png)
 
@@ -13,6 +13,4 @@ You'll need [node-webkit](https://github.com/rogerwang/node-webkit/) to run this
 
 ## Downloads
 
-### v0.8.1-3
-
-[Windows Installer](https://github.com/apandada1/typhoon/releases/download/v0.8.1-3/Typhoon.0.8.1-3_setup.exe)
+*Prebuilt installers are available in the [Downloads](https://github.com/apandada1/typhoon/wiki/Downloads) section.*
