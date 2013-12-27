@@ -20,12 +20,8 @@ a {
   color: #fff;
   text-decoration: none;
 }
-a:not([class*="btn"]) {
-  color: #f3f3f3;
-  border-bottom: 1px transparent;
-}
-a:not([class*="btn"]):hover {
-  border-bottom: 1px solid;
+a:hover {
+  text-decoration: underline;
 }
 [class*="btn"] {
   display: inline-block;
@@ -33,6 +29,7 @@ a:not([class*="btn"]):hover {
   margin-bottom: 3px;
   font-weight: bold;
   color: #fff;
+  text-decoration: none;
   text-indent: 5px;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
   border-radius: 8px;
