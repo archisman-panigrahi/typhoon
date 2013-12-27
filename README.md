@@ -1,10 +1,17 @@
 # Typhoon
 
-- Typhoon is a simple weather application. It is and always will be free and open source.
-- Based on Stormcloud by Jono Cooper.
-- Thanks to Adam Whitcroft for Climacons.
-- Powered by Yahoo! Weather.
+> Simple weather application, powered by Yahoo! Weather
 
+Based on Stormcloud by Jono Cooper.
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/apandada1/typhoon/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+## Why?
 
+* Free and open source
+* Actively developed
+* Has Windows version
+
+## Climacons
+
+Thanks to Adam Whitcroft for Climacons.
+
+[![Bitdeli badge](https://d2weczhvl823v0.cloudfront.net/apandada1/typhoon/trend.png)](https://bitdeli.com/free)
