@@ -20,7 +20,7 @@ a {
   color: #fff;
   text-decoration: none;
 }
-a:hover {
+a:not([class*="btn"]):hover {
   text-decoration: underline;
 }
 [class*="btn"] {
