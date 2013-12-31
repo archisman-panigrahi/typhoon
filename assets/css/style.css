@@ -34,7 +34,6 @@ a:not([class*="btn"]):hover {
   margin-bottom: 3px;
   font-weight: bold;
   color: #fff;
-  text-decoration: none;
   text-indent: 5px;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
   border-radius: 8px;
