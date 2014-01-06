@@ -1,6 +1,6 @@
 {
   "name": "Typhoon",
-  "description": "Check the weather.",
+  "description": "Check the weather",
   "version": "0.8.1",
   "offline_enabled": true,
   "app": {

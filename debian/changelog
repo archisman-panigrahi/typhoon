@@ -1,8 +1,20 @@
-typhoon (0.8.1-public1) raring; urgency=low
+typhoon (0.8.3) raring; urgency=low
 
   * New release.
 
- -- Archisman Panigrahi <apandada1@gmail.com>  Fri, 04 Oct 2013 21:48:15 +0530
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sat, 28 Dec 2013 20:40:50 +0530
+
+typhoon (0.8.2-public1) raring; urgency=low
+
+  * New release.
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Wed, 25 Dec 2013 16:57:41 +0530
+
+typhoon (0.8.2) raring; urgency=low
+
+  * New release.
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Wed, 25 Dec 2013 15:15:50 +0530
 
 typhoon (0.8.1) raring; urgency=low
 

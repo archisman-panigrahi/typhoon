@@ -310,7 +310,7 @@ p, span, div {
     text-decoration: none;
     color: #ffffff;
 }
-#locationModal a:hover {
+#locationModal a:not([class*="btn"]):hover {
     text-decoration: underline;
 }
 .color {

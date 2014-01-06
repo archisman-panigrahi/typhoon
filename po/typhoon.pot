@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-23 08:23+0530\n"
+"POT-Creation-Date: 2013-12-28 14:32+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,10 +16,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-
-#: ../typhoon/__init__.py:35
-msgid "Show debug messages (-vv debugs typhoon_lib also)"
-msgstr ""
 
 #: ../typhoon.desktop.in.h:1 ../data/ui/TyphoonWindow.ui.h:1
 msgid "Typhoon"
@@ -37,10 +33,14 @@ msgstr ""
 msgid "_Example entry:"
 msgstr ""
 
+#: ../typhoon/__init__.py:35
+msgid "Show debug messages (-vv debugs typhoon_lib also)"
+msgstr ""
+
 #: ../data/ui/AboutTyphoonDialog.ui.h:1
 msgid ""
 "# Copyright (C) 2013 Archisman Panigrahi <apandada1@gmail.com>\n"
-"# Thanks to <adamwhitcroft.com> for Climacons!\n"
+"# Thanks to Adam Whitcroft <adamwhitcroft.com> for Climacons!\n"
 "# This program is free software: you can redistribute it and/or modify it \n"
 "# under the terms of the GNU General Public License version 3, as "
 "published \n"
