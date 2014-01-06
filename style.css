@@ -80,6 +80,7 @@ p, span, div {
 .border .sync img, .border .settings img {
 	width: 32px;
 	height: 32px;
+    -webkit-user-drag: none;
 	/* Retina Fix */
 	-webkit-transform: scale(0.5);
 	-webkit-transform-origin: 0 0;
@@ -265,6 +266,9 @@ font-size: 0;
 #locationModal .icon:hover {
     opacity: 1 !important;
 }
+#locationModal img {
+    -webkit-user-drag: none;
+}
 #locationModal input[type=text] {
 	width: 216px;
 	border: 2px solid #333;
@@ -365,9 +369,10 @@ font-size: 0;
     text-decoration: none;
     color: #ffffff; 
     -webkit-app-region: no-drag;
+    -webkit-user-drag: none;
 }
-#locationModal a:hover {
-    text-decoration: none; 
+#locationModal a:not([class*="btn"]):hover {
+    text-decoration: underline; 
 }
 
 .color {
