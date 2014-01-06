@@ -63,6 +63,7 @@ p, span, div {
 .border .sync img, .border .settings img {
     width: 32px;
     height: 32px;
+    -webkit-user-drag: none;
     /* Retina Fix */
     -webkit-transform: scale(0.5);
     -webkit-transform-origin: 0 0;
@@ -309,6 +310,7 @@ p, span, div {
 #locationModal a {
     text-decoration: none;
     color: #ffffff;
+    -webkit-user-drag: none;
 }
 #locationModal a:not([class*="btn"]):hover {
     text-decoration: underline;
@@ -344,6 +346,7 @@ span[data-color=gradient] {
     letter-spacing: -1px;
     margin-top: 10px;
     display: inline-block;
+    -webkit-user-drag: none;
 }
 .btn:hover {
     background: #555;
