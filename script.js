@@ -73,7 +73,7 @@ function generateStats(data, callback) {
 	weather.country = $(data).filterNode('yweather:location').attr("country")
     
 	//Link
-	localStorage.typhoon_link = $(data).filterNode('item').children().filterNode("link").text()
+	weather.link = $(data).filterNode('item').children().filterNode("link").text()
     
 	//Temperature
 	weather.temperature = $(data).filterNode('item').children().filterNode("yweather:condition").attr("temp")
@@ -115,7 +115,7 @@ function render(location) {
 
 	getWeatherData(location, function(rawdata) {
 		generateStats(rawdata, function(weather) {
-			$('#city').html('<a href="' + localStorage.typhoon_link + '">' + localStorage.typhoon_location + '</a>')
+			$('#city').html('<a href="' + weather.link + '">' + localStorage.typhoon_location + '</a>')
 			$("#code").text(weather_code(weather.code)).attr("class", "w" + weather.code)
 
 			//Sets initial temp as Celsius
