@@ -9,7 +9,7 @@ $(function() {
 		win = gui.Window.get()
 		win.show()
 		//win.showDevTools()
-        document.title = "Typhoon"
+		document.title = "Typhoon"
 
 		//Bind Handlers
 		$(".minimize").click(function() {
@@ -111,6 +111,7 @@ function generateStats(data, callback) {
 
 function render(location) {
 	$('.border .sync').addClass('busy');
+	$(".border .settings").show()
 
 	getWeatherData(location, function(rawdata) {
 		generateStats(rawdata, function(weather) {
@@ -302,19 +303,19 @@ $(document).ready(function() {
 });
 
 function init_settings() {
-    
+
 
 	//Prevents Dragging on certain elements
 	$('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal, #errorMessage').click(function() {
 		if ($(this).hasClass("close")) {
-            window.close()
+			window.close()
 		} else if ($(this).hasClass("settings")) {
 			show_settings("all")
 		} else if ($(this).hasClass("sync")) {
 			render(localStorage.typhoon)
 		}
 	})
-    $('body').on("click", "a", function(e) {
+	$('body').on("click", "a", function(e) {
 			e.preventDefault()
 			gui.Shell.openExternal($(e.currentTarget).attr("href"))
 		})
@@ -329,7 +330,7 @@ function init_settings() {
 	    typingTimer = setTimeout(doneTyping, doneTypingInterval)
 	}).keydown(function(){
 	//on keydown, clear the countdown
-	    clearTimeout(typingTimer)
+		clearTimeout(typingTimer)
 	});
 
 	function doneTyping() {
@@ -368,12 +369,16 @@ function init_settings() {
 	$('#locationModal .toggleswitch span').click(function() {
 		$(this).parent().children().removeClass('selected')
 		localStorage.setItem("typhoon_" + $(this).parent().attr("class").replace("toggleswitch ", ""), $(this).addClass('selected').attr("data-type"))
+		$(".border .settings").hide()
 	})
 
 	//Color thing
 	$('.color span').click(function() {
 		localStorage.typhoon_color = $(this).attr("data-color")
 		background(null)
+		$('.color span[data-color=gradient]').click(function() {
+		$(".border .settings").hide()
+		})
 	})
 
 	//Control CSS
@@ -391,13 +396,6 @@ function show_settings(amount) {
 		$("#locationModal .full").show()
 	} else if (amount == 'location') {
 		$("#locationModal .full").hide()
-	}
-
-	if ($('#locationModal').css('display') != 'none') {
-		//We do a render instead
-		$(".border .sync").click()
-		$("#locationModal").fadeOut(350)
-		return;
 	}
 
 	//Show the Modal
