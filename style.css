@@ -1,40 +1,40 @@
 @font-face {
-    font-family:'ClimaconsRegular';
-    src: url('fonts/climacons-webfont.eot');
-    src: url('fonts/climacons-webfont.eot?#iefix') format('embedded-opentype'),
-         url('fonts/climacons-webfont.woff') format('woff'),
-         url('fonts/climacons-webfont.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+	font-family:'ClimaconsRegular';
+	src: url('fonts/climacons-webfont.eot');
+	src: url('fonts/climacons-webfont.eot?#iefix') format('embedded-opentype'),
+		 url('fonts/climacons-webfont.woff') format('woff'),
+		 url('fonts/climacons-webfont.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
 }
 @font-face {
-    font-family:'Ubuntu Condensed';
-    src: url('fonts/ubuntu-condensed.eot');
-    src: url('fonts/ubuntu-condensed.woff') format('woff'),
-         url('fonts/ubuntu-condensed.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
+	font-family:'Ubuntu Condensed';
+	src: url('fonts/ubuntu-condensed.eot');
+	src: url('fonts/ubuntu-condensed.woff') format('woff'),
+		 url('fonts/ubuntu-condensed.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
 }
 @font-face {
-    font-family:'Anonymous';
-    src: url('fonts/Anonymous.eot');
-    src: url('fonts/Anonymous.woff') format('woff'),
-         url('fonts/Anonymous.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+	font-family:'Anonymous';
+	src: url('fonts/Anonymous.eot');
+	src: url('fonts/Anonymous.woff') format('woff'),
+		 url('fonts/Anonymous.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
 }
 body {
 	color: #fff;
 	margin: 0;
 	padding: 0;
 	font-family: "Ubuntu Condensed";
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -o-user-select: none;
-    user-select: none;
-    overflow: hidden;
-    -webkit-app-region: drag;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	overflow: hidden;
+	-webkit-app-region: drag;
 }
 p, span, div {
 	cursor: default;
@@ -46,16 +46,16 @@ p, span, div {
 	display: inline-block;
 	opacity: 0;
 	-webkit-transition: 500ms ease opacity;
-    -webkit-app-region: no-drag;
+	-webkit-app-region: no-drag;
 }
 @-webkit-keyframes busy-spinning {
   from {
-    -webkit-transform: rotate(0deg);
-    -webkit-transform-origin: 8px 8px;
+	-webkit-transform: rotate(0deg);
+	-webkit-transform-origin: 8px 8px;
   }
   to {
-    -webkit-transform: rotate(360deg);
-    -webkit-transform-origin: 8px 8px;
+	-webkit-transform: rotate(360deg);
+	-webkit-transform-origin: 8px 8px;
   }
 }
 
@@ -72,7 +72,7 @@ p, span, div {
 	top: 8px;
 	opacity: 0;
 	-webkit-transition: 200ms ease opacity;
-    -webkit-app-region: no-drag;
+	-webkit-app-region: no-drag;
 }
 .border .sync:hover, .border .settings:hover {
 	opacity: 1 !important;
@@ -80,7 +80,7 @@ p, span, div {
 .border .sync img, .border .settings img {
 	width: 32px;
 	height: 32px;
-    -webkit-user-drag: none;
+	-webkit-user-drag: none;
 	/* Retina Fix */
 	-webkit-transform: scale(0.5);
 	-webkit-transform-origin: 0 0;
@@ -96,7 +96,7 @@ p, span, div {
 	background: rgba(0,0,0,0.05);
 	cursor: default;
 	-webkit-transition: 200ms ease background;
-    -webkit-app-region: no-drag;
+	-webkit-app-region: no-drag;
 }
 .close:hover {
 	background: rgba(0,0,0,0.2);
@@ -115,7 +115,7 @@ p, span, div {
 	background: rgba(0,0,0,0.05);
 	cursor: default;
 	-webkit-transition: 200ms ease background;
-    -webkit-app-region: no-drag;
+	-webkit-app-region: no-drag;
 }
 .minimize:hover {
 	background: rgba(0,0,0,0.2);
@@ -143,17 +143,17 @@ p, span, div {
 }
 /* Sunny, Tornado, Moon, Mostly Cloudy*/
  #code.w0, #code.w2, #code.w31, #code.w32, #code.w34, #code.w33, #code.w36 {
-    left: 12px;
+	left: 12px;
 }
 #code.w0, #code.w2 {
-    top: 40px;
+	top: 40px;
 }
 #code.w31, #code.w33 {
-    font-size: 300px;
-    top: 30px;
+	font-size: 300px;
+	top: 30px;
 }
 #code.w28, #code.w30 {
-    top: 100px;
+	top: 100px;
 }
 #city {
 	text-align: center;
@@ -245,7 +245,7 @@ p, span, div {
 	top: 60px;
 	padding: 25px;
 	-webkit-transform-origin: 0 0;
-    -webkit-app-region: drag;
+	-webkit-app-region: drag;
 }
 .btn {
 	border: 2px solid #222;
@@ -258,7 +258,7 @@ p, span, div {
 	letter-spacing: 0;
 	margin-top: 10px;
 	display: inline-block;
-    -webkit-app-region: no-drag;
+	-webkit-app-region: no-drag;
 }
 #locationModal {
 	display: none;
@@ -268,18 +268,18 @@ p, span, div {
 	top: 60px;
 	padding: 25px;
 	-webkit-transform-origin: 0 0;
-    -webkit-app-region: drag;
+	-webkit-app-region: drag;
 }
 #locationModal .icon {
-    opacity: 0.8;
-    padding: 38px;
-    -webkit-app-region: no-drag;
+	opacity: 0.8;
+	padding: 38px;
+	-webkit-app-region: no-drag;
 }
 #locationModal .icon:hover {
-    opacity: 1 !important;
+	opacity: 1 !important;
 }
 #locationModal img {
-    -webkit-user-drag: none;
+	-webkit-user-drag: none;
 }
 #locationModal input[type=text] {
 	width: 216px;
@@ -289,7 +289,7 @@ p, span, div {
 	font-family: "Ubuntu Condensed";
 	font-size: 15px;
 	outline: 0;
-    -webkit-app-region: no-drag;
+	-webkit-app-region: no-drag;
 }
 #locationModal input[type=checkbox] {
 	border: 2px solid #222;
@@ -301,7 +301,7 @@ p, span, div {
 	background-size: 90%;
 	background-repeat: no-repeat;
 	background-position: 50%;
-    -webkit-app-region: no-drag;
+	-webkit-app-region: no-drag;
 }
 #locationModal .measurement {
 	font-family: "ClimaconsRegular";
@@ -309,7 +309,7 @@ p, span, div {
 }
 #locationModal .measurement span {
 	padding: 0 7px 5px 10px;
-    -webkit-app-region: no-drag;
+	-webkit-app-region: no-drag;
 }
 #locationModal .speed span {
 	line-height: 35px;
@@ -318,7 +318,7 @@ p, span, div {
 	box-sizing: border-box;
 	height: 41px;
 	text-align: center;
-    -webkit-app-region: no-drag;
+	-webkit-app-region: no-drag;
 }
 .toggleswitch {
 	margin-top: 10px;
@@ -365,26 +365,26 @@ p, span, div {
 #locationModal .loader.loading {
 	font-family: "ClimaconsRegular";
 	padding-right: 0;
-    -webkit-app-region: drag;
+	-webkit-app-region: drag;
 }
 #locationModal .loader.tick {
 	outline: 2px solid #333;
 	background: #222;
 	-webkit-transition: 150ms ease background;
 	cursor: pointer;
-    -webkit-app-region: no-drag;
+	-webkit-app-region: no-drag;
 }
 #locationModal .loader.tick:hover {
 	background: #333;
 }
 #locationModal a {
-    text-decoration: none;
-    color: #ffffff; 
-    -webkit-app-region: no-drag;
-    -webkit-user-drag: none;
+	text-decoration: none;
+	color: #ffffff; 
+	-webkit-app-region: no-drag;
+	-webkit-user-drag: none;
 }
 #locationModal a:not([class*="btn"]):hover {
-    text-decoration: underline; 
+	text-decoration: underline; 
 }
 
 .color {
@@ -392,7 +392,7 @@ p, span, div {
 	margin-top: 10px;
 	display: inline-block;
 	border: 2px solid #333;
-    -webkit-app-region: no-drag;
+	-webkit-app-region: no-drag;
 }
 .color span {
 	height: 14px;
@@ -421,7 +421,7 @@ span[data-color=gradient] {
 	letter-spacing: 0;
 	margin-top: 10px;
 	display: inline-block;
-    -webkit-app-region: no-drag;
+	-webkit-app-region: no-drag;
 }
 .btn:hover {
 	background: #555;

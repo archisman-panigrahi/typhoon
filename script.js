@@ -8,7 +8,7 @@ $(function() {
 		// Get the current window
 		win = gui.Window.get()
 		win.show()
-		//win.showDevTools()
+		win.showDevTools()
 		document.title = "Typhoon"
 
 		//Bind Handlers
@@ -71,10 +71,10 @@ function generateStats(data, callback) {
 	//Location
 	weather.city = $(data).filterNode('yweather:location').attr("city")
 	weather.country = $(data).filterNode('yweather:location').attr("country")
-    
+
 	//Link
 	weather.link = $(data).filterNode('item').children().filterNode("link").text()
-    
+
 	//Temperature
 	weather.temperature = $(data).filterNode('item').children().filterNode("yweather:condition").attr("temp")
 	weather.temperatureUnit = $(data).filterNode('yweather:units').attr("temperature")
@@ -282,9 +282,9 @@ function weather_code(a){var b={0:"(",1:"z",2:"(",3:"z",4:"z",5:"e",6:"e",7:"o",
 $(document).ready(function() {
 	//Filters Proprietary RSS Tags
 	jQuery.fn.filterNode = function(name){
-	   return this.filter(function(){
-	      return this.nodeName === name;
-	   });
+		return this.filter(function(){
+		return this.nodeName === name;
+		});
 	};
 
 	//APP START.
@@ -327,7 +327,7 @@ function init_settings() {
 
 	//on keyup, start the countdown
 	locationInput.keyup(function(){
-	    typingTimer = setTimeout(doneTyping, doneTypingInterval)
+		typingTimer = setTimeout(doneTyping, doneTypingInterval)
 	}).keydown(function(){
 	//on keydown, clear the countdown
 		clearTimeout(typingTimer)
