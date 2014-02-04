@@ -196,7 +196,7 @@ p, span, div {
 	display: inline-block;
 	width: 50%;
 	text-align: left;
-	letter-spacing: 0px;
+	letter-spacing: -1px;
 }
 .week {
 	height: 20%;

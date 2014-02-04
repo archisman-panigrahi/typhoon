@@ -8,7 +8,7 @@ $(function() {
 		// Get the current window
 		win = gui.Window.get()
 		win.show()
-		win.showDevTools()
+		//win.showDevTools()
 		document.title = "Typhoon"
 
 		//Bind Handlers
