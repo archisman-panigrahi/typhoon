@@ -48,6 +48,9 @@ function generateStats(data, callback) {
 	weather.city = $(data).filterNode('yweather:location').attr("city")
 	weather.country = $(data).filterNode('yweather:location').attr("country")
 
+	//Link
+	weather.link = $(data).filterNode('item').children().filterNode("link").text()
+
 	//Temperature
 	weather.temperature = $(data).filterNode('item').children().filterNode("yweather:condition").attr("temp")
 	weather.temperatureUnit = $(data).filterNode('yweather:units').attr("temperature")
@@ -87,7 +90,7 @@ function render(location) {
 
 	getWeatherData(location, function(rawdata) {
 		generateStats(rawdata, function(weather) {
-			$("#city").text(localStorage.typhoon_location || weather.city)
+			$('#city').html('<a href="' + weather.link + '">' + localStorage.typhoon_location + '</a>')
 			$("#code").text(weather_code(weather.code)).attr("class", "w" + weather.code)
 
 			//Sets initial temp as Fahrenheit
@@ -364,7 +367,7 @@ function init_settings() {
 		}
 	})
 
-	//Fuck CSS.
+	//Control CSS.
 	$("span[data-color]:not([data-color=gradient])").map(function() { $(this).css('background', '#' + $(this).attr("data-color")) })
 
 	/* Error Message Retry Button */
