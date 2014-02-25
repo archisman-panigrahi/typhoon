@@ -17,5 +17,9 @@ Depends: ${misc:Depends},
  gir1.2-unity-5.0,
  gir1.2-webkit-3.0,
  yelp
-Description: UNKNOWN
- UNKNOWN
+Description: Quickly check the weather with this beautiful application
+ Typhoon is a free and open source weather application. It is
+ continuation of discontinued Stormcloud 1.1 ,however with some changes.
+ It is and always will be free.
+ PPA: https://launchpad.net/~apandada1/+archive/typhoon/
+ Homepage: http://gettyphoon.tk/
