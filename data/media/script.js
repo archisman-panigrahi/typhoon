@@ -281,7 +281,7 @@ $(document).ready(function() {
 function init_settings() {
 
 	//Prevents Dragging on certain elements
-	$('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn').mouseover(function() {
+	$('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city a').mouseover(function() {
 		document.title = "disabledrag"
 	}).mouseout(function() {
 		document.title = "enabledrag"

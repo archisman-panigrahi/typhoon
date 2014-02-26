@@ -151,7 +151,6 @@ p, span, div {
     color: #fff;
     text-decoration: none;
     -webkit-user-drag: none;
-    -webkit-app-region: no-drag;
 }
 #city a:hover::after {
     position: absolute;
