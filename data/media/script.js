@@ -91,7 +91,7 @@ function render(location) {
 
 	getWeatherData(location, function(rawdata) {
 		generateStats(rawdata, function(weather) {
-			$('#city').html('<a href="' + weather.link + '">' + localStorage.typhoon_location + '</a>')
+			$('#city span').html('<a href="' + weather.link + '">' + localStorage.typhoon_location + '</a>')
 			$("#code").text(weather_code(weather.code)).attr("class", "w" + weather.code)
 
 			//Sets initial temp as Fahrenheit
@@ -281,7 +281,7 @@ $(document).ready(function() {
 function init_settings() {
 
 	//Prevents Dragging on certain elements
-	$('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city').mouseover(function() {
+	$('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span').mouseover(function() {
 		document.title = "disabledrag"
 	}).mouseout(function() {
 		document.title = "enabledrag"

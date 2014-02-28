@@ -147,12 +147,12 @@ p, span, div {
     width: 100%;
     display: inline-block;
 }
-#city a {
+#city span a {
     color: #fff;
     text-decoration: none;
     -webkit-user-drag: none;
 }
-#city a:hover::after {
+#city span a:hover::after {
     position: absolute;
     color: rgba(255, 255, 255, 0.5);
     content: "\00A0\221E";
