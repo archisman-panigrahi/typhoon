@@ -48,6 +48,9 @@ function generateStats(data, callback) {
 	weather.city = $(data).filterNode('yweather:location').attr("city")
 	weather.country = $(data).filterNode('yweather:location').attr("country")
 
+	//Link
+	weather.link = $(data).filterNode('item').children().filterNode("link").text()
+
 	//Temperature
 	weather.temperature = $(data).filterNode('item').children().filterNode("yweather:condition").attr("temp")
 	weather.temperatureUnit = $(data).filterNode('yweather:units').attr("temperature")
@@ -84,10 +87,11 @@ function generateStats(data, callback) {
 
 function render(location) {
 	$('.border .sync').addClass('busy');
+	$(".border .settings").show()
 
 	getWeatherData(location, function(rawdata) {
 		generateStats(rawdata, function(weather) {
-			$("#city").text(localStorage.typhoon_location || weather.city)
+			$('#city span').html('<a href="' + weather.link + '">' + localStorage.typhoon_location + '</a>')
 			$("#code").text(weather_code(weather.code)).attr("class", "w" + weather.code)
 
 			//Sets initial temp as Fahrenheit
@@ -277,7 +281,7 @@ $(document).ready(function() {
 function init_settings() {
 
 	//Prevents Dragging on certain elements
-	$('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn').mouseover(function() {
+	$('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span').mouseover(function() {
 		document.title = "disabledrag"
 	}).mouseout(function() {
 		document.title = "enabledrag"
@@ -343,12 +347,16 @@ function init_settings() {
 	$('#locationModal .toggleswitch span').click(function() {
 		$(this).parent().children().removeClass('selected')
 		localStorage.setItem("typhoon_" + $(this).parent().attr("class").replace("toggleswitch ", ""), $(this).addClass('selected').attr("data-type"))
+		$(".border .settings").hide()
 	})
 
 	//Color thing
 	$('.color span').click(function() {
 		localStorage.typhoon_color = $(this).attr("data-color")
 		background(null)
+		$('.color span[data-color=gradient]').click(function() {
+			$(".border .settings").hide()
+		})
 	})
 
 	if (localStorage.typhoon_launcher == "checked") {
@@ -364,7 +372,7 @@ function init_settings() {
 		}
 	})
 
-	//Fuck CSS.
+	//Control CSS.
 	$("span[data-color]:not([data-color=gradient])").map(function() { $(this).css('background', '#' + $(this).attr("data-color")) })
 
 	/* Error Message Retry Button */
@@ -379,13 +387,6 @@ function show_settings(amount) {
 		$("#locationModal .full").show()
 	} else if (amount == 'location') {
 		$("#locationModal .full").hide()
-	}
-
-	if ($('#locationModal').css('display') != 'none') {
-		//We do a render instead
-		$(".border .sync").click()
-		$("#locationModal").fadeOut(350)
-		return;
 	}
 
 	//Show the Modal

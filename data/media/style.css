@@ -145,6 +145,17 @@ p, span, div {
     height: 275px;
     top: 45px;
     width: 100%;
+    display: inline-block;
+}
+#city span a {
+    color: #fff;
+    text-decoration: none;
+    -webkit-user-drag: none;
+}
+#city span a:hover::after {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.5);
+    content: "\00A0\221E";
 }
 .details {
     font-size: 0;

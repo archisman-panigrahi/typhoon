@@ -141,8 +141,8 @@ DistUtilsExtra.auto.setup(
     license='GPL-3',
     author='Archisman Panigrahi',
     author_email='apandada1@gmail.com',
-    #description='UI for managing …',
-    #long_description='Here a longer description',
+    description='Quickly check the weather with this beautiful application',
+    long_description='Typhoon is a free and open source weather application. It is continuation of discontinued Stormcloud 1.1 ,however with some changes. It is and always will be free.                                                                                                                                                  PPA: https://launchpad.net/~apandada1/+archive/typhoon/                                                                                                              Homepage: http://gettyphoon.tk/',
     url='https://launchpad.net/typhoon',
     cmdclass={'install': InstallAndUpdateDataDirectory}
     )
