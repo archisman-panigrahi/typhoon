@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
-# Copyright (C) 2013 Archisman Panigrahi <apandada1@gmail.com>
+# Copyright (C) 2014 Archisman Panigrahi <apandada1@gmail.com>
 # Thanks to Adam Whitcroft <adamwhitcroft.com> for Climacons!
 # This program is free software: you can redistribute it and/or modify it 
 # under the terms of the GNU General Public License version 3, as published 
@@ -137,7 +137,7 @@ class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
 
 DistUtilsExtra.auto.setup(
     name='typhoon',
-    version='0.8.4',
+    version='0.8.6',
     license='GPL-3',
     author='Archisman Panigrahi',
     author_email='apandada1@gmail.com',
