@@ -135,7 +135,7 @@ p, span, div {
     font-size: 300px;
     top: 30px;
 }
-#code.w28 {
+#code.w28, #code.w30 {
     top: 100px;
 }
 #city {
