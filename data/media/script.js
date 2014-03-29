@@ -258,9 +258,9 @@ function weather_code(a){var b={0:"(",1:"z",2:"(",3:"z",4:"z",5:"e",6:"e",7:"o",
 $(document).ready(function() {
 	//Filters Proprietary RSS Tags
 	jQuery.fn.filterNode = function(name){
-	   return this.filter(function(){
-	      return this.nodeName === name;
-	   });
+		return this.filter(function(){
+			return this.nodeName === name;
+		});
 	};
 
 	//APP START.
@@ -281,7 +281,7 @@ $(document).ready(function() {
 function init_settings() {
 
 	//Prevents Dragging on certain elements
-	$('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span').mouseover(function() {
+	$('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img').mouseover(function() {
 		document.title = "disabledrag"
 	}).mouseout(function() {
 		document.title = "enabledrag"
@@ -358,6 +358,7 @@ function init_settings() {
 			$(".border .settings").hide()
 		})
 	})
+	
 
 	if (localStorage.typhoon_launcher == "checked") {
 		$('#locationModal .launcher input').attr("checked", "checked")
@@ -385,10 +386,19 @@ function show_settings(amount) {
 
 	if (amount == 'all') {
 		$("#locationModal .full").show()
+		$("#locationModal .credits").hide()
 	} else if (amount == 'location') {
 		$("#locationModal .full").hide()
+		$("#locationModal .credits").hide()
 	}
-
+	$('.btn[tag="credits"]').click(function() {
+		$("#locationModal .input, #locationModal .full, .settings, .sync").fadeOut(350)
+		$("#locationModal .credits").fadeIn(350)
+	})
+	$('#locationModal .credits img').click(function() {
+		$("#locationModal .credits").fadeOut(350)
+		$("#locationModal .input, #locationModal .full, .settings, .sync").fadeIn(350)
+	})
 	//Show the Modal
 	$("#locationModal").fadeToggle(350)
 	if (amount != "noweather") {
@@ -398,4 +408,17 @@ function show_settings(amount) {
 function showError() {
 	$('#actualWeather').fadeOut(350)
 	$('#errorMessage').fadeIn(350)
+}
+function updateTitle(val) {
+	document.title = "o" + val
+	localStorage.opacity = val
+}
+function opacity() {
+	//On first run, opacity would be 0.8
+	if (localStorage.getItem("opacity") === null) {
+		localStorage.opacity = 0.8
+	}
+	$('input[type=range]').val(localStorage.opacity)
+	document.title = "o" + localStorage.opacity
+	document.title = enable_drag
 }

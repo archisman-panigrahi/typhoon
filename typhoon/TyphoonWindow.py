@@ -83,8 +83,47 @@ class TyphoonWindow(Window):
                 self.drag = False
             elif title == "enabledrag":
                 self.drag = True
+            # Opacity
+            elif title == "o1":
+                self.set_opacity(1.0)
+            elif title == "o0.95":
+                self.set_opacity(0.95)
+            elif title == "o0.9":
+                self.set_opacity(0.9)
+            elif title == "o0.85":
+                self.set_opacity(0.85)
+            elif title == "o0.8":
+                self.set_opacity(0.8)
+            elif title == "o0.75":
+                self.set_opacity(0.75)
+            elif title == "o0.7":
+                self.set_opacity(0.7)
+            elif title == "o0.65":
+                self.set_opacity(0.65)
+            elif title == "o0.6":
+                self.set_opacity(0.6)
+            elif title == "o0.55":
+                self.set_opacity(0.55)
+            elif title == "o0.5":
+                self.set_opacity(0.5)
+            elif title == "o0.45":
+                self.set_opacity(0.45)
+            elif title == "o0.4":
+                self.set_opacity(0.4)
+            elif title == "o0.35":
+                self.set_opacity(0.35)
+            elif title == "o0.3":
+                self.set_opacity(0.3)
+            elif title == "o0.25":
+                self.set_opacity(0.25)
+            elif title == "o0.2":
+                self.set_opacity(0.2)
+            elif title == "o0.15":
+                self.set_opacity(0.15)
+            elif title == "o0.1":
+                self.set_opacity(0.1)
 
-            #Unity Counts
+            # Unity Counts
             elif title == "enable_launcher":
                 print "Enabling.."
                 try:

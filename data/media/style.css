@@ -16,6 +16,8 @@ body {
     margin: 0;
     padding: 0;
     font-family:"Ubuntu Condensed";
+    overflow-y:hidden;
+    overflow-x:hidden;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -151,6 +153,7 @@ p, span, div {
     color: #fff;
     text-decoration: none;
     -webkit-user-drag: none;
+    outline: none;
 }
 #city span a:hover::after {
     position: absolute;
@@ -232,7 +235,7 @@ p, span, div {
     margin-bottom: 10px;
     font-family:"Ubuntu Condensed";
     font-size: 15px;
-    outline: 0;
+    outline: none;
 }
 #locationModal input[type=checkbox] {
     border: 2px solid #222;
@@ -244,6 +247,7 @@ p, span, div {
     background-size: 90%;
     background-repeat: no-repeat;
     background-position: 50%;
+    outline: none;
 }
 #locationModal .measurement {
     font-family:"ClimaconsRegular";
@@ -322,6 +326,7 @@ p, span, div {
     text-decoration: none;
     color: #ffffff;
     -webkit-user-drag: none;
+    outline: none;
 }
 #locationModal a:not([class*="btn"]):hover {
     text-decoration: underline;
@@ -357,12 +362,58 @@ span[data-color=gradient] {
     letter-spacing: -1px;
     margin-top: 10px;
     display: inline-block;
+    cursor: pointer;
     -webkit-user-drag: none;
+    align: center;
 }
 .btn:hover {
     background: #555;
 }
-.contribute {
-    display: block;
-    margin-top: 10px;
+#locationModal p {
+    align-item: center;
+}
+input[type=range] {
+    -webkit-appearance: none;
+    width: 250px;
+    height: 5px;
+    margin: 0;
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.4);
+    -webkit-border-radius: 15px;
+    border-radius: 15px;
+    cursor: default;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    margin: 2px;
+    background: white;
+    -webkit-border-radius: 250px;
+    border-radius: 15px;
+    color: white;
+    position: relative;
+}
+.credits,  {
+  color: #333;
+  z-index: 10;
+  font-size: 15px;
+  padding: 20px;
+  font-family: 'Ubuntu Condensed';
+  background-color: #f7f7f7;
+ }
+.credits img {
+    cursor: pointer;
+    -webkit-user-drag: none;
+}
+.credits h1, .credits h3 {
+    margin-top: 0.3em;
+    margin-bottom: 0.2em;
+    color: #fff;
+    letter-spacing: 0;
+ }
+.credits p {
+    margin-top: 0;
 }
