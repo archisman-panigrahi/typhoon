@@ -364,13 +364,9 @@ span[data-color=gradient] {
     display: inline-block;
     cursor: pointer;
     -webkit-user-drag: none;
-    align: center;
 }
 .btn:hover {
     background: #555;
-}
-#locationModal p {
-    align-item: center;
 }
 input[type=range] {
     -webkit-appearance: none;
@@ -396,7 +392,7 @@ input[type="range"]::-webkit-slider-thumb {
     color: white;
     position: relative;
 }
-.credits,  {
+.credits  {
   color: #333;
   z-index: 10;
   font-size: 15px;
