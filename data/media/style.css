@@ -393,11 +393,9 @@ input[type="range"]::-webkit-slider-thumb {
     position: relative;
 }
 .credits  {
-  color: #333;
-  font-size: 15px;
-    text-decoration-color: #fff;
-  font-family: 'Ubuntu Condensed';
-  /*background-color: #f7f7f7;*/
+    color: #333;
+    font-size: 15px;
+    font-family: 'Ubuntu Condensed';
  }
 .credits img {
     cursor: pointer;
