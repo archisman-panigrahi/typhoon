@@ -220,7 +220,17 @@ p, span, div {
     top: 6px;
 }
 /* Modals */
- #locationModal, #errorMessage {
+ #locationModal {
+    display: none;
+    background: #444;
+    position: absolute;
+    width: 250px;
+    top: 60px;
+    padding: 25px;
+    padding-bottom: 5px;
+    -webkit-transform-origin: 0 0;
+}
+#errorMessage {
     display: none;
     background: #444;
     position: absolute;
