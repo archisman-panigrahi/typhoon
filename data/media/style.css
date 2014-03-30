@@ -375,6 +375,7 @@ span[data-color=gradient] {
     display: inline-block;
     cursor: pointer;
     -webkit-user-drag: none;
+    outline: none;
 }
 .btn:hover {
     background: #555;
