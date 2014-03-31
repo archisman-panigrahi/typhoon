@@ -411,14 +411,14 @@ function showError() {
 }
 function updateTitle(val) {
 	document.title = "o" + val
-	localStorage.opacity = val
+	localStorage.app_opacity = val
 }
 function opacity() {
 	//On first run, opacity would be 0.8
-	if (localStorage.getItem("opacity") === null) {
-		localStorage.opacity = 0.8
+	if (localStorage.getItem("app_opacity") === null) {
+		localStorage.app_opacity = 0.8
 	}
-	$('input[type=range]').val(localStorage.opacity)
-	document.title = "o" + localStorage.opacity
+	$('input[type=range]').val(localStorage.app_opacity)
+	document.title = "o" + localStorage.app_opacity
 	document.title = enable_drag
 }
