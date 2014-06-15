@@ -354,10 +354,10 @@ function init_settings() {
 	$('.color span').click(function() {
 		localStorage.typhoon_color = $(this).attr("data-color")
 		background(null)
-		$('.color span[data-color=gradient]').click(function() {
-			$(".border .settings").hide()
-		})
 	})
+    $('.color span[data-color=gradient]').click(function() {
+        $(".border .settings").hide()
+    })
 	
 
 	if (localStorage.typhoon_launcher == "checked") {
@@ -392,8 +392,8 @@ function show_settings(amount) {
 		$("#locationModal .credits").hide()
 	}
 	$('.btn[tag="credits"]').click(function() {
-		$("#locationModal .input, #locationModal .full, .settings, .sync").fadeOut(350)
-		$("#locationModal .credits").fadeIn(350)
+		$("#locationModal .input, #locationModal .full, .settings, .sync").hide()
+		$("#locationModal .credits").fadeIn(500)
 	})
 	$('#locationModal .credits img').click(function() {
 		$("#locationModal .credits").fadeOut(350)

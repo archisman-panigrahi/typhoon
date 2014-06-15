@@ -137,7 +137,7 @@ class InstallAndUpdateDataDirectory(DistUtilsExtra.auto.install_auto):
 
 DistUtilsExtra.auto.setup(
     name='typhoon',
-    version='0.8.9',
+    version='0.8.94',
     license='GPL-3',
     author='Archisman Panigrahi',
     author_email='apandada1@gmail.com',

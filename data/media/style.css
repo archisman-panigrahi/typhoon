@@ -361,7 +361,7 @@ span[data-color=gradient] {
     width: 22px;
     border-right: 2px solid #333;
 }
-/* Contribute Button */
+/* Credits Button */
  .btn {
     border: 2px solid #222;
     background: #333;
@@ -386,23 +386,25 @@ input[type=range] {
     height: 5px;
     margin: 0;
     display: inline-block;
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.3);
     -webkit-border-radius: 15px;
     border-radius: 15px;
     cursor: default;
     outline: none;
 }
-
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 20px;
+    width: 30px;
     height: 20px;
-    margin: 2px;
-    background: white;
-    -webkit-border-radius: 250px;
-    border-radius: 15px;
-    color: white;
+    background: -webkit-radial-gradient(#f9f9f9, #fff);
+    -webkit-border-radius: 15px;
     position: relative;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+    background: -webkit-radial-gradient(#ddd, #eee);
+}
+input[type="range"]::-webkit-slider-thumb:active {
+    background: -webkit-radial-gradient(#999, #ddd);
 }
 .credits  {
     color: #333;
