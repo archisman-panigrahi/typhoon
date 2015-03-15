@@ -2,7 +2,7 @@ body {
     padding: 2%;
     font-family: Lato, sans-serif;
     color: #fff;
-    background: url("../img/background.jpg") no-repeat center center fixed;
+    background: url("../img/background.jpg") no-repeat center center fixed, url("../img/background_compressed.jpg") no-repeat center center fixed;
     background-size: cover;
 }
 img {
