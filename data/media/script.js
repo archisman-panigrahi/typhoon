@@ -1,22 +1,77 @@
+// Save the API key to local storage
+function saveApiKey() {
+    const apiKey = $("#apiKeyInput").val();
+    if (apiKey) {
+        localStorage.setItem("typhoon_apiKey", apiKey);
+        alert("API Key saved successfully!");
+        $("#apiKeyContainer").hide(); // Hide the API key input and button after saving
+    } else {
+        alert("Please enter a valid API Key.");
+    }
+}
+
+// Retrieve the API key from local storage
+function getApiKey() {
+    const apiKey = localStorage.getItem("typhoon_apiKey");
+    if (!apiKey) {
+        alert("API Key not found. Please enter and save your API Key.");
+        $("#apiKeyContainer").show(); // Show the API key input and button if the key is missing
+    }
+    return apiKey;
+}
+
+// Show the API key input and button in case of errors
+function handleApiKeyError() {
+    alert("Invalid API Key or Network Error. Please enter a valid API Key.");
+    $("#apiKeyContainer").show(); // Show the API key input and button
+}
+
+// Attach event listener to the Save API Key button
+$(document).ready(function () {
+    $("#saveApiKeyButton").click(saveApiKey);
+
+    // Check if the API key exists in local storage
+    const savedApiKey = localStorage.getItem("typhoon_apiKey");
+    if (savedApiKey) {
+        $("#apiKeyContainer").hide(); // Hide the API key input and button if the key exists
+    } else {
+        $("#apiKeyContainer").show(); // Show the API key input and button if the key doesn't exist
+    }
+
+    // Pre-fill the API key input field if it exists in local storage
+    if (savedApiKey) {
+        $("#apiKeyInput").val(savedApiKey);
+    }
+});
+
 const apiKey = "585f5b44d354b4368bfd4ca7b24f1823"; // Replace with your actual API key
 
 function getWeatherData(cityName, callback) {
-    // Use OpenWeatherMap's Current Weather API to get weather data by city name
+    const apiKey = getApiKey();
+    if (!apiKey) return;
+
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityName)}&units=imperial&appid=${apiKey}`;
 
-    $.get(url, function(data) {
+    $.get(url, function (data) {
         console.log("API Response (Current Weather):", data); // Log the API response for debugging
         if (data) {
-            $('#errorMessage').fadeOut(350);
+            $('#errorMessage').fadeOut(350); // Hide the error message if the request succeeds
             callback(data);
         } else {
             console.error("Unexpected API response:", data);
             showError('Invalid data received from the weather API.');
         }
-    }).fail(function(jqXHR, textStatus, errorThrown) {
+    }).fail(function (jqXHR, textStatus, errorThrown) {
         console.error("API request failed:", textStatus, errorThrown);
         console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
-        showError('network');
+
+        // Handle API key or network errors
+        if (jqXHR.status === 401) {
+            handleApiKeyError(); // Invalid API key
+        } else {
+            // Show the retry button and error message
+            showError('network');
+        }
     });
 }
 
@@ -169,7 +224,7 @@ function renderWeeklyForecast(weeklyData) {
             tempMax = Math.round(tempMax);
         }
 
-        // Update the DOM with the converted temperatures
+        // Update the DOM with the converted temperatures and Climacons icon
         $(`#${index} .day`).text(day.day);
         $(`#${index} .code`).text(weather_code(day.icon)).attr("class", "w" + day.icon);
         $(`#${index} .temp`).text(`${tempMin}° / ${tempMax}° ${unit.toUpperCase()}`);
@@ -301,8 +356,32 @@ function background(temp) {
     }
 }
 
-// Converts Yahoo weather to icon font
-function weather_code(a){var b={0:"(",1:"z",2:"(",3:"z",4:"z",5:"e",6:"e",7:"o",8:"3",9:"3",10:"9",11:"9",12:"9",13:"o",14:"o",15:"o",16:"o",17:"e",18:"e",19:"s",20:"s",21:"s",22:"s",23:"l",24:"l",25:"`",26:"`",27:"2",28:"1",29:"2",30:"1",31:"/",32:"v",33:"/",34:"v",35:"e",36:"v",37:"z",38:"z",39:"z",40:"3",41:"o",42:"o",43:"o",44:"`",45:"z",46:"o",47:"z",3200:"`"};return b[a]}
+// Converts OpenWeatherMap weather codes to Climacons icons
+function weather_code(iconCode) {
+    const climaconMap = {
+        "01d": "v", // Clear sky (day)
+        "01n": "C", // Clear sky (night)
+        "02d": "1", // Few clouds (day)
+        "02n": "2", // Few clouds (night)
+        "03d": "`", // Scattered clouds
+        "03n": "`", // Scattered clouds
+        "04d": "a", // Broken clouds
+        "04n": "a", // Broken clouds
+        "09d": "r", // Shower rain
+        "09n": "r", // Shower rain
+        "10d": "q", // Rain (day)
+        "10n": "q", // Rain (night)
+        "11d": "z", // Thunderstorm
+        "11n": "z", // Thunderstorm
+        "13d": "w", // Snow
+        "13n": "w", // Snow
+        "50d": "m", // Mist
+        "50n": "m"  // Mist
+    };
+
+    // Return the corresponding Climacon icon or a default icon
+    return climaconMap[iconCode] || "a"; // Default to a cloud icon if no match is found
+}
 
 $(document).ready(function() {
     //Filters Proprietary RSS Tags
@@ -467,8 +546,26 @@ function showError(message) {
     const errorText = message === 'network' ? 
         'Could not connect to the internet. Please try again.' : 
         message || 'An unknown error occurred.';
-    $('#errorMessage').text(errorText).fadeIn(350);
+    
+    // Show the error message and retry button
+    $('#errorMessage').html(`
+        <div>
+            ${errorText}<br>
+            <button class="btn" id="retryButton">TRY AGAIN</button>
+        </div>
+    `).fadeIn(350);
+
+    // Show the API key input and button
+    $('#apiKeyContainer').show();
+
+    // Hide the actual weather display
     $('#actualWeather').fadeOut(350);
+
+    // Attach event listener to the retry button
+    $('#retryButton').click(function () {
+        $('#errorMessage').fadeOut(350); // Hide the error message
+        render(localStorage.typhoon); // Retry fetching the weather data
+    });
 }
 function updateTitle(val) {
     document.title = "o" + val
