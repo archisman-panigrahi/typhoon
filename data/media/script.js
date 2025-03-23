@@ -5,7 +5,7 @@ function getWeatherData(cityName, callback) {
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityName)}&units=imperial&appid=${apiKey}`;
 
     $.get(url, function(data) {
-        console.log("API Response:", data); // Log the API response for debugging
+        console.log("API Response (Current Weather):", data); // Log the API response for debugging
         if (data) {
             $('#errorMessage').fadeOut(350);
             callback(data);
@@ -18,6 +18,52 @@ function getWeatherData(cityName, callback) {
         console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
         showError('network');
     });
+}
+
+function getWeeklyForecast(cityName, callback) {
+    // Use OpenWeatherMap's 5-day/3-hour forecast API
+    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(cityName)}&units=imperial&appid=${apiKey}`;
+
+    $.get(url, function(data) {
+        console.log("API Response (5-Day Forecast):", data); // Log the API response for debugging
+        if (data && data.list) {
+            // Process the data to extract daily forecasts
+            const dailyForecasts = processForecastData(data.list);
+            callback(dailyForecasts);
+        } else {
+            console.error("Unexpected API response:", data);
+            showError('Invalid data received from the weather API.');
+        }
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        console.error("API request failed:", textStatus, errorThrown);
+        console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
+        showError('network');
+    });
+}
+
+function processForecastData(forecastList) {
+    // Group forecast data by day
+    const dailyData = {};
+
+    forecastList.forEach((entry) => {
+        const date = new Date(entry.dt * 1000);
+        const day = date.toLocaleDateString('en-US', { weekday: 'short' });
+
+        if (!dailyData[day]) {
+            dailyData[day] = {
+                day: day,
+                tempMin: entry.main.temp_min,
+                tempMax: entry.main.temp_max,
+                icon: entry.weather[0].icon,
+            };
+        } else {
+            dailyData[day].tempMin = Math.min(dailyData[day].tempMin, entry.main.temp_min);
+            dailyData[day].tempMax = Math.max(dailyData[day].tempMax, entry.main.temp_max);
+        }
+    });
+
+    // Convert the grouped data into an array and return the first 5 days
+    return Object.values(dailyData).slice(0, 5);
 }
 
 function generateStats(data, callback) {
@@ -46,6 +92,10 @@ function generateStats(data, callback) {
     // Current Weather
     weather.code = data.weather[0].icon;
 
+    // Coordinates for weekly forecast
+    weather.lat = data.coord.lat;
+    weather.lon = data.coord.lon;
+
     if (callback) {
         callback(weather);
     }
@@ -63,12 +113,13 @@ function render(cityName) {
             // Sets initial temp as Fahrenheit
             var temp = weather.temperature;
             if (localStorage.typhoon_measurement == "c") {
-                temp = Math.round((weather.temperature - 32) * 5 / 9);
+                temp = Math.round((weather.temperature - 32) * 5 / 9); // Convert to Celsius
                 $("#temperature").text(temp + " °C");
             } else if (localStorage.typhoon_measurement == "k") {
-                temp = Math.round((weather.temperature - 32) * 5 / 9) + 273;
+                temp = Math.round((weather.temperature - 32) * 5 / 9 + 273.15); // Convert to Kelvin
                 $("#temperature").text(temp + " K");
             } else {
+                temp = Math.round(temp); // Round to the nearest integer for Fahrenheit
                 $("#temperature").text(temp + " °F");
             }
             document.title = temp;
@@ -90,7 +141,54 @@ function render(cityName) {
             $('#actualWeather').fadeIn(500);
             $("#locationModal").fadeOut(500);
             setTimeout(function() { $('.border .sync').removeClass('busy'); }, 500);
+
+            // Fetch and render weekly forecast
+            getWeeklyForecast(cityName, function(weeklyData) {
+                renderWeeklyForecast(weeklyData);
+            });
         });
+    });
+}
+
+function renderWeeklyForecast(weeklyData) {
+    // Render the weekly forecast in the "week" div
+    weeklyData.forEach((day, index) => {
+        const unit = localStorage.typhoon_measurement || "f"; // Default to Fahrenheit
+        let tempMin = day.tempMin;
+        let tempMax = day.tempMax;
+
+        // Convert temperatures based on the selected unit
+        if (unit === "c") {
+            tempMin = Math.round((tempMin - 32) * 5 / 9); // Convert to Celsius
+            tempMax = Math.round((tempMax - 32) * 5 / 9);
+        } else if (unit === "k") {
+            tempMin = Math.round((tempMin - 32) * 5 / 9 + 273.15); // Convert to Kelvin
+            tempMax = Math.round((tempMax - 32) * 5 / 9 + 273.15);
+        } else {
+            tempMin = Math.round(tempMin); // Round to the nearest integer for Fahrenheit
+            tempMax = Math.round(tempMax);
+        }
+
+        // Update the DOM with the converted temperatures
+        $(`#${index} .day`).text(day.day);
+        $(`#${index} .code`).text(weather_code(day.icon)).attr("class", "w" + day.icon);
+        $(`#${index} .temp`).text(`${tempMin}° / ${tempMax}° ${unit.toUpperCase()}`);
+    });
+}
+
+function renderWeeklyForecastMock() {
+    const mockData = [
+        { day: "Mon", tempMin: 60, tempMax: 75, icon: "01d" },
+        { day: "Tue", tempMin: 62, tempMax: 78, icon: "02d" },
+        { day: "Wed", tempMin: 65, tempMax: 80, icon: "03d" },
+        { day: "Thu", tempMin: 63, tempMax: 77, icon: "04d" },
+        { day: "Fri", tempMin: 61, tempMax: 76, icon: "09d" },
+    ];
+
+    mockData.forEach((day, index) => {
+        $(`#${index} .day`).text(day.day);
+        $(`#${index} .code`).text(weather_code(day.icon)).attr("class", "w" + day.icon);
+        $(`#${index} .temp`).text(`${day.tempMin}° / ${day.tempMax}°`);
     });
 }
 
@@ -227,6 +325,14 @@ $(document).ready(function() {
             $(".border .sync").click()
         }, 600000)
     }
+
+    // Add event listener for the reset button
+    $('#resetButton').click(function () {
+        // if (confirm("Are you sure you want to reset all settings? This will clear all saved preferences.")) {
+            localStorage.clear(); // Clear all local storage
+            location.reload(); // Reload the page to apply default settings
+        // }
+    });
 });
 
 function init_settings() {
