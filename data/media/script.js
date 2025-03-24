@@ -231,22 +231,6 @@ function renderWeeklyForecast(weeklyData) {
     });
 }
 
-function renderWeeklyForecastMock() {
-    const mockData = [
-        { day: "Mon", tempMin: 60, tempMax: 75, icon: "01d" },
-        { day: "Tue", tempMin: 62, tempMax: 78, icon: "02d" },
-        { day: "Wed", tempMin: 65, tempMax: 80, icon: "03d" },
-        { day: "Thu", tempMin: 63, tempMax: 77, icon: "04d" },
-        { day: "Fri", tempMin: 61, tempMax: 76, icon: "09d" },
-    ];
-
-    mockData.forEach((day, index) => {
-        $(`#${index} .day`).text(day.day);
-        $(`#${index} .code`).text(weather_code(day.icon)).attr("class", "w" + day.icon);
-        $(`#${index} .temp`).text(`${day.tempMin}° / ${day.tempMax}°`);
-    });
-}
-
 function background(temp) {
     // Convert RGB array to CSS
     var convert = function(i) {
