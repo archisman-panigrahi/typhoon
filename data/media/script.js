@@ -344,27 +344,27 @@ function background(temp) {
 function weather_code(iconCode) {
     const climaconMap = {
         "01d": "v", // Clear sky (day)
-        "01n": "C", // Clear sky (night)
+        "01n": "/", // Clear sky (night)
         "02d": "1", // Few clouds (day)
         "02n": "2", // Few clouds (night)
         "03d": "`", // Scattered clouds
         "03n": "`", // Scattered clouds
-        "04d": "a", // Broken clouds
-        "04n": "a", // Broken clouds
-        "09d": "r", // Shower rain
-        "09n": "r", // Shower rain
-        "10d": "q", // Rain (day)
-        "10n": "q", // Rain (night)
+        "04d": "h", // Broken clouds
+        "04n": "j", // Broken clouds
+        "09d": "9", // Shower rain
+        "09n": "9", // Shower rain
+        "10d": "0", // Rain (day)
+        "10n": "-", // Rain (night)
         "11d": "z", // Thunderstorm
         "11n": "z", // Thunderstorm
-        "13d": "w", // Snow
-        "13n": "w", // Snow
-        "50d": "m", // Mist
-        "50n": "m"  // Mist
+        "13d": "6", // Snow
+        "13n": "6", // Snow
+        "50d": "g", // Mist
+        "50n": "g"  // Mist
     };
 
     // Return the corresponding Climacon icon or a default icon
-    return climaconMap[iconCode] || "a"; // Default to a cloud icon if no match is found
+    return climaconMap[iconCode] || "`"; // Default to a cloud icon if no match is found
 }
 
 $(document).ready(function() {
