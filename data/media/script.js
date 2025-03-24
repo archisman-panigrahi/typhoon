@@ -160,9 +160,14 @@ function render(cityName) {
     $('.border .sync').addClass('busy');
     $(".border .settings").show();
 
-    getWeatherData(cityName, function(rawdata) {
-        generateStats(rawdata, function(weather) {
-            $('#city span').html('<a href="' + weather.link + '">' + weather.city + '</a>');
+    getWeatherData(cityName, function (rawdata) {
+        generateStats(rawdata, function (weather) {
+            const cityId = rawdata.id; // Extract the city_id from the API response
+            const cityLink = `https://openweathermap.org/city/${cityId}`; // Generate the hyperlink
+
+            // Update the city div with a hyperlink
+            $('#city span').html(`<a href="${cityLink}" target="_blank">${weather.city}, ${weather.country}</a>`);
+
             $("#code").text(weather_code(weather.code)).attr("class", "w" + weather.code);
 
             // Sets initial temp as Fahrenheit
@@ -195,10 +200,10 @@ function render(cityName) {
             $('.border .sync, .border .settings').css("opacity", "0.8");
             $('#actualWeather').fadeIn(500);
             $("#locationModal").fadeOut(500);
-            setTimeout(function() { $('.border .sync').removeClass('busy'); }, 500);
+            setTimeout(function () { $('.border .sync').removeClass('busy'); }, 1000);
 
             // Fetch and render weekly forecast
-            getWeeklyForecast(cityName, function(weeklyData) {
+            getWeeklyForecast(cityName, function (weeklyData) {
                 renderWeeklyForecast(weeklyData);
             });
         });
@@ -386,7 +391,7 @@ $(document).ready(function() {
         setInterval(function() {
             console.log("Updating Data...")
             $(".border .sync").click()
-        }, 600000)
+        }, 12000000)
     }
 
     // Add event listener for the reset button
