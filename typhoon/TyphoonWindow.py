@@ -19,9 +19,14 @@ import locale
 from locale import gettext as _
 locale.textdomain('typhoon')
 
+import gi
+# gi.require_version('Gtk', '3.0')  # Explicitly require GTK 3
+# gi.require_version('WebKit2', '4.0')  # Explicitly require WebKit2
+
 import subprocess
-from gi.repository import Gtk, WebKit # pylint: disable=E0611
 import logging
+from gi.repository import Gtk, WebKit2  # Explicitly using GTK 3 and WebKit2
+
 logger = logging.getLogger('typhoon')
 
 from typhoon_lib import Window
@@ -30,13 +35,14 @@ from typhoon_lib.helpers import get_media_file
 try:
     from gi.repository import Unity
 except ImportError:
-    pass
+    Unity = None
+
 
 # See typhoon_lib.Window.py for more details about how this class works
 class TyphoonWindow(Window):
     __gtype_name__ = "TyphoonWindow"
     
-    def finish_initializing(self, builder): # pylint: disable=E1002
+    def finish_initializing(self, builder):  # pylint: disable=E1002
         """Set up the main window"""
         super(TyphoonWindow, self).finish_initializing(builder)
 
@@ -45,21 +51,22 @@ class TyphoonWindow(Window):
         self.drag = True
 
         # Code for other initialization actions should be added here.
-        self.webview = WebKit.WebView()
+        self.webview = WebKit2.WebView()  # Explicitly using WebKit2
         self.box.add(self.webview)
         self.webview.props.settings.enable_default_context_menu = False
         self.webviewsettings = self.webview.get_settings()
         self.webviewsettings.set_property("javascript-can-open-windows-automatically", True)
         self.webviewsettings.set_property("enable-universal-access-from-file-uris", True)
-        self.webviewsettings.set_property('enable-default-context-menu',False)
+        self.webviewsettings.set_property('enable-default-context-menu', False)
         self.webview.load_uri(get_media_file('app.html'))
         self.box.show_all()
 
-        try:
-            launcher = Unity.LauncherEntry.get_for_desktop_id("typhoon.desktop")
-            launcher.set_property("count_visible", False)
-        except NameError:
-            pass
+        if Unity:
+            try:
+                launcher = Unity.LauncherEntry.get_for_desktop_id("typhoon.desktop")
+                launcher.set_property("count_visible", False)
+            except NameError:
+                pass
 
         def navigation_requested_cb(view, frame, networkRequest):
             uri = networkRequest.get_uri()
@@ -67,11 +74,11 @@ class TyphoonWindow(Window):
             return 1
 
         def console_message_cb(widget, message, line, source):
-            logger.debug('%s:%s "%s"' % (source, line, message))
+            logger.debug(f'{source}:{line} "{message}"')  # Updated to f-string
             return True
 
         def title_changed(widget, frame, title):
-            print title
+            print(title)  # Updated to Python 3 print function
 
             if title == "close":
                 Gtk.main_quit()
@@ -84,69 +91,40 @@ class TyphoonWindow(Window):
             elif title == "enabledrag":
                 self.drag = True
             # Opacity
-            elif title == "o1":
-                self.set_opacity(1.0)
-            elif title == "o0.95":
-                self.set_opacity(0.95)
-            elif title == "o0.9":
-                self.set_opacity(0.9)
-            elif title == "o0.85":
-                self.set_opacity(0.85)
-            elif title == "o0.8":
-                self.set_opacity(0.8)
-            elif title == "o0.75":
-                self.set_opacity(0.75)
-            elif title == "o0.7":
-                self.set_opacity(0.7)
-            elif title == "o0.65":
-                self.set_opacity(0.65)
-            elif title == "o0.6":
-                self.set_opacity(0.6)
-            elif title == "o0.55":
-                self.set_opacity(0.55)
-            elif title == "o0.5":
-                self.set_opacity(0.5)
-            elif title == "o0.45":
-                self.set_opacity(0.45)
-            elif title == "o0.4":
-                self.set_opacity(0.4)
-            elif title == "o0.35":
-                self.set_opacity(0.35)
-            elif title == "o0.3":
-                self.set_opacity(0.3)
-            elif title == "o0.25":
-                self.set_opacity(0.25)
-            elif title == "o0.2":
-                self.set_opacity(0.2)
-            elif title == "o0.15":
-                self.set_opacity(0.15)
-            elif title == "o0.1":
-                self.set_opacity(0.1)
+            elif title.startswith("o"):
+                try:
+                    opacity = float(title[1:])
+                    self.set_opacity(opacity)
+                except ValueError:
+                    pass
 
             # Unity Counts
             elif title == "enable_launcher":
-                print "Enabling.."
-                try:
-                    launcher.set_property("count_visible", True)
-                except NameError:
-                    pass
+                print("Enabling..")
+                if Unity:
+                    try:
+                        launcher.set_property("count_visible", True)
+                    except NameError:
+                        pass
             elif title == "disable_launcher":
-                print "Disabling.."
-                try:
-                    launcher.set_property("count_visible", False)
-                except NameError:
-                    pass
+                print("Disabling..")
+                if Unity:
+                    try:
+                        launcher.set_property("count_visible", False)
+                    except NameError:
+                        pass
 
             else:
-                try:
-                    launcher.set_property("count", int(title))
-                except NameError:
-                    pass
+                if Unity:
+                    try:
+                        launcher.set_property("count", int(title))
+                    except (NameError, ValueError):
+                        pass
 
         def press_button(widget, event):
             if event.button == 1:
-                if self.drag == True:
-                    Gtk.Window.begin_move_drag(self.window,event.button,event.x_root,event.y_root,event.time)
+                if self.drag:
+                    Gtk.Window.begin_move_drag(self.window, event.button, event.x_root, event.y_root, event.time)
 
         self.webview.connect('title-changed', title_changed)
         self.webview.connect('navigation-requested', navigation_requested_cb)

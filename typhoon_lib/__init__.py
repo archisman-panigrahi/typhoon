@@ -20,7 +20,7 @@
 '''facade - makes typhoon_lib package easy to refactor
 
 while keeping its api constant'''
-from . helpers import set_up_logging
-from . Window import Window
-from . typhoonconfig import get_version
+from .helpers import set_up_logging
+from .Window import Window
+from .typhoonconfig import get_version
 

@@ -19,14 +19,14 @@
 
 '''Enhances builder connections, provides object to access glade objects'''
 
-from gi.repository import GObject, Gtk # pylint: disable=E0611
+from gi.repository import GObject, Gtk  # pylint: disable=E0611
 
 import inspect
 import functools
 import logging
-logger = logging.getLogger('typhoon_lib')
+from xml.etree.ElementTree import ElementTree  # Updated to ElementTree for Python 3 compatibility
 
-from xml.etree.cElementTree import ElementTree
+logger = logging.getLogger('typhoon_lib')
 
 # this module is big so uses some conventional prefixes and postfixes
 # *s list, except self.widgets is a dictionary
@@ -47,28 +47,22 @@ class Builder(Gtk.Builder):
     '''
 
     def __init__(self):
-        Gtk.Builder.__init__(self)
+        super().__init__()  # Use super() for cleaner initialization
         self.widgets = {}
         self.glade_handler_dict = {}
         self.connections = []
         self._reverse_widget_dict = {}
 
-# pylint: disable=R0201
-# this is a method so that a subclass of Builder can redefine it
-    def default_handler(self,
-        handler_name, filename, *args, **kwargs):
+    def default_handler(self, handler_name, filename, *args, **kwargs):
         '''helps the apprentice guru
 
-    glade defined handlers that do not exist come here instead.
-    An apprentice guru might wonder which signal does what he wants,
-    now he can define any likely candidates in glade and notice which
-    ones get triggered when he plays with the project.
-    this method does not appear in Gtk.Builder'''
-        logger.debug('''tried to call non-existent function:%s()
-        expected in %s
-        args:%s
-        kwargs:%s''', handler_name, filename, args, kwargs)
-# pylint: enable=R0201
+        glade defined handlers that do not exist come here instead.
+        An apprentice guru might wonder which signal does what he wants,
+        now he can define any likely candidates in glade and notice which
+        ones get triggered when he plays with the project.
+        this method does not appear in Gtk.Builder'''
+        logger.debug(f"tried to call non-existent function: {handler_name}() "
+                     f"expected in {filename} args: {args} kwargs: {kwargs}")
 
     def get_name(self, widget):
         ''' allows a handler to get the name (id) of a widget
@@ -78,13 +72,13 @@ class Builder(Gtk.Builder):
 
     def add_from_file(self, filename):
         '''parses xml file and stores wanted details'''
-        Gtk.Builder.add_from_file(self, filename)
+        super().add_from_file(filename)
 
         # extract data for the extra interfaces
         tree = ElementTree()
         tree.parse(filename)
 
-        ele_widgets = tree.getiterator("object")
+        ele_widgets = tree.iter("object")  # Updated to use `iter` for Python 3 compatibility
         for ele_widget in ele_widgets:
             name = ele_widget.attrib['id']
             widget = self.get_object(name)
@@ -100,16 +94,16 @@ class Builder(Gtk.Builder):
 
             connections = [
                 (name,
-                ele_signal.attrib['name'],
-                ele_signal.attrib['handler']) for ele_signal in ele_signals]
+                 ele_signal.attrib['name'],
+                 ele_signal.attrib['handler']) for ele_signal in ele_signals]
 
             if connections:
                 self.connections.extend(connections)
 
-        ele_signals = tree.getiterator("signal")
+        ele_signals = tree.iter("signal")
         for ele_signal in ele_signals:
             self.glade_handler_dict.update(
-            {ele_signal.attrib["handler"]: None})
+                {ele_signal.attrib["handler"]: None})
 
     def connect_signals(self, callback_obj):
         '''connect the handlers defined in glade
@@ -130,17 +124,15 @@ class Builder(Gtk.Builder):
                 connection_dict[item[0]] = handler
 
                 # replace the run time warning
-                logger.warn("expected handler '%s' in %s",
-                 item[0], filename)
+                logger.warning(f"expected handler '{item[0]}' in {filename}")
 
         # connect glade define handlers
-        Gtk.Builder.connect_signals(self, connection_dict)
+        super().connect_signals(connection_dict)
 
         # let's tell the user how we applied the glade design
         for connection in self.connections:
             widget_name, signal_name, handler_name = connection
-            logger.debug("connect builder by design '%s', '%s', '%s'",
-             widget_name, signal_name, handler_name)
+            logger.debug(f"connect builder by design '{widget_name}', '{signal_name}', '{handler_name}'")
 
     def get_ui(self, callback_obj=None, by_name=True):
         '''Creates the ui object with widgets as attributes
@@ -164,7 +156,7 @@ class Builder(Gtk.Builder):
 # pylint: disable=R0903
 # this class deliberately does not provide any public interfaces
 # apart from the glade widgets
-class UiFactory():
+class UiFactory:
     ''' provides an object with attributes as glade widgets'''
     def __init__(self, widget_dict):
         self._widget_dict = widget_dict
@@ -173,28 +165,15 @@ class UiFactory():
 
         # Mangle any non-usable names (like with spaces or dashes)
         # into pythonic ones
-        cannot_message = """cannot bind ui.%s, name already exists
-        consider using a pythonic name instead of design name '%s'"""
-        consider_message = """consider using a pythonic name instead of design name '%s'"""
-        
         for (widget_name, widget) in widget_dict.items():
             pyname = make_pyname(widget_name)
             if pyname != widget_name:
-                if hasattr(self, pyname):
-                    logger.debug(cannot_message, pyname, widget_name)
-                else:
-                    logger.debug(consider_message, widget_name)
+                if not hasattr(self, pyname):
                     setattr(self, pyname, widget)
-
-        def iterator():
-            '''Support 'for o in self' '''
-            return iter(widget_dict.values())
-        setattr(self, '__iter__', iterator)
 
     def __getitem__(self, name):
         'access as dictionary where name might be non-pythonic'
         return self._widget_dict[name]
-# pylint: enable=R0903
 
 
 def make_pyname(name):
@@ -209,33 +188,12 @@ def make_pyname(name):
     return pyname
 
 
-# Until bug https://bugzilla.gnome.org/show_bug.cgi?id=652127 is fixed, we 
-# need to reimplement inspect.getmembers.  GObject introspection doesn't
-# play nice with it.
-def getmembers(obj, check):
-    members = []
-    for k in dir(obj):
-        try:
-            attr = getattr(obj, k)
-        except:
-            continue
-        if check(attr):
-            members.append((k, attr))
-    members.sort()
-    return members
-
-
 def dict_from_callback_obj(callback_obj):
     '''a dictionary interface to callback_obj'''
-    methods = getmembers(callback_obj, inspect.ismethod)
+    methods = inspect.getmembers(callback_obj, inspect.ismethod)
 
     aliased_methods = [x[1] for x in methods if hasattr(x[1], 'aliases')]
 
-    # a method may have several aliases
-    #~ @alias('on_btn_foo_clicked')
-    #~ @alias('on_tool_foo_activate')
-    #~ on_menu_foo_activate():
-        #~ pass
     alias_groups = [(x.aliases, x) for x in aliased_methods]
 
     aliases = []

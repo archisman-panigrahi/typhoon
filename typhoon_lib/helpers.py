@@ -21,20 +21,20 @@
 import logging
 import os
 
-from . typhoonconfig import get_data_file
-from . Builder import Builder
+from .typhoonconfig import get_data_file
+from .Builder import Builder
 
 from locale import gettext as _
 
+
 def get_builder(builder_file_name):
-    """Return a fully-instantiated Gtk.Builder instance from specified ui 
-    file
+    """Return a fully-instantiated Gtk.Builder instance from specified UI file.
     
     :param builder_file_name: The name of the builder file, without extension.
         Assumed to be in the 'ui' directory under the data path.
     """
-    # Look for the ui file that describes the user interface.
-    ui_filename = get_data_file('ui', '%s.ui' % (builder_file_name,))
+    # Look for the UI file that describes the user interface.
+    ui_filename = get_data_file('ui', f'{builder_file_name}.ui')
     if not os.path.exists(ui_filename):
         ui_filename = None
 
@@ -44,20 +44,22 @@ def get_builder(builder_file_name):
     return builder
 
 
-# Owais Lone : To get quick access to icons and stuff.
+# Owais Lone: To get quick access to icons and other media files.
 def get_media_file(media_file_name):
-    media_filename = get_data_file('media', '%s' % (media_file_name,))
+    media_filename = get_data_file('media', f'{media_file_name}')
     if not os.path.exists(media_filename):
         media_filename = None
 
-    return "file:///"+media_filename
+    return f"file:///{media_filename}"
+
 
 class NullHandler(logging.Handler):
     def emit(self, record):
         pass
 
+
 def set_up_logging(opts):
-    # add a handler to prevent basicConfig
+    # Add a handler to prevent basicConfig
     root = logging.getLogger()
     null_handler = NullHandler()
     root.addHandler(null_handler)
@@ -77,34 +79,38 @@ def set_up_logging(opts):
     # Set the logging level to show debug messages.
     if opts.verbose:
         logger.setLevel(logging.DEBUG)
-        logger.debug('logging enabled')
+        logger.debug('Logging enabled')
     if opts.verbose > 1:
         lib_logger.setLevel(logging.DEBUG)
 
+
 def get_help_uri(page=None):
-    # help_uri from source tree - default language
+    """Retrieve the help URI for the application."""
+    # Help URI from source tree - default language
     here = os.path.dirname(__file__)
     help_uri = os.path.abspath(os.path.join(here, '..', 'help', 'C'))
 
     if not os.path.exists(help_uri):
-        # installed so use gnome help tree - user's language
+        # Installed, so use GNOME help tree - user's language
         help_uri = 'typhoon'
 
-    # unspecified page is the index.page
+    # Unspecified page is the index.page
     if page is not None:
-        help_uri = '%s#%s' % (help_uri, page)
+        help_uri = f'{help_uri}#{page}'
 
     return help_uri
 
+
 def show_uri(parent, link):
-    from gi.repository import Gtk # pylint: disable=E0611
+    """Open a URI in the default browser."""
+    from gi.repository import Gtk  # pylint: disable=E0611
     screen = parent.get_screen()
     Gtk.show_uri(screen, link, Gtk.get_current_event_time())
 
+
 def alias(alternative_function_name):
-    '''see http://www.drdobbs.com/web-development/184406073#l9'''
+    """Attach alternative_function_name(s) to a function."""
     def decorator(function):
-        '''attach alternative_function_name(s) to function'''
         if not hasattr(function, 'aliases'):
             function.aliases = []
         function.aliases.append(alternative_function_name)
