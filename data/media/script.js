@@ -3,7 +3,7 @@ function saveApiKey() {
     const apiKey = $("#apiKeyInput").val();
     if (apiKey) {
         localStorage.setItem("typhoon_apiKey", apiKey);
-        alert("API Key saved successfully!");
+        // alert("API Key saved successfully!");
         $("#apiKeyContainer").hide(); // Hide the API key input and button after saving
     } else {
         alert("Please enter a valid API Key.");
