@@ -69,7 +69,7 @@ function getWeatherData(cityName, callback) {
             handleApiKeyError(); // Invalid API key
         } else {
             // Show the retry button and error message
-            showError('network');
+            // showError('network');
         }
     });
 }
@@ -91,7 +91,7 @@ function getWeeklyForecast(cityName, callback) {
     }).fail(function(jqXHR, textStatus, errorThrown) {
         console.error("API request failed:", textStatus, errorThrown);
         console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
-        showError('network');
+        //showError('network');
     });
 }
 
