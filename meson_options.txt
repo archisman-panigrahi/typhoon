@@ -1,0 +1,1 @@
+option('data_dir', type: 'string', value: 'data/media', description: 'Directory to install data files')

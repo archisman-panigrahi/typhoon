@@ -19,7 +19,7 @@ except ImportError:
 
 class WebKitWindow(Gtk.Window):
     def __init__(self):
-        super().__init__(title="WebKit Window")
+        super().__init__(title="Typhoon")
         self.set_default_size(300, 500)
         
         self.set_decorated(False)  # Hide the title bar
@@ -35,7 +35,9 @@ class WebKitWindow(Gtk.Window):
         settings = self.webview.get_settings()
         settings.set_property("enable-developer-extras", True)
 
-        local_url = os.path.abspath("app.html")
+        # Use relative path to load app.html
+        script_dir = os.path.dirname(os.path.abspath(__file__))  # Get the directory of the current script
+        local_url = os.path.join(script_dir, "app.html")  # Construct the relative path to app.html
         self.webview.load_uri(f"file://{local_url}")
         
         scrolled_window = Gtk.ScrolledWindow()

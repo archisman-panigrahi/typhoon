@@ -1,9 +1,4 @@
 #!/usr/bin/make -f
+
 %:
-ifneq ($(shell dh -l | grep -xF translations),)
-	dh $@
-else
-	dh $@ --buildsystem=pybuild
-endif
-
-
+    dh $@ --buildsystem=meson
