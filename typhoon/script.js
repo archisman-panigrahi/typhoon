@@ -229,10 +229,18 @@ function renderWeeklyForecast(weeklyData) {
             tempMax = Math.round(tempMax);
         }
 
+        // Adjust font size for Kelvin
+        const tempElement = $(`#${index} .temp`);
+        if (unit === "k") {
+            tempElement.css("font-size", "0.85em"); // Smaller font size for Kelvin
+        } else {
+            tempElement.css("font-size", "1em"); // Default font size for other units
+        }
+
         // Update the DOM with the converted temperatures and Climacons icon
         $(`#${index} .day`).text(day.day);
         $(`#${index} .code`).text(weather_code(day.icon)).attr("class", "w" + day.icon);
-        $(`#${index} .temp`).text(`${tempMin}° / ${tempMax}° ${unit.toUpperCase()}`);
+        tempElement.text(`${tempMin}° / ${tempMax}° ${unit.toUpperCase()}`);
     });
 }
 
