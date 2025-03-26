@@ -10,7 +10,7 @@ try:
     gi.require_version('WebKit2', '4.0')  # Try WebKit2 4.0
 except ValueError:
     gi.require_version('WebKit2', '4.1')  # Fallback to WebKit2 4.1
-from gi.repository import Gtk, WebKit2
+from gi.repository import Gtk, WebKit2, GdkPixbuf
 
 try:
     from gi.repository import Unity
@@ -30,6 +30,11 @@ class WebKitWindow(Gtk.Window):
         self.webview.connect("decide-policy", self.on_decide_policy)
         self.webview.connect("notify::title", self.on_title_changed)  # Connect to title change signal
         self.webview.connect('button-press-event', self.press_button)  # Connect to button-press-event
+        
+        icon_theme = Gtk.IconTheme.get_default()
+        icon = icon_theme.load_icon("typhoon", 48, 0)  # 48 is the icon size
+        if icon:
+            self.set_icon(icon)
 
         # Enable developer tools
         settings = self.webview.get_settings()
