@@ -40,6 +40,13 @@ class WebKitWindow(Gtk.Window):
         
         self.add(scrolled_window)
         self.connect("destroy", Gtk.main_quit)
+
+        if Unity:
+            try:
+                launcher = Unity.LauncherEntry.get_for_desktop_id("typhoon.desktop")
+                launcher.set_property("count_visible", False)
+            except NameError:
+                pass
     
     def on_decide_policy(self, webview, decision, decision_type):
         if decision_type == WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
