@@ -6,4 +6,4 @@ Icon=typhoon
 Terminal=false
 Type=Application
 Categories=Utility;
-StartupWMClass=Typhoon
+StartupWMClass=Typhoon_window.py
