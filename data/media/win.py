@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import sys
 import os
 import gi
@@ -7,14 +9,25 @@ gi.require_version("Gtk", "3.0")
 gi.require_version("WebKit2", "4.1")
 from gi.repository import Gtk, WebKit2
 
+try:
+    from gi.repository import Unity
+except ImportError:
+    Unity = None
+
 class WebKitWindow(Gtk.Window):
     def __init__(self):
         super().__init__(title="WebKit Window")
         self.set_default_size(300, 500)
         
+        self.set_decorated(False)  # Hide the title bar
+        
+        self.drag = True  # Initialize drag state
+
         self.webview = WebKit2.WebView()
         self.webview.connect("decide-policy", self.on_decide_policy)
         self.webview.connect("notify::title", self.on_title_changed)  # Connect to title change signal
+        self.webview.connect('button-press-event', self.press_button)  # Connect to button-press-event
+        
         local_url = os.path.abspath("app.html")
         self.webview.load_uri(f"file://{local_url}")
         
@@ -41,7 +54,53 @@ class WebKitWindow(Gtk.Window):
 
     def on_title_changed(self, webview, param):
         # Print the title of the HTML file
-        print(f"{webview.get_title()}")
+        title = webview.get_title()
+        print(f"{title}")
+
+        if title == "close":
+            Gtk.main_quit()
+        elif title == "minimize":
+            self.iconify()
+
+        # Disables Dragging
+        elif title == "disabledrag":
+            self.drag = False
+        elif title == "enabledrag":
+            self.drag = True
+        # Opacity
+        elif title.startswith("o"):
+            try:
+                opacity = float(title[1:])
+                self.set_opacity(opacity)
+            except ValueError:
+                pass
+
+        # Unity Counts
+        elif title == "enable_launcher":
+            print("Enabling..")
+            if Unity:
+                try:
+                    launcher.set_property("count_visible", True)
+                except NameError:
+                    pass
+        elif title == "disable_launcher":
+            print("Disabling..")
+            if Unity:
+                try:
+                    launcher.set_property("count_visible", False)
+                except NameError:
+                    pass
+
+        else:
+            if Unity:
+                try:
+                    launcher.set_property("count", int(title))
+                except (NameError, ValueError):
+                    pass
+
+    def press_button(self, widget, event):
+        if event.button == 1 and self.drag:  # Left mouse button and drag enabled
+            self.begin_move_drag(event.button, event.x_root, event.y_root, event.time)
 
 if __name__ == "__main__":
     win = WebKitWindow()
