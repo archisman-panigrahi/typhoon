@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Typhoon
-Comment=A lightweight GTK WebKit-based application
-Exec=python3 /usr/share/typhoon/typhoon/typhon_window.py
+Comment=A weather app based on Stormcloud
+Exec=typhoon
 Icon=typhoon
 Terminal=false
 Type=Application
