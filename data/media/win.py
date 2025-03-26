@@ -27,7 +27,11 @@ class WebKitWindow(Gtk.Window):
         self.webview.connect("decide-policy", self.on_decide_policy)
         self.webview.connect("notify::title", self.on_title_changed)  # Connect to title change signal
         self.webview.connect('button-press-event', self.press_button)  # Connect to button-press-event
-        
+
+        # Enable developer tools
+        settings = self.webview.get_settings()
+        settings.set_property("enable-developer-extras", True)
+
         local_url = os.path.abspath("app.html")
         self.webview.load_uri(f"file://{local_url}")
         
