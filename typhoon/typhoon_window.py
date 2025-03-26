@@ -7,9 +7,9 @@ import subprocess  # Import subprocess for xdg-open
 
 gi.require_version("Gtk", "3.0")
 try:
-    gi.require_version('WebKit2', '4.0')  # Try WebKit2 4.0
+    gi.require_version('WebKit2', '4.1')  # Try WebKit2 4.1
 except ValueError:
-    gi.require_version('WebKit2', '4.1')  # Fallback to WebKit2 4.1
+    gi.require_version('WebKit2', '4.0')  # Fallback to WebKit2 4.0
 from gi.repository import Gtk, WebKit2, GdkPixbuf
 
 try:
@@ -120,6 +120,10 @@ class WebKitWindow(Gtk.Window):
                     pass
 
     def press_button(self, widget, event):
+        if event.button == 3:  # Right mouse button
+            return True  # Prevent the default right-click behavior
+        if event.button == 2 and self.drag:  # Middle mouse button and drag enabled
+            self.begin_move_drag(event.button, event.x_root, event.y_root, event.time)
         if event.button == 1 and self.drag:  # Left mouse button and drag enabled
             self.begin_move_drag(event.button, event.x_root, event.y_root, event.time)
 
