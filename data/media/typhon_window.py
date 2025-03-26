@@ -6,7 +6,10 @@ import gi
 import subprocess  # Import subprocess for xdg-open
 
 gi.require_version("Gtk", "3.0")
-gi.require_version("WebKit2", "4.1")
+try:
+    gi.require_version('WebKit2', '4.0')  # Try WebKit2 4.0
+except ValueError:
+    gi.require_version('WebKit2', '4.1')  # Fallback to WebKit2 4.1
 from gi.repository import Gtk, WebKit2
 
 try:
