@@ -2,7 +2,7 @@ Source: typhoon
 Section: python
 Priority: extra
 Build-Depends: debhelper-compat (=10), meson, python3, dh-make
-Maintainer: Archisman Panigrahi <apandada1ATgmail.com>
+Maintainer: Archisman Panigrahi <apandada1@gmail.com>
 Standards-Version: 4.5.0
 
 Package: typhoon
