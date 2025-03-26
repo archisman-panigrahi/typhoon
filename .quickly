@@ -1,5 +1,0 @@
-project = typhoon
-version = 12.08.1
-template = ubuntu-application
-ppa = typhoon
-lp_id = typhoon
