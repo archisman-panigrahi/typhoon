@@ -44,7 +44,6 @@ $(document).ready(function () {
     }
 });
 
-const apiKey = "585f5b44d354b4368bfd4ca7b24f1823"; // Replace with your actual API key
 
 function getWeatherData(cityName, callback) {
     const apiKey = getApiKey();
@@ -166,7 +165,7 @@ function render(cityName) {
             const cityLink = `https://openweathermap.org/city/${cityId}`; // Generate the hyperlink
 
             // Update the city div with a hyperlink
-            $('#city span').html(`<a href="${cityLink}" target="_blank">${weather.city}, ${weather.country}</a>`);
+            $('#city span').html(`<a href="${cityLink}">${weather.city}, ${weather.country}</a>`);
 
             $("#code").text(weather_code(weather.code)).attr("class", "w" + weather.code);
 
