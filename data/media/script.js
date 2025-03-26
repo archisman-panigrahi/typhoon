@@ -75,6 +75,7 @@ function getWeatherData(cityName, callback) {
 }
 
 function getWeeklyForecast(cityName, callback) {
+    const apiKey = getApiKey();
     // Use OpenWeatherMap's 5-day/3-hour forecast API
     const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(cityName)}&units=imperial&appid=${apiKey}`;
 
