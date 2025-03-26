@@ -4,4 +4,4 @@
 # export DH_VERBOSE=1
 
 %:
-    dh $@ --buildsystem=meson
+	dh $@ --buildsystem=meson
