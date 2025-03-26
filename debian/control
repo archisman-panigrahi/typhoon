@@ -1,7 +1,7 @@
 Source: typhoon
 Section: python
 Priority: extra
-Build-Depends: meson, python3, python3-setuptools
+Build-Depends: debhelper-compat (=10), meson, python3, python3-setuptools
 Maintainer: Archisman Panigrahi <apandada1ATgmail.com>
 Standards-Version: 4.5.0
 
