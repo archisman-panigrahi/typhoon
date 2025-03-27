@@ -116,6 +116,19 @@ function render(cityName) {
 
         // Sets initial temp as Fahrenheit
         let temp = currentWeather.temperature;
+
+        if (temp < 32) {
+            $("#thermometer").text("_");
+        } else if (temp < 55) {
+            $("#thermometer").text("+");
+        } else if (temp < 85) {
+            $("#thermometer").text("Q");
+        } else if (temp < 100) {
+            $("#thermometer").text("W");
+        } else {
+            $("#thermometer").text("E");
+        }
+
         if (localStorage.typhoon_measurement == "c") {
             temp = Math.round((temp - 32) * 5 / 9); // Convert to Celsius
             $("#temperature").text(temp + " °C");
@@ -134,7 +147,7 @@ function render(cityName) {
             windSpeed = (localStorage.typhoon_speed == "kph") ? Math.round(windSpeed * 1.609344) : Math.round(windSpeed * 4.4704) / 10;
         }
         $("#windSpeed").text(windSpeed);
-        $("#windUnit").text((localStorage.typhoon_speed == "ms") ? "m/s" : localStorage.typhoon_speed);
+        $("#windUnit").text((localStorage.typhoon_speed == "ms") ? "m/s" : (localStorage.typhoon_speed == "kph") ? "km/h" : localStorage.typhoon_speed);
         $("#humidity").text(currentWeather.relative_humidity_2m + " %");
 
         // Background Color

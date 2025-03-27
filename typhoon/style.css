@@ -272,11 +272,12 @@ p, span, div {
 }
 #locationModal .speed span {
     line-height: 35px;
-    padding: 0 7px;
+    padding: 0 2px;
     width: 42px;
     box-sizing: border-box;
     height: 41px;
     text-align: center;
+    font-size: 16px;
 }
 .toggleswitch {
     margin-top: 10px;
