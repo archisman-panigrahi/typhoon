@@ -1,7 +1,7 @@
 Source: typhoon
 Section: python
 Priority: extra
-Build-Depends: debhelper-compat (=10), meson, python3, dh-make
+Build-Depends: debhelper-compat (=10), meson, python3-distutils, python3-setuptools, dh-make
 Maintainer: Archisman Panigrahi <apandada1@gmail.com>
 Standards-Version: 4.5.0
 
