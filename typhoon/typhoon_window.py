@@ -49,11 +49,11 @@ class TyphoonWindow(Gtk.Window):
         self.webview.connect("button-press-event", self._handle_mouse_press)
 
         # Enable developer tools in the WebView
-        settings = self.webview.get_settings()
-        settings.set_property("enable-developer-extras", True)
+        # settings = self.webview.get_settings()
+        # settings.set_property("enable-developer-extras", True)
 
         # Load the local HTML file
-        html_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app.html")
+        html_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "typhoon.html")
         self.webview.load_uri(f"file://{html_path}")
 
     def _setup_scrolled_window(self):

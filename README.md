@@ -1,6 +1,9 @@
+<img src="typhoon/typhoon.svg" align="left" width="64" height="64"> 
+<br>
+
 # Typhoon
 
-> Simple weather application, powered by [OpenWeather](https://openweathermap.org/)
+> Simple weather application, powered by [Open-Meteo](https://open-meteo.com/)
 
 Based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by [Jono Cooper](https://twitter.com/consindo).
 

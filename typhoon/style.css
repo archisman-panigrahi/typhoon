@@ -129,13 +129,16 @@ p, span, div {
     left: 12px;
 }
 #code.w0, #code.w2 {
-    top: 40px;
+    top: 80px;
 }
 #code.w31, #code.w33 {
     font-size: 300px;
     top: 30px;
 }
 #code.w28, #code.w30 {
+    top: 100px;
+}
+#code.w1 {
     top: 100px;
 }
 #city {

@@ -1,211 +1,154 @@
-// Save the API key to local storage
-function saveApiKey() {
-    const apiKey = $("#apiKeyInput").val();
-    if (apiKey) {
-        localStorage.setItem("typhoon_apiKey", apiKey);
-        // alert("API Key saved successfully!");
-        $("#apiKeyContainer").hide(); // Hide the API key input and button after saving
-    } else {
-        alert("Please enter a valid API Key.");
-    }
-}
-
-// Retrieve the API key from local storage
-function getApiKey() {
-    const apiKey = localStorage.getItem("typhoon_apiKey");
-    if (!apiKey) {
-        alert("API Key not found. Please enter and save your API Key.");
-        $("#apiKeyContainer").show(); // Show the API key input and button if the key is missing
-    }
-    return apiKey;
-}
-
-// Show the API key input and button in case of errors
-function handleApiKeyError() {
-    alert("Invalid API Key or Network Error. Please enter a valid API Key.");
-    $("#apiKeyContainer").show(); // Show the API key input and button
-}
-
-// Attach event listener to the Save API Key button
-$(document).ready(function () {
-    $("#saveApiKeyButton").click(saveApiKey);
-
-    // Check if the API key exists in local storage
-    const savedApiKey = localStorage.getItem("typhoon_apiKey");
-    if (savedApiKey) {
-        $("#apiKeyContainer").hide(); // Hide the API key input and button if the key exists
-    } else {
-        $("#apiKeyContainer").show(); // Show the API key input and button if the key doesn't exist
-    }
-
-    // Pre-fill the API key input field if it exists in local storage
-    if (savedApiKey) {
-        $("#apiKeyInput").val(savedApiKey);
-    }
-});
-
-
+// Fetch current weather data from Open-Meteo
 function getWeatherData(cityName, callback) {
-    const apiKey = getApiKey();
-    if (!apiKey) return;
+    const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}`;
 
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityName)}&units=imperial&appid=${apiKey}`;
+    // First, get the latitude and longitude of the city
+    $.get(geocodingUrl, function (geoData) {
+        if (geoData && geoData.results && geoData.results.length > 0) {
+            const { latitude, longitude } = geoData.results[0];
 
-    $.get(url, function (data) {
-        console.log("API Response (Current Weather):", data); // Log the API response for debugging
-        if (data) {
-            $('#errorMessage').fadeOut(350); // Hide the error message if the request succeeds
-            callback(data);
+            // Fetch weather data using the latitude and longitude
+            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m`;
+
+            $.get(weatherUrl, function (weatherData) {
+                console.log("API Response (Current Weather):", weatherData); // Log the API response for debugging
+                if (weatherData && weatherData.current_weather && weatherData.hourly) {
+                    const currentWeather = weatherData.current_weather;
+                    const hourlyHumidity = weatherData.hourly.relative_humidity_2m[0]; // Get the first hourly value
+                    currentWeather.relative_humidity_2m = hourlyHumidity; // Add it to the current weather object
+
+                    // Print is_day and weathercode values to the console
+                    console.log("is_day:", currentWeather.is_day);
+                    console.log("weathercode:", currentWeather.weathercode);
+
+                    $('#errorMessage').fadeOut(350); // Hide the error message if the request succeeds
+                    callback(currentWeather, geoData.results[0]); // Pass weather and location data
+                } else {
+                    console.error("Unexpected API response:", weatherData);
+                    //showError('Invalid data received from the weather API.');
+                    $("#locationModal .loader").attr("class", "loader").html("&#10005;");
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.error("API request failed:", textStatus, errorThrown);
+                console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
+                showError('Network error. Please try again.');
+            });
         } else {
-            console.error("Unexpected API response:", data);
-            showError('Invalid data received from the weather API.');
+            console.error("Geocoding failed:", geoData);
+            $("#locationModal .loader").attr("class", "loader").html("&#10005;");
+            // showError('City not found. Please enter a valid city name.');
         }
     }).fail(function (jqXHR, textStatus, errorThrown) {
-        console.error("API request failed:", textStatus, errorThrown);
+        console.error("Geocoding request failed:", textStatus, errorThrown);
         console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
-
-        // Handle API key or network errors
-        if (jqXHR.status === 401) {
-            handleApiKeyError(); // Invalid API key
-        } else {
-            // Show the retry button and error message
-            // showError('network');
-        }
+        showError('Network error. Please try again.');
     });
 }
 
+// Fetch weekly forecast data from Open-Meteo
 function getWeeklyForecast(cityName, callback) {
-    const apiKey = getApiKey();
-    // Use OpenWeatherMap's 5-day/3-hour forecast API
-    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(cityName)}&units=imperial&appid=${apiKey}`;
+    const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}`;
 
-    $.get(url, function(data) {
-        console.log("API Response (5-Day Forecast):", data); // Log the API response for debugging
-        if (data && data.list) {
-            // Process the data to extract daily forecasts
-            const dailyForecasts = processForecastData(data.list);
-            callback(dailyForecasts);
+    // First, get the latitude and longitude of the city
+    $.get(geocodingUrl, function (geoData) {
+        if (geoData && geoData.results && geoData.results.length > 0) {
+            const { latitude, longitude } = geoData.results[0];
+
+            // Fetch forecast data using the latitude and longitude
+            const forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_min,temperature_2m_max,weathercode&temperature_unit=fahrenheit&timezone=auto`;
+
+            $.get(forecastUrl, function (forecastData) {
+                console.log("API Response (Weekly Forecast):", forecastData); // Log the API response for debugging
+                if (forecastData && forecastData.daily) {
+                    const dailyForecasts = processForecastData(forecastData.daily);
+                    callback(dailyForecasts);
+                } else {
+                    console.error("Unexpected API response:", forecastData);
+                    showError('Invalid data received from the weather API.');
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.error("API request failed:", textStatus, errorThrown);
+                console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
+                showError('Network error. Please try again.');
+            });
         } else {
-            console.error("Unexpected API response:", data);
-            showError('Invalid data received from the weather API.');
+            console.error("Geocoding failed:", geoData);
+            showError('City not found. Please enter a valid city name.');
         }
-    }).fail(function(jqXHR, textStatus, errorThrown) {
-        console.error("API request failed:", textStatus, errorThrown);
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        console.error("Geocoding request failed:", textStatus, errorThrown);
         console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
-        //showError('network');
+        showError('Network error. Please try again.');
     });
 }
 
-function processForecastData(forecastList) {
-    // Group forecast data by day
-    const dailyData = {};
+// Process forecast data from Open-Meteo
+function processForecastData(dailyData) {
+    const { time, temperature_2m_min, temperature_2m_max, weathercode } = dailyData;
 
-    forecastList.forEach((entry) => {
-        const date = new Date(entry.dt * 1000);
-        const day = date.toLocaleDateString('en-US', { weekday: 'short' });
-
-        if (!dailyData[day]) {
-            dailyData[day] = {
-                day: day,
-                tempMin: entry.main.temp_min,
-                tempMax: entry.main.temp_max,
-                icon: entry.weather[0].icon,
-            };
-        } else {
-            dailyData[day].tempMin = Math.min(dailyData[day].tempMin, entry.main.temp_min);
-            dailyData[day].tempMax = Math.max(dailyData[day].tempMax, entry.main.temp_max);
-        }
-    });
-
-    // Convert the grouped data into an array and return the first 5 days
-    return Object.values(dailyData).slice(0, 5);
+    return time.map((date, index) => ({
+        day: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
+        tempMin: temperature_2m_min[index],
+        tempMax: temperature_2m_max[index],
+        icon: weathercode[index], // Use weather code for icons
+    }));
 }
 
-function generateStats(data, callback) {
-    // Weather Object
-    const weather = {};
-
-    // Location
-    weather.city = data.name || "Unknown";
-    weather.country = data.sys.country || "Unknown";
-
-    // Link (OpenWeatherMap doesn't provide a direct link, so we use a placeholder)
-    weather.link = "https://openweathermap.org/";
-
-    // Temperature
-    weather.temperature = data.main.temp;
-    weather.temperatureUnit = "F";
-
-    // Wind
-    weather.windUnit = "mph";
-    weather.windSpeed = data.wind.speed;
-    weather.windDirection = data.wind.deg;
-
-    // Humidity
-    weather.humidity = data.main.humidity;
-
-    // Current Weather
-    weather.code = data.weather[0].icon;
-
-    // Coordinates for weekly forecast
-    weather.lat = data.coord.lat;
-    weather.lon = data.coord.lon;
-
-    if (callback) {
-        callback(weather);
-    }
-}
-
+// Update the render function to use Open-Meteo data
 function render(cityName) {
     $('.border .sync').addClass('busy');
     $(".border .settings").show();
 
-    getWeatherData(cityName, function (rawdata) {
-        generateStats(rawdata, function (weather) {
-            const cityId = rawdata.id; // Extract the city_id from the API response
-            const cityLink = `https://openweathermap.org/city/${cityId}`; // Generate the hyperlink
+    getWeatherData(cityName, function (currentWeather, locationData) {
+        if (!currentWeather || !locationData) {
+            console.error("Failed to fetch weather data.");
+            showError('Failed to fetch weather data. Please try again.');
+            return;
+        }
+        // const cityLink = `https://open-meteo.com/en/docs`; // Open-Meteo documentation link
 
-            // Update the city div with a hyperlink
-            $('#city span').html(`<a href="${cityLink}">${weather.city}, ${weather.country}</a>`);
+        // Update the city div with a hyperlink
+        const mapUrl = `https://www.openstreetmap.org/?mlat=${locationData.latitude}&mlon=${locationData.longitude}#map=10/${locationData.latitude}/${locationData.longitude}`;
 
-            $("#code").text(weather_code(weather.code)).attr("class", "w" + weather.code);
+        $('#city span').html(`<a href="${mapUrl}">${locationData.name}, ${locationData.country}</a>`);
+        // $('#city span').html(`${locationData.name}, ${locationData.country}`);
+        $("#code").text(weather_code(currentWeather.weathercode, currentWeather.is_day)).attr("class", "w" + currentWeather.weathercode);
 
-            // Sets initial temp as Fahrenheit
-            var temp = weather.temperature;
-            if (localStorage.typhoon_measurement == "c") {
-                temp = Math.round((weather.temperature - 32) * 5 / 9); // Convert to Celsius
-                $("#temperature").text(temp + " °C");
-            } else if (localStorage.typhoon_measurement == "k") {
-                temp = Math.round((weather.temperature - 32) * 5 / 9 + 273.15); // Convert to Kelvin
-                $("#temperature").text(temp + " K");
-            } else {
-                temp = Math.round(temp); // Round to the nearest integer for Fahrenheit
-                $("#temperature").text(temp + " °F");
-            }
-            document.title = temp;
+        // Sets initial temp as Fahrenheit
+        let temp = currentWeather.temperature;
+        if (localStorage.typhoon_measurement == "c") {
+            temp = Math.round((temp - 32) * 5 / 9); // Convert to Celsius
+            $("#temperature").text(temp + " °C");
+        } else if (localStorage.typhoon_measurement == "k") {
+            temp = Math.round((temp - 32) * 5 / 9 + 273.15); // Convert to Kelvin
+            $("#temperature").text(temp + " K");
+        } else {
+            temp = Math.round(temp); // Round to the nearest integer for Fahrenheit
+            $("#temperature").text(temp + " °F");
+        }
+        document.title = temp;
 
-            var windSpeed = weather.windSpeed;
-            if (localStorage.typhoon_speed != "mph") {
-                // Converts to either kph or m/s
-                windSpeed = (localStorage.typhoon_speed == "kph") ? Math.round(windSpeed * 1.609344) : Math.round(windSpeed * 4.4704) / 10;
-            }
-            $("#windSpeed").text(windSpeed);
-            $("#windUnit").text((localStorage.typhoon_speed == "ms") ? "m/s" : localStorage.typhoon_speed);
-            $("#humidity").text(weather.humidity + " %");
+        let windSpeed = currentWeather.windspeed;
+        if (localStorage.typhoon_speed != "mph") {
+            // Converts to either kph or m/s
+            windSpeed = (localStorage.typhoon_speed == "kph") ? Math.round(windSpeed * 1.609344) : Math.round(windSpeed * 4.4704) / 10;
+        }
+        $("#windSpeed").text(windSpeed);
+        $("#windUnit").text((localStorage.typhoon_speed == "ms") ? "m/s" : localStorage.typhoon_speed);
+        $("#humidity").text(currentWeather.relative_humidity_2m + " %");
 
-            // Background Color
-            background(weather.temperature);
+        // Background Color
+        background(currentWeather.temperature);
 
-            // Show Icon
-            $('.border .sync, .border .settings').css("opacity", "0.8");
-            $('#actualWeather').fadeIn(500);
-            $("#locationModal").fadeOut(500);
-            setTimeout(function () { $('.border .sync').removeClass('busy'); }, 1000);
+        // Show Icon
+        $('.border .sync, .border .settings').css("opacity", "0.8");
+        $('#actualWeather').fadeIn(500);
+        $("#locationModal").fadeOut(500);
+        setTimeout(function () { $('.border .sync').removeClass('busy'); }, 1000);
 
-            // Fetch and render weekly forecast
-            getWeeklyForecast(cityName, function (weeklyData) {
-                renderWeeklyForecast(weeklyData);
-            });
+        // Fetch and render weekly forecast
+        getWeeklyForecast(cityName, function (weeklyData) {
+            renderWeeklyForecast(weeklyData);
         });
     });
 }
@@ -239,7 +182,7 @@ function renderWeeklyForecast(weeklyData) {
 
         // Update the DOM with the converted temperatures and Climacons icon
         $(`#${index} .day`).text(day.day);
-        $(`#${index} .code`).text(weather_code(day.icon)).attr("class", "w" + day.icon);
+        $(`#${index} .code`).text(weather_code(day.icon,1)).attr("class", "w" + day.icon);
         tempElement.text(`${tempMin}° / ${tempMax}° ${unit.toUpperCase()}`);
     });
 }
@@ -353,31 +296,76 @@ function background(temp) {
     }
 }
 
-// Converts OpenWeatherMap weather codes to Climacons icons
-function weather_code(iconCode) {
-    const climaconMap = {
-        "01d": "v", // Clear sky (day)
-        "01n": "/", // Clear sky (night)
-        "02d": "1", // Few clouds (day)
-        "02n": "2", // Few clouds (night)
-        "03d": "`", // Scattered clouds
-        "03n": "`", // Scattered clouds
-        "04d": "h", // Broken clouds
-        "04n": "j", // Broken clouds
-        "09d": "9", // Shower rain
-        "09n": "9", // Shower rain
-        "10d": "0", // Rain (day)
-        "10n": "-", // Rain (night)
-        "11d": "z", // Thunderstorm
-        "11n": "z", // Thunderstorm
-        "13d": "6", // Snow
-        "13n": "6", // Snow
-        "50d": "g", // Mist
-        "50n": "g"  // Mist
+// Converts Open-Meteo weather codes to Climacons icons
+function weather_code(iconCode, isDay) {
+    const climaconMapDay = {
+        "0": "v", // Clear sky (day)
+        "1": "1", // Mainly clear (day)
+        "2": "d", // Partly cloudy (day)
+        "3": "`", // Overcast (day)
+        "45": "h", // Fog (day)
+        "48": "g", // Depositing rime fog (day)
+        "51": "0", // Drizzle: Light (day)
+        "53": "9", // Drizzle: Moderate (day)
+        "55": "9", // Drizzle: Dense intensity (day)
+        "56": "r", // Freezing Drizzle: Light (day)
+        "57": "y", // Freezing Drizzle: Dense intensity (day)
+        "61": "0", // Rain: Slight (day)
+        "63": "9", // Rain: Moderate (day)
+        "65": "9", // Rain: Heavy intensity (day)
+        "66": "r", // Freezing Rain: Light (day)
+        "67": "e", // Freezing Rain: Heavy (day)
+        "71": "=", // Snow fall: Slight (day)
+        "73": "o", // Snow fall: Moderate (day)
+        "75": "6", // Snow fall: Heavy (day)
+        "77": "6", // Snow grains (day)
+        "80": "0", // Rain showers: Slight (day)
+        "81": "9", // Rain showers: Moderate (day)
+        "82": "9", // Rain showers: Violent (day)
+        "85": "6", // Snow showers: Slight (day)
+        "86": "6", // Snow showers: Heavy (day)
+        "95": "z", // Thunderstorm: Slight or moderate (day)
+        "96": "z", // Thunderstorm with slight hail (day)
+        "99": "z"  // Thunderstorm with heavy hail (day)
     };
 
-    // Return the corresponding Climacon icon or a default icon
-    return climaconMap[iconCode] || "`"; // Default to a cloud icon if no match is found
+    const climaconMapNight = {
+        "0": "/", // Clear sky (night)
+        "1": "2", // Mainly clear (night)
+        "2": "f", // Partly cloudy (night)
+        "3": "`", // Overcast (night)
+        "45": "g", // Fog (night)
+        "48": "g", // Depositing rime fog (night)
+        "51": "5", // Drizzle: Light (night)
+        "53": "-", // Drizzle: Moderate (night)
+        "55": "9", // Drizzle: Dense intensity (night)
+        "56": "i", // Freezing Drizzle: Light (night)
+        "57": "y", // Freezing Drizzle: Dense intensity (night)
+        "61": "5", // Rain: Slight (night)
+        "63": "-", // Rain: Moderate (night)
+        "65": "9", // Rain: Heavy intensity (night)
+        "66": "t", // Freezing Rain: Light (night)
+        "67": "e", // Freezing Rain: Heavy (night)
+        "71": "[", // Snow fall: Slight (night)
+        "73": "8", // Snow fall: Moderate (night)
+        "75": "6", // Snow fall: Heavy (night)
+        "77": "6", // Snow grains (night)
+        "80": "9", // Rain showers: Slight (night)
+        "81": "9", // Rain showers: Moderate (night)
+        "82": "9", // Rain showers: Violent (night)
+        "85": "6", // Snow showers: Slight (night)
+        "86": "6", // Snow showers: Heavy (night)
+        "95": "z", // Thunderstorm: Slight or moderate (night)
+        "96": "z", // Thunderstorm with slight hail (night)
+        "99": "z"  // Thunderstorm with heavy hail (night)
+    };
+
+    // Return the corresponding Climacon icon based on day or night
+    if (isDay) {
+        return climaconMapDay[iconCode] || "`"; // Default to a cloud icon if no match is found
+    } else {
+        return climaconMapNight[iconCode] || "`"; // Default to a cloud icon if no match is found
+    }
 }
 
 $(document).ready(function() {
@@ -408,6 +396,32 @@ $(document).ready(function() {
             localStorage.clear(); // Clear all local storage
             location.reload(); // Reload the page to apply default settings
         // }
+    });
+
+    // Attach event listener to the city name input field
+    const locationInput = $("#locationModal input");
+
+    locationInput.keyup(function (event) {
+        if (event.key === "Enter") {
+            const cityName = locationInput.val().trim(); // Get the trimmed input value
+
+            if (cityName === "") {
+                // If the input is empty, do nothing
+                console.log("City name is empty. No search performed.");
+                return;
+            }
+
+            // Perform the search if the input is not empty
+            getWeatherData(cityName, function (data) {
+                if (data) {
+                    console.log("Weather data fetched successfully.");
+                    $("#locationModal .loader").attr("class", "tick loader").html("&#10003;").attr("data-city", cityName);
+                } else {
+                    console.log("Failed to fetch weather data.");
+                    $("#locationModal .loader").attr("class", "loader").html("&#10005;");
+                }
+            });
+        }
     });
 });
 
@@ -512,7 +526,12 @@ function init_settings() {
 
     /* Error Message Retry Button */
     $('#errorMessage .btn').click(function() {
+    if (!localStorage.typhoon) {
+        location.reload();
+    } else {
+        //Has been run before
         render(localStorage.typhoon)
+    }
     })
 
 }
@@ -540,29 +559,10 @@ function show_settings(amount) {
     }
 }
 function showError(message) {
-    const errorText = message === 'network' ? 
-        'Could not connect to the internet. Please try again.' : 
-        message || 'An unknown error occurred.';
-    
     // Show the error message and retry button
-    $('#errorMessage').html(`
-        <div>
-            ${errorText}<br>
-            <button class="btn" id="retryButton">TRY AGAIN</button>
-        </div>
-    `).fadeIn(350);
-
-    // Show the API key input and button
-    $('#apiKeyContainer').show();
-
+    $('#errorMessage').fadeIn(350);
     // Hide the actual weather display
     $('#actualWeather').fadeOut(350);
-
-    // Attach event listener to the retry button
-    $('#retryButton').click(function () {
-        $('#errorMessage').fadeOut(350); // Hide the error message
-        render(localStorage.typhoon); // Retry fetching the weather data
-    });
 }
 function updateTitle(val) {
     document.title = "o" + val
@@ -575,5 +575,5 @@ function opacity() {
     }
     $('input[type=range]').val(localStorage.app_opacity)
     document.title = "o" + localStorage.app_opacity
-    document.title = enable_drag
+    document.title = "enable_drag"
 }
