@@ -2,3 +2,4 @@
 *~
 .bzr/
 build/
+.flatpak-builder
