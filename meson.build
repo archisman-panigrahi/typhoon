@@ -1,4 +1,4 @@
-project('typhoon', meson_version: '>=0.55.0')
+project('typhoon', meson_version: '>=0.40.1')
 
 py3 = import('python')
 
