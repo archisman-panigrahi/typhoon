@@ -4,6 +4,8 @@
 
 > Simple weather application, powered by [Open-Meteo](https://open-meteo.com/)
 
+<img src="https://archisman-panigrahi.github.io/typhoon/assets/img/typhoon.png" align="center">
+
 Based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by [Jono Cooper](https://twitter.com/consindo).
 
 ## Climacons
