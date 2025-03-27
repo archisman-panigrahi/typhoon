@@ -1,7 +1,6 @@
-<img src="typhoon/typhoon.svg" align="left" width="64" height="64"> 
-<br>
 
-# Typhoon
+
+# <img src="typhoon/typhoon.svg" align="left" width="100" height="100">  <br> Typhoon
 
 > Simple weather application, powered by [Open-Meteo](https://open-meteo.com/)
 
