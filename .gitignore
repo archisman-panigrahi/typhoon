@@ -3,3 +3,4 @@
 .bzr/
 build/
 .flatpak-builder
+repo/
