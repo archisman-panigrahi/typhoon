@@ -9,7 +9,7 @@ Based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by [Jono Coope
 
 ## Climacons
 
-Thanks to [Adam Whitcroft](https://twitter.com/AdamWhitcroft) for [Climacons](http://adamwhitcroft.com/climacons/).
+Thanks to [Adam Whitcroft](https://adamwhitcroft.com/) for [Climacons](https://web.archive.org/web/20160531215708/http://adamwhitcroft.com/climacons/).
 
 ## Installation
 On Ubuntu you can use the official [PPA](https://launchpad.net/~apandada1/+archive/ubuntu/typhoon).
