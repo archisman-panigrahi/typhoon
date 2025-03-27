@@ -176,7 +176,7 @@ p, span, div {
     text-align: right;
     display: inline-block;
     box-sizing: border-box;
-    padding-right: 15px;
+    padding-right: 10px;
 }
 .details .right {
     font-size: 27px;
