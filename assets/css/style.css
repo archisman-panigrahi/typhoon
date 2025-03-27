@@ -1,6 +1,9 @@
+/* General styles for responsiveness */
 body {
-    padding: 2%;
-    font-family: Lato, sans-serif;
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
     color: #fff;
     background: url("../img/background.jpg") no-repeat center center fixed, url("../img/background_compressed.jpg") no-repeat center center fixed;
     background-size: cover;
@@ -17,6 +20,8 @@ img:hover {
     position: relative;
     max-width: 96%;
     margin: 0 auto;
+    text-align: center;
+    padding: 20px;
 }
 a {
     color: #fff;
@@ -57,10 +62,11 @@ a:not([class*="btn"]):hover {
 }
 h1 {
     margin: 0 0 10px;
-    font-size: 60px;
+    font-size: 2rem;
     letter-spacing: -2px;
     text-align: center;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, .5);
+    margin-bottom: 20px;
 }
 p {
     margin-bottom: 10px;
@@ -70,6 +76,14 @@ p {
     font-size: 25px;
     letter-spacing: -1px;
     text-shadow: 1px 1px 10px rgba(0, 0, 0, .4);
+}
+p.lead {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+p img {
+    max-width: 100%;
+    height: auto;
 }
 ::-webkit-scrollbar {
     width: 12px;
@@ -89,4 +103,46 @@ p {
 ::-webkit-scrollbar-thumb:active {
     border: 1px solid #c14131;
     background: #d64937;
-} 
+}
+/* Button styles */
+a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site {
+    display: inline-block;
+    margin: 10px 5px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    text-decoration: none;
+    color: white;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+/* Responsive styles for smaller screens */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    p.lead {
+        font-size: 1rem;
+    }
+
+    a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site {
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    p.lead {
+        font-size: 0.9rem;
+    }
+
+    a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+}
