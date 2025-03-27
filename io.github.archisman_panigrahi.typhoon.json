@@ -22,7 +22,6 @@
     "--share=network",
     "--filesystem=host",
     "--socket=x11",
-    "--socket=wayland",
-    "--talk-name=org.freedesktop.Notifications"
+    "--socket=wayland"
   ]
 }
