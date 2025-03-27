@@ -11,7 +11,11 @@ Based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by [Jono Coope
 Thanks to [Adam Whitcroft](https://adamwhitcroft.com/) for [Climacons](https://web.archive.org/web/20160531215708/http://adamwhitcroft.com/climacons/).
 
 ## Installation
+
 On Ubuntu you can use the official [PPA](https://launchpad.net/~apandada1/+archive/ubuntu/typhoon).
+<a href="https://repology.org/project/typhoon/versions">
+    <img src="https://repology.org/badge/vertical-allrepos/typhoon.svg" alt="Packaging status" align="right">
+</a>
 
 ```
 sudo add-apt-repository ppa:apandada1/typhoon
