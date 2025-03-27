@@ -1,3 +1,10 @@
+typhoon (0.9) noble; urgency=medium
+
+  * New release after 11 years
+  * Ported to Openweathermap, gtk3, and python3
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Wed, 26 Mar 2025 04:57:17 -0400
+
 typhoon (0.8.94) trusty; urgency=medium
 
   * New release.

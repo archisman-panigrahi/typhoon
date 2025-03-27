@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Typhoon
+Comment=A weather app based on Stormcloud
+Exec=typhoon
+Icon=typhoon
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupWMClass=Typhoon_window.py

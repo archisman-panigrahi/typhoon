@@ -1,12 +1,9 @@
 Source: typhoon
 Section: python
 Priority: extra
-Build-Depends: debhelper (>= 8),
- python (>= 2.6.6-3~),
- python-distutils-extra (>= 2.10)
+Build-Depends: debhelper-compat (=10), meson, python3, dh-make
 Maintainer: Archisman Panigrahi <apandada1@gmail.com>
-Standards-Version: 3.9.3
-X-Python-Version: >= 2.6
+Standards-Version: 4.5.0
 
 Package: typhoon
 Architecture: all
@@ -14,12 +11,10 @@ Depends: ${misc:Depends},
  ${python:Depends},
  gir1.2-glib-2.0,
  gir1.2-gtk-3.0,
- gir1.2-unity-5.0,
- gir1.2-webkit-3.0,
- yelp
+ gir1.2-webkit2-4.0 | gir1.2-webkit2-4.1
 Description: Quickly check the weather with this beautiful application
  Typhoon is a free and open source weather application. It is
- continuation of discontinued Stormcloud 1.1 ,however with some changes.
+ continuation of discontinued Stormcloud 1.1, however with some changes.
  It is and always will be free.
  PPA: https://launchpad.net/~apandada1/+archive/typhoon/
- Homepage: http://gettyphoon.tk/
+ Homepage: https://github.com/archisman-panigrahi/typhoon

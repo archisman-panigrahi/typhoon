@@ -1,0 +1,27 @@
+{
+  "app-id": "io.github.archisman_panigrahi.typhoon",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "48",
+  "sdk": "org.gnome.Sdk",
+  "command": "typhoon",
+  "modules": [
+    {
+      "name": "typhoon",
+      "buildsystem": "meson",
+      "builddir": "build",
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://github.com/archisman-panigrahi/typhoon.git",
+          "branch": "develop"
+        }
+      ]
+    }
+  ],
+  "finish-args": [
+    "--share=network",
+    "--filesystem=host",
+    "--socket=x11",
+    "--socket=wayland"
+  ]
+}

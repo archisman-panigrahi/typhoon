@@ -1,3 +1,4 @@
+<!-- <!DOCTYPE html> -->
 <html>
 <head>
 <meta charset="utf-8">
@@ -24,54 +25,60 @@
 		<div class="week">
 			<div id="0">
 				<span class="day"></span>
-				<span class="code"></span>
+				<span class="codeweek"><span class="code"></span></span>
 				<span class="temp"></span>
 			</div>
 			<div id="1">
 				<span class="day"></span>
-				<span class="code"></span>
+				<span class="codeweek"><span class="code"></span></span>
 				<span class="temp"></span>
 			</div>
 			<div id="2">
 				<span class="day"></span>
-				<span class="code"></span>
+				<span class="codeweek"><span class="code"></span></span>
 				<span class="temp"></span>
 			</div>
 			<div id="3">
 				<span class="day"></span>
-				<span class="code"></span>
+				<span class="codeweek"><span class="code"></span></span>
 				<span class="temp"></span>
 			</div>
-			<div id="4">
+			<!-- <div id="4">
 				<span class="day"></span>
-				<span class="code"></span>
+				<span class="code2"><span class="code"></span></span>
 				<span class="temp"></span>
-			</div>
+			</div> -->
 		</div>
 	</div>
 </div>
 <div id="locationModal">
 	<div class="credits">
 		<img src="back.svg">
-		<h1 style="text-align: center">Typhoon 0.8.94</h1>
+		<h1 style="text-align: center">Typhoon 0.9</h1>
 		<br>
 		<p>Typhoon is a simple weather application for Ubuntu. It is and always will be free.<br> 
 		<a href="https://github.com/apandada1/typhoon/">Source code</a> is released under <a href="http://www.gnu.org/licenses/gpl.html">GPL-3</a>.</p>
-		<li>Derived from <a href="http://getstormcloud.com/">Stormcloud</a> <a href="https://github.com/consindo/stormcloud/tree/e7ef8e131466d477075e92337e502c3cac004ee2">1.1</a> by<br> <a href="https://twitter.com/consindo">Jono Cooper</a>.</li>
-		<li>Currently developed and maintained by <a href="https://twitter.com/apandada1">Archisman Panigrahi</a>.</li>
-		<li>Icons (<a href="http://adamwhitcroft.com/climacons/">Climacons</a>) by <a href="https://twitter.com/AdamWhitcroft">Adam Whitcroft</a>.</li>
-		<li>Powered by <a href="http://weather.yahoo.com">Yahoo! Weather</a>.</li><br>
+		<li>Based on <a href="https://github.com/consindo/stormcloud/tree/e7ef8e131466d477075e92337e502c3cac004ee2">Stormcloud 1.1</a> by <a href="https://github.com/consindo">Jono Cooper</a>.</li>
+		<li>Currently developed and maintained by <a href="https://github.com/archisman-panigrahi">Archisman Panigrahi</a> and ChatGPT :)</li>
+		<li>Icons (<a href="https://web.archive.org/web/20160531215708/http://adamwhitcroft.com/climacons/">Climacons</a>) by <a href="https://adamwhitcroft.com/">Adam Whitcroft</a>.</li>
+		<li>Powered by <a href="https://open-meteo.com/">Open Meteo</a>.</li><br>
 		<h3>Contributors:</h3>
-		<li><a href="https://twitter.com/zdr0id">Zlatan Vasović</a></li>
-		<li>Esteban <a href="https://sites.google.com/site/typhoonweatherapp/help-and-how-to-1/howtomaketyphoonavailableineveryworkspace">(Found the way to make the app visible in every workspace)</a></li>
+		<li><a href="https://github.com/zlatanvasovic">Zlatan Vasović</a></li>
+		<!-- <li>Esteban <a href="https://sites.google.com/site/typhoonweatherapp/help-and-how-to-1/howtomaketyphoonavailableineveryworkspace">(Found the way to make the app visible in every workspace)</a></li> -->
 		<br>
 		<h3 style="text-align: center">Thanks for using.</h3><br><br>
 	</div>
 	<div class="input">
 	<input type="text" placeholder="Location"><span class="loader"></span><br>
-	e.g London England, Tokyo<br>
-	<h3><a href="https://sites.google.com/site/typhoonweatherapp/support-1">SUPPORT</a></h3></span>
-	</div>
+	e.g. "Boston,US", "Kolkata,IN"<br>
+	<!-- <div id="apiKeyContainer">
+		<br>
+		<input type="text" id="apiKeyInput" placeholder="Enter API Key"><br>
+		<button class="btn" id="saveApiKeyButton">Save API Key</button>
+		<p>Get your free API key <a href="https://home.openweathermap.org/api_keys">HERE</a></p>
+	</div> -->
+	<a class="btn" href="https://github.com/archisman-panigrahi/typhoon">Support</a>
+</div>
 	<div class="full">
 		<div class="toggleswitch measurement">
 			<span data-type="c">R</span><span data-type="f">T</span><span data-type="k">K</span>
@@ -100,7 +107,8 @@
 			Opacity <br><br>
 			<input id="slider" type="range" min ="0.1" max="1.0" step ="0.05" onchange="updateTitle(this.value);"/>
 		
-		<br><br>&nbsp;&nbsp;&nbsp;<a class="btn" tag="credits">CREDITS</a>&nbsp;&nbsp;<a class="btn" href="https://sites.google.com/site/typhoonweatherapp/help-and-how-to-1">HOW TO</a>&nbsp;&nbsp;<a class="btn" href="http://upclock.tk">UP CLOCK</a>
+		<br><br>&nbsp;&nbsp;&nbsp;<a class="btn" tag="credits">CREDITS</a>&nbsp;&nbsp;<a class="btn" id="resetButton">RESET SETTINGS</a>
+		<!-- <a class="btn" href="https://sites.google.com/site/typhoonweatherapp/help-and-how-to-1">HOW TO</a>&nbsp;&nbsp;<a class="btn" href="https://gabrielbarbosanascimento.github.io/Up-Clock/">UP CLOCK</a> -->
 	<br><br><br><br>
 	</div>
 </div>
@@ -109,7 +117,7 @@
 	Check your internet connection.<br>
 	<button class="btn">TRY AGAIN</button>
 </div>
-<script src="jquery.min.js"></script>
+<script src="jquery-3.7.1.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

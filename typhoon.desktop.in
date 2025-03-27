@@ -1,8 +1,0 @@
-[Desktop Entry]
-_Name=Typhoon
-_Comment=Weather application
-Categories=GNOME;Internet;
-Exec=typhoon
-Icon=typhoon
-Terminal=false
-Type=Application
