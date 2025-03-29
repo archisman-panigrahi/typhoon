@@ -8,28 +8,93 @@
     <link href="assets/css/style.css" rel="stylesheet">
     <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <link rel="shortcut icon" href="assets/img/typhoon.ico">
+    <style>
+      .instructions {
+        display: none;
+        background: #040c29a6;
+        border-radius: 8px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Increased blur and opacity */
+        padding: 20px;
+        margin: 20px 0;
+      }
+
+      pre {
+        overflow-x: auto; /* Enable horizontal scrolling */
+        white-space: pre-wrap; /* Preserve whitespace and allow wrapping */
+        word-wrap: break-word; /* Break long words if necessary */
+        background: #010e1f7e; /* Add a light background for better readability */
+        padding: 10px; /* Add padding inside the code block */
+        border-radius: 5px; /* Rounded corners for the code block */
+      }
+
+      pre code {
+        font-size: 1.2em; /* Increase font size */
+        font-family: "Courier New", Courier, monospace; /* Use a monospace font */
+      }
+    </style>
+    <script>
+      function showInstructions(sectionId) {
+        const sections = document.querySelectorAll('.instructions');
+        sections.forEach(section => section.style.display = 'none'); // Hide all sections
+        const selectedSection = document.getElementById(sectionId);
+        selectedSection.style.display = 'block'; // Show the selected section
+        selectedSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Scroll to the section
+      }
+    </script>
   </head>
   <body>
     <div class="content">
       <h1>Typhoon</h1>
       <p><img src="assets/img/typhoon.png" width="258" height="430" alt="Typhoon"></p>
       <p class="lead">Typhoon is a stylish weather app available for GNU/Linux and Windows.</p>
-      <p>
-        <a class="btn-ubuntu" href="https://launchpad.net/~apandada1/+archive/typhoon">Download for Ubuntu via PPA</a>
-        <a class="btn-source" href="https://github.com/apandada1/typhoon">Source code on GitHub</a>
-        <a class="btn-windows" href="https://github.com/apandada1/typhoon/releases/download/v0.8.5/Typhoon_0.8.5_setup.exe">Download for Windows</a>
-        <!-- <a class="btn-site" href="https://sites.google.com/site/typhoonweatherapp/">Click here for details</a> -->
-      </p>
+      
+      <!-- Buttons to show installation instructions -->
+      <div class="buttons">
+        <a class="btn-ubuntu" onclick="showInstructions('ubuntu-instructions')">Ubuntu/Mint (PPA)</a>
+        <a class="btn-ubuntu" style="background-color: #232225;" onclick="showInstructions('flatpak-instructions')">Flatpak</a>
+        <a class="btn-ubuntu" style="background-color: #411e86;" onclick="showInstructions('other-gnu-linux-instructions')">Other GNU/Linux</a>
+        <a class="btn-windows" href="">Windows (coming soon)</a>
+        <a class="btn-source" href="https://github.com/archisman-panigrahi/typhoon" target="_blank">Source Code</a>
+      </div>
+      
+      <!-- GNU/Linux Installation Instructions -->
+      <div id="ubuntu-instructions" class="instructions">
+        <h2>Open a terminal and add the <a href="https://launchpad.net/~apandada1/+archive/ubuntu/typhoon" target="_blank">official PPA</a> to install Typhoon</h2>
+            <pre><code>sudo add-apt-repository ppa:apandada1/typhoon
+
+sudo apt update
+
+sudo apt install typhoon</code></pre>
+      </div>
+      
+      <!-- Flatpak Installation Instructions -->
+      <div id="flatpak-instructions" class="instructions">
+        <h2>Flatpak Installation Instructions</h2>
+        <p>Coming Soon :)</p>
+        <!-- <p>Install via Flatpak:</p>
+        <pre><code>flatpak install flathub com.github.apandada1.Typhoon</code></pre>
+        <p>Run the app with:</p>
+        <pre><code>flatpak run com.github.apandada1.Typhoon</code></pre> -->
+      </div>
+
+      <div id="other-gnu-linux-instructions" class="instructions">
+        <a href="https://repology.org/project/typhoon/versions">
+          <img src="https://repology.org/badge/vertical-allrepos/typhoon.svg" alt="Packaging status" align="center">
+        </a>
+        <h2>Installation Instructions for GNU/Linux</h2>
+
+            <strong>Arch Linux:</strong> Install from the AUR using your favorite AUR helper:
+            <pre><code>yay -S typhoon-git</code></pre>
+
+            <strong>Other Distributions:</strong> Download the source code from <a href="https://github.com/archisman-panigrahi/typhoon">GitHub</a> and build it manually:
+            <pre><code>git clone https://github.com/archisman-panigrahi/typhoon.git
+
+cd typhoon
+
+meson setup builddir --prefix=/usr
+
+sudo meson install -C builddir</code></pre>
+      </div>
     </div>
-    <!-- <script>
-            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-            ga('create', 'UA-46849989-1', 'gettyphoon.tk');
-            ga('send', 'pageview');
-
-    </script> -->
   </body>
 </html>
