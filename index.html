@@ -8,30 +8,6 @@
     <link href="assets/css/style.css" rel="stylesheet">
     <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
     <link rel="shortcut icon" href="assets/img/typhoon.ico">
-    <style>
-      .instructions {
-        display: none;
-        background: #040c29a6;
-        border-radius: 8px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Increased blur and opacity */
-        padding: 20px;
-        margin: 20px 0;
-      }
-
-      pre {
-        overflow-x: auto; /* Enable horizontal scrolling */
-        white-space: pre-wrap; /* Preserve whitespace and allow wrapping */
-        word-wrap: break-word; /* Break long words if necessary */
-        background: #010e1f7e; /* Add a light background for better readability */
-        padding: 10px; /* Add padding inside the code block */
-        border-radius: 5px; /* Rounded corners for the code block */
-      }
-
-      pre code {
-        font-size: 1.2em; /* Increase font size */
-        font-family: "Courier New", Courier, monospace; /* Use a monospace font */
-      }
-    </style>
     <script>
       function showInstructions(sectionId) {
         const sections = document.querySelectorAll('.instructions');
@@ -83,10 +59,10 @@ sudo apt install typhoon</code></pre>
         </a>
         <h2>Installation Instructions for GNU/Linux</h2>
 
-            <strong>Arch Linux:</strong> Install from the AUR using your favorite AUR helper:
+            <strong>Arch Linux:</strong> Install from the <a href="https://aur.archlinux.org/packages/typhoon-git" target="_blank">AUR</a> using your favorite AUR helper: 
             <pre><code>yay -S typhoon-git</code></pre>
 
-            <strong>Other Distributions:</strong> Download the source code from <a href="https://github.com/archisman-panigrahi/typhoon">GitHub</a> and build it manually:
+            <strong>Other Distributions:</strong> Download the source code from <a href="https://github.com/archisman-panigrahi/typhoon" target="_blank">GitHub</a> and build it manually:
             <pre><code>git clone https://github.com/archisman-panigrahi/typhoon.git
 
 cd typhoon

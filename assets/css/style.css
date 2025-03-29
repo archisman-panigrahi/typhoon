@@ -118,6 +118,30 @@ a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site {
     transition: background-color 0.3s ease;
 }
 
+/* Instructions styles */
+.instructions {
+    display: none;
+    background: #040c29a6;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Increased blur and opacity */
+    padding: 20px;
+    margin: 20px 0;
+}
+
+pre {
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: pre-wrap; /* Preserve whitespace and allow wrapping */
+    word-wrap: break-word; /* Break long words if necessary */
+    background: #010e1f7e; /* Add a light background for better readability */
+    padding: 10px; /* Add padding inside the code block */
+    border-radius: 5px; /* Rounded corners for the code block */
+}
+
+pre code {
+    font-size: 1.2em; /* Increase font size */
+    font-family: "Courier New", Courier, monospace; /* Use a monospace font */
+}
+
 /* Responsive styles for smaller screens */
 @media (max-width: 768px) {
     h1 {
