@@ -577,16 +577,26 @@ function showError(message) {
     // Hide the actual weather display
     $('#actualWeather').fadeOut(350);
 }
-function updateTitle(val) {
-    document.title = "o" + val
-    localStorage.app_opacity = val
-}
+// function updateTitle(val) {
+//     document.title = "o" + val
+//     localStorage.app_opacity = val
+// }
 function opacity() {
-    //On first run, opacity would be 0.8
+    // On first run, opacity would be 0.8
     if (localStorage.getItem("app_opacity") === null) {
-        localStorage.app_opacity = 0.8
+        localStorage.app_opacity = 0.8;
+        document.title = "o" + localStorage.app_opacity;
     }
-    $('input[type=range]').val(localStorage.app_opacity)
-    document.title = "o" + localStorage.app_opacity
-    document.title = "enable_drag"
+
+    const slider = $('input[type=range]');
+    slider.val(localStorage.app_opacity);
+    document.title = "o" + localStorage.app_opacity;
+
+    // Update opacity dynamically as the slider value changes
+    slider.on('input', function () {
+        const newOpacity = $(this).val();
+        console.log("Opacity value:", newOpacity); // Print the value to the console
+        document.title = "o" + newOpacity; // Update the title dynamically
+        localStorage.app_opacity = newOpacity; // Save the new value to localStorage
+    });
 }
