@@ -2,7 +2,11 @@ on:
   push:
     branches: [master]
   pull_request:
+  release:
+    types: [published]
+
 name: CI
+
 jobs:
   flatpak:
     name: "Flatpak"
@@ -11,9 +15,21 @@ jobs:
       image: bilelmoussaoui/flatpak-github-actions:gnome-47
       options: --privileged
     steps:
-    - uses: actions/checkout@v4
-    - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
-      with:
-        bundle: typhoon-devel.flatpak
-        manifest-path: io.github.archisman_panigrahi.typhoon.json
-        cache-key: flatpak-builder-${{ github.sha }}
+      - uses: actions/checkout@v4
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: ${{ github.event_name == 'release' && 'typhoon.flatpak' || 'typhoon-devel.flatpak' }}
+          manifest-path: io.github.archisman_panigrahi.typhoon.json
+          cache-key: flatpak-builder-${{ github.sha }}
+      
+      - name: Upload Flatpak as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-bundle
+          path: ${{ github.event_name == 'release' && 'typhoon.flatpak' || 'typhoon-devel.flatpak' }}
+
+      - name: Upload to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: typhoon.flatpak
