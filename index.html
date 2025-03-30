@@ -35,12 +35,32 @@
 
       document.addEventListener('DOMContentLoaded', updateFlatpakLink);
     </script>
+    <script>
+      async function fetchLatestVersion() {
+        const versionElement = document.getElementById('latest-version');
+        try {
+          const response = await fetch('https://api.github.com/repos/archisman-panigrahi/typhoon/releases/latest');
+          if (!response.ok) throw new Error('Failed to fetch release info');
+          const release = await response.json();
+          const latestVersion = release.tag_name.replace(/^v/, ''); // Remove the 'v' prefix
+          versionElement.textContent = `Latest Version: ${latestVersion}`;
+        } catch (error) {
+          console.error('Error fetching latest version:', error);
+          versionElement.textContent = 'Latest Version: Unable to fetch';
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', fetchLatestVersion);
+    </script>
   </head>
   <body>
     <div class="content">
       <h1>Typhoon</h1>
       <p><img src="assets/img/typhoon.png" width="258" height="430" alt="Typhoon"></p>
-      <p class="lead">Typhoon is a stylish weather app available for GNU/Linux and Windows.</p>
+      <p class="lead">
+        Typhoon is a stylish weather app available for <a href="https://en.wikipedia.org/wiki/Linux" target="_blank">GNU/Linux</a> and Windows. <br>
+        <span id="latest-version">Fetching latest version...</span>
+      </p>
       
       <!-- Buttons to show installation instructions -->
       <div class="buttons">
@@ -54,7 +74,7 @@
       <!-- GNU/Linux Installation Instructions -->
       <div id="ubuntu-instructions" class="instructions">
         <h2>Open a terminal and add the <a href="https://launchpad.net/~apandada1/+archive/ubuntu/typhoon" target="_blank">official PPA</a> to install Typhoon</h2>
-            <pre><code>sudo add-apt-repository ppa:apandada1/typhoon
+        <pre><code>sudo add-apt-repository ppa:apandada1/typhoon
 
 sudo apt update
 
@@ -76,10 +96,15 @@ sudo apt install typhoon</code></pre>
           <img src="https://repology.org/badge/vertical-allrepos/typhoon.svg" alt="Packaging status" align="center">
         </a>
         <h2>Installation Instructions for GNU/Linux</h2>
-
-            <strong>Arch Linux:</strong> Install from the <a href="https://aur.archlinux.org/packages/typhoon-git" target="_blank">AUR</a> using your favorite AUR helper: 
+        <ul>
+          <li>
+            <strong>Arch Linux:</strong> Install from the <a href="https://aur.archlinux.org/packages/typhoon-git" target="_blank">AUR</a> using your favorite AUR helper:
             <pre><code>yay -S typhoon-git</code></pre>
-
+          </li>
+          <li>
+            <strong>Debian:</strong> Download the latest <a href="https://github.com/archisman-panigrahi/typhoon/releases" target="_blank">.deb file</a> from GitHub releases.
+          </li>
+          <li>
             <strong>Other Distributions:</strong> Download the source code from <a href="https://github.com/archisman-panigrahi/typhoon" target="_blank">GitHub</a> and build it manually:
             <pre><code>git clone https://github.com/archisman-panigrahi/typhoon.git
 
@@ -88,6 +113,8 @@ cd typhoon
 meson setup builddir --prefix=/usr
 
 sudo meson install -C builddir</code></pre>
+          </li>
+        </ul>
       </div>
     </div>
   </body>
