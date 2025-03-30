@@ -87,7 +87,7 @@ p.lead {
     font-size: 1.2rem;
     margin-bottom: 20px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Adds a subtle shadow */
-    /* color: #000; Ensures the text color is readable */
+    color: #000; /* Ensures the text color is readable */
 }
 p img {
     max-width: 100%;
@@ -153,7 +153,7 @@ pre code {
 }
 
 /* Responsive styles for smaller screens */
-@media (max-width: 768px) {
+@media (max-width: 1366px) {
     h1 {
         font-size: 1.8rem;
     }
@@ -165,6 +165,11 @@ pre code {
     a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site {
         font-size: 0.9rem;
         padding: 8px 12px;
+    }
+
+    .content img {
+        width: 150px; /* Adjust the width as needed */
+        height: auto; /* Maintain aspect ratio */
     }
 }
 
