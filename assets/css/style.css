@@ -118,6 +118,10 @@ a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site {
     transition: background-color 0.3s ease;
 }
 
+.buttons a {
+  cursor: pointer;
+}
+
 /* Instructions styles */
 .instructions {
     display: none;
