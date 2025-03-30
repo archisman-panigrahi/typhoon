@@ -1,3 +1,9 @@
+typhoon (0.9.1) noble; urgency=medium
+
+  * Make the app resizable
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sat, 29 Mar 2025 23:05:20 -0400
+
 typhoon (0.9) noble; urgency=medium
 
   * New release after 11 years
