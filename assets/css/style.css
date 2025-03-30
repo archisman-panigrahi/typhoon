@@ -7,6 +7,11 @@ body {
     color: #fff;
     background: url("../img/background.jpg") no-repeat center center fixed, url("../img/background_compressed.jpg") no-repeat center center fixed;
     background-size: cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Ensure the body takes the full height of the viewport */
 }
 img {
     opacity: 0.7;
@@ -22,6 +27,7 @@ img:hover {
     margin: 0 auto;
     text-align: center;
     padding: 20px;
+    text-align: center; /* Optional: Center-align the content */
 }
 a {
     color: #fff;
