@@ -304,6 +304,9 @@ function background(temp) {
     if (localStorage.typhoon_color == "gradient") {
         var percentage = Math.round((temp - 45) *  2.2)
         $("#container").css("background", blend(percentage))
+    } else if (localStorage.typhoon_color == "chameleonic") {
+        $("#container").css("background", '#' + localStorage.typhoon_special_color)
+        $('.color span[data-color=chameleonic]').css("background", '#' + localStorage.typhoon_special_color)
     } else {
         $("#container").css("background", "#" + localStorage.typhoon_color)
     }
@@ -379,6 +382,11 @@ function weather_code(iconCode, isDay) {
     } else {
         return climaconMapNight[iconCode] || "`"; // Default to a cloud icon if no match is found
     }
+}
+
+function receiveMessage(message) {
+    // Save the received message as a localStorage item
+    localStorage.setItem("typhoon_special_color", message);
 }
 
 $(document).ready(function() {
@@ -520,6 +528,13 @@ function init_settings() {
     })
     $('.color span[data-color=gradient]').click(function() {
         $(".border .settings").hide()
+    })
+    $('.color span[data-color=chameleonic]').click(function() {
+        $(".border .settings").hide()
+        localStorage.typhoon_color = "chameleonic"
+        location.reload()
+        document.title = "enabledrag"
+        $(this).css('background', '#' + localStorage.typhoon_special_color)
     })
     
 

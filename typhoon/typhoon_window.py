@@ -135,6 +135,11 @@ class TyphoonWindow(Gtk.Window):
     def _setup_webview(self):
         """Sets up the WebKit2 WebView and connects signals."""
         self.webview = WebKit2.WebView()
+
+        # Enable Web Inspector
+        # settings = self.webview.get_settings()
+        # settings.set_enable_developer_extras(True)
+
         self.webview.connect("decide-policy", self._handle_policy_decision)
         self.webview.connect("notify::title", self._handle_title_change)
         self.webview.connect("button-press-event", self._handle_mouse_press)
@@ -142,6 +147,61 @@ class TyphoonWindow(Gtk.Window):
         # Load the local HTML file
         html_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "typhoon.html")
         self.webview.load_uri(f"file://{html_path}")
+
+        # Connect to the load-changed signal
+        self.webview.connect("load-changed", self._on_load_changed)
+
+    def _on_load_changed(self, webview, load_event):
+        """Handles the load-changed event for the WebView."""
+        if load_event == WebKit2.LoadEvent.FINISHED:
+            # Run the xprop command to get the GNOME background representative colors
+            try:
+                # Run xprop and pipe its output to grep
+                xprop_process = subprocess.Popen(
+                    ["xprop", "-root"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+                grep_process = subprocess.Popen(
+                    ["grep", "_GNOME_BACKGROUND_REPRESENTATIVE_COLORS"],
+                    stdin=xprop_process.stdout,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+                xprop_process.stdout.close()  # Allow xprop to receive a SIGPIPE if grep exits
+                output, _ = grep_process.communicate()
+                # print(f"xprop output: {output}")  # Debugging: Print the raw output
+
+                # Check if the output contains the expected data
+                if output and "_GNOME_BACKGROUND_REPRESENTATIVE_COLORS" in output:
+                    # Extract the RGB color from the output
+                    try:
+                        # Extract the part inside the quotes, e.g., "rgb(87,134,72)"
+                        rgb_string = output.split('"')[1].strip()
+                        # Remove "rgb(" and ")" and split into individual components
+                        rgb_values = rgb_string[4:-1].split(",")
+                        rgb = tuple(map(int, rgb_values))  # Convert to integers
+                        hex_color = "{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])  # Convert to hex
+                        print(f"Extracted hex color: {hex_color}")  # Debugging: Print the hex color
+
+                        # Send the hex color to the WebView
+                        self.send_message_to_webview(f"'{hex_color}'")
+                    except (IndexError, ValueError) as e:
+                        print(f"Error parsing RGB values: {e}")
+                        self.send_message_to_webview("'575591'")  # Default to purple
+                else:
+                    print("No representative colors found in xprop output.")
+                    self.send_message_to_webview("'575591'")  # Default to purple
+            except Exception as e:
+                print(f"Error running xprop: {e}")
+                self.send_message_to_webview("'575591'")  # Default to purple
+
+    def send_message_to_webview(self, message):
+        """Sends a message to the WebView."""
+        js_code = f"receiveMessage({message});"  # Call the JavaScript function with the message
+        self.webview.run_javascript(js_code, None, None, None)
 
     def _setup_scrolled_window(self):
         """Wraps the WebView in a scrolled window and adds it to the overlay."""
