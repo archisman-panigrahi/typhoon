@@ -388,6 +388,7 @@ $(document).ready(function() {
             return this.nodeName === name;
         });
     };
+    scaleContent();
 
     //APP START.
     init_settings()
@@ -407,6 +408,7 @@ $(document).ready(function() {
     $('#resetButton').click(function () {
         // if (confirm("Are you sure you want to reset all settings? This will clear all saved preferences.")) {
             localStorage.clear(); // Clear all local storage
+            document.title="reset";
             location.reload(); // Reload the page to apply default settings
         // }
     });
@@ -577,10 +579,7 @@ function showError(message) {
     // Hide the actual weather display
     $('#actualWeather').fadeOut(350);
 }
-// function updateTitle(val) {
-//     document.title = "o" + val
-//     localStorage.app_opacity = val
-// }
+
 function opacity() {
     // On first run, opacity would be 0.8
     if (localStorage.getItem("app_opacity") === null) {
@@ -598,5 +597,30 @@ function opacity() {
         console.log("Opacity value:", newOpacity); // Print the value to the console
         document.title = "o" + newOpacity; // Update the title dynamically
         localStorage.app_opacity = newOpacity; // Save the new value to localStorage
+    });
+}
+
+$(window).on('resize', function () {
+    scaleContent();
+});
+
+function scaleContent() {
+    const originalWidth = 300; // Original width
+    const originalHeight = 500; // Original height
+    const aspectRatio = originalWidth / originalHeight;
+
+    // Get the current window size
+    const windowWidth = $(window).width();
+    const windowHeight = $(window).height();
+
+    // Calculate the scale factor while maintaining the aspect ratio
+    const scaleFactor = Math.min(windowWidth / originalWidth, windowHeight / originalHeight);
+
+    // Apply the scale to the app wrapper
+    $('#appWrapper').css({
+        transform: `scale(${scaleFactor})`,
+        transformOrigin: 'top left', // Scale from the top-left corner
+        width: `${originalWidth}px`, // Maintain original width
+        height: `${originalHeight}px`, // Maintain original height
     });
 }

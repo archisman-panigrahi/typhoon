@@ -5,120 +5,122 @@
 <link href="style.css" rel="stylesheet">
 </head>
 <body onload="opacity()">
-<div id="container">
-	<div class="border">
-		<div class="close">&#10005;</div>
-		<div class="minimize">&#150;</div>
-		<div class="settings"><img src="settings.svg"></div>
-		<div class="sync"><img src="sync.svg"></div>
-	</div>
-	<div id="actualWeather">
-		<div id="city"><span></span></div>
-		<div id="code"></div>
-		<div class="details">
-				<div class="left">
-						<span id="thermometer", style="font-family: 'ClimaconsRegular'; position: relative; top: -12px; right: -5px;"></span>
-						<span id="temperature"></span>
-				</div>
-				<div class="right">
-						<span id="windSpeed"></span> <span id="windUnit"></span><br>
-						<span id="humidity"></span>
-				</div>
-		</div>
-		<div class="week">
-			<div id="0">
-				<span class="day"></span>
-				<span class="codeweek"><span class="code"></span></span>
-				<span class="temp"></span>
-			</div>
-			<div id="1">
-				<span class="day"></span>
-				<span class="codeweek"><span class="code"></span></span>
-				<span class="temp"></span>
-			</div>
-			<div id="2">
-				<span class="day"></span>
-				<span class="codeweek"><span class="code"></span></span>
-				<span class="temp"></span>
-			</div>
-			<div id="3">
-				<span class="day"></span>
-				<span class="codeweek"><span class="code"></span></span>
-				<span class="temp"></span>
-			</div>
-			<!-- <div id="4">
-				<span class="day"></span>
-				<span class="code2"><span class="code"></span></span>
-				<span class="temp"></span>
-			</div> -->
-		</div>
-	</div>
-</div>
-<div id="locationModal">
-	<div class="credits">
-		<img src="back.svg">
-		<h1 style="text-align: center">Typhoon 0.9</h1>
-		<br>
-		<p>Typhoon is a simple weather application for Ubuntu. It is and always will be free.<br> 
-		<a href="https://github.com/apandada1/typhoon/">Source code</a> is released under <a href="http://www.gnu.org/licenses/gpl.html">GPL-3</a>.</p>
-		<li>Based on <a href="https://github.com/consindo/stormcloud/tree/e7ef8e131466d477075e92337e502c3cac004ee2">Stormcloud 1.1</a> by <a href="https://github.com/consindo">Jono Cooper</a>.</li>
-		<li>Currently developed and maintained by <a href="https://github.com/archisman-panigrahi">Archisman Panigrahi</a> and ChatGPT :)</li>
-		<li>Icons (<a href="https://web.archive.org/web/20160531215708/http://adamwhitcroft.com/climacons/">Climacons</a>) by <a href="https://adamwhitcroft.com/">Adam Whitcroft</a>.</li>
-		<li>Powered by <a href="https://open-meteo.com/">Open Meteo</a>.</li><br>
-		<h3>Contributors:</h3>
-		<li><a href="https://github.com/zlatanvasovic">Zlatan Vasović</a></li>
-		<!-- <li>Esteban <a href="https://sites.google.com/site/typhoonweatherapp/help-and-how-to-1/howtomaketyphoonavailableineveryworkspace">(Found the way to make the app visible in every workspace)</a></li> -->
-		<br>
-		<h3 style="text-align: center">Thanks for using.</h3><br><br>
-	</div>
-	<div class="input">
-	<input type="text" placeholder="Location"><span class="loader"></span><br>
-	e.g. "Boston,US", "Kolkata,IN"<br>
-	<!-- <div id="apiKeyContainer">
-		<br>
-		<input type="text" id="apiKeyInput" placeholder="Enter API Key"><br>
-		<button class="btn" id="saveApiKeyButton">Save API Key</button>
-		<p>Get your free API key <a href="https://home.openweathermap.org/api_keys">HERE</a></p>
-	</div> -->
-	<a class="btn" href="https://github.com/archisman-panigrahi/typhoon">Support</a>
-</div>
-	<div class="full">
-		<div class="toggleswitch measurement">
-			<span data-type="c">R</span><span data-type="f">T</span><span data-type="k">K</span>
-		</div>
-		<div class="toggleswitch speed">
-			<span data-type="mph">mph</span><span data-type="kph">km/h</span><span data-type="ms">m/s</span>
-		</div>
-		<div class="color">
-			<span data-color="gradient"></span>
-			<span data-color="575591"></span>
-			<span data-color="FF0097"></span>
-			<span data-color="00ABA9"></span>
-			<span data-color="8CBF26"></span>
-			<span data-color="A05000"></span>
-			<span data-color="333333"></span>
-			<span data-color="F09609"></span>
-			<span data-color="1BA1E2"></span>
-			<span data-color="FF8E83"></span>
-			<span data-color="339933"></span>
-		</div>
-		<br>
-		<div class="launcher">
-			<input type="checkbox" id="launcherswitch"><label for="launcherswitch">Show Unity Launcher Count</label>
-		</div>
-			<br>
-			Opacity <br><br>
-			<input id="slider" type="range" min ="0.1" max="1.0" step ="0.05" onchange="updateTitle(this.value);"/>
-		
-		<br><br>&nbsp;&nbsp;&nbsp;<a class="btn" tag="credits">CREDITS</a>&nbsp;&nbsp;<a class="btn" id="resetButton">RESET SETTINGS</a>
-		<!-- <a class="btn" href="https://sites.google.com/site/typhoonweatherapp/help-and-how-to-1">HOW TO</a>&nbsp;&nbsp;<a class="btn" href="https://gabrielbarbosanascimento.github.io/Up-Clock/">UP CLOCK</a> -->
-	<br><br><br><br>
-	</div>
-</div>
+<div id="appWrapper">
+    <div id="container">
+        <div class="border">
+            <div class="close">&#10005;</div>
+            <div class="minimize">&#150;</div>
+            <div class="settings"><img src="settings.svg"></div>
+            <div class="sync"><img src="sync.svg"></div>
+        </div>
+        <div id="actualWeather">
+            <div id="city"><span></span></div>
+            <div id="code"></div>
+            <div class="details">
+                <div class="left">
+                    <span id="thermometer" style="font-family: 'ClimaconsRegular'; position: relative; top: -12px; right: -5px;"></span>
+                    <span id="temperature"></span>
+                </div>
+                <div class="right">
+                    <span id="windSpeed"></span> <span id="windUnit"></span><br>
+                    <span id="humidity"></span>
+                </div>
+            </div>
+            <div class="week">
+                <div id="0">
+                    <span class="day"></span>
+                    <span class="codeweek"><span class="code"></span></span>
+                    <span class="temp"></span>
+                </div>
+                <div id="1">
+                    <span class="day"></span>
+                    <span class="codeweek"><span class="code"></span></span>
+                    <span class="temp"></span>
+                </div>
+                <div id="2">
+                    <span class="day"></span>
+                    <span class="codeweek"><span class="code"></span></span>
+                    <span class="temp"></span>
+                </div>
+                <div id="3">
+                    <span class="day"></span>
+                    <span class="codeweek"><span class="code"></span></span>
+                    <span class="temp"></span>
+                </div>
+                <!-- <div id="4">
+                    <span class="day"></span>
+                    <span class="code2"><span class="code"></span></span>
+                    <span class="temp"></span>
+                </div> -->
+            </div>
+        </div>
+    </div>
+    <div id="locationModal">
+        <div class="credits">
+            <img src="back.svg">
+            <h1 style="text-align: center">Typhoon 0.9</h1>
+            <br>
+            <p>Typhoon is a simple weather application for Ubuntu. It is and always will be free.<br> 
+            <a href="https://github.com/apandada1/typhoon/">Source code</a> is released under <a href="http://www.gnu.org/licenses/gpl.html">GPL-3</a>.</p>
+            <li>Based on <a href="https://github.com/consindo/stormcloud/tree/e7ef8e131466d477075e92337e502c3cac004ee2">Stormcloud 1.1</a> by <a href="https://github.com/consindo">Jono Cooper</a>.</li>
+            <li>Currently developed and maintained by <a href="https://github.com/archisman-panigrahi">Archisman Panigrahi</a> and ChatGPT :)</li>
+            <li>Icons (<a href="https://web.archive.org/web/20160531215708/http://adamwhitcroft.com/climacons/">Climacons</a>) by <a href="https://adamwhitcroft.com/">Adam Whitcroft</a>.</li>
+            <li>Powered by <a href="https://open-meteo.com/">Open Meteo</a>.</li><br>
+            <h3>Contributors:</h3>
+            <li><a href="https://github.com/zlatanvasovic">Zlatan Vasović</a></li>
+            <!-- <li>Esteban <a href="https://sites.google.com/site/typhoonweatherapp/help-and-how-to-1/howtomaketyphoonavailableineveryworkspace">(Found the way to make the app visible in every workspace)</a></li> -->
+            <br>
+            <h3 style="text-align: center">Thanks for using.</h3><br><br>
+        </div>
+        <div class="input">
+        <input type="text" placeholder="Location"><span class="loader"></span><br>
+        e.g. "Boston,US", "Kolkata,IN"<br>
+        <!-- <div id="apiKeyContainer">
+            <br>
+            <input type="text" id="apiKeyInput" placeholder="Enter API Key"><br>
+            <button class="btn" id="saveApiKeyButton">Save API Key</button>
+            <p>Get your free API key <a href="https://home.openweathermap.org/api_keys">HERE</a></p>
+        </div> -->
+        <a class="btn" href="https://github.com/archisman-panigrahi/typhoon">Support</a>
+    </div>
+        <div class="full">
+            <div class="toggleswitch measurement">
+                <span data-type="c">R</span><span data-type="f">T</span><span data-type="k">K</span>
+            </div>
+            <div class="toggleswitch speed">
+                <span data-type="mph">mph</span><span data-type="kph">km/h</span><span data-type="ms">m/s</span>
+            </div>
+            <div class="color">
+                <span data-color="gradient"></span>
+                <span data-color="575591"></span>
+                <span data-color="FF0097"></span>
+                <span data-color="00ABA9"></span>
+                <span data-color="8CBF26"></span>
+                <span data-color="A05000"></span>
+                <span data-color="333333"></span>
+                <span data-color="F09609"></span>
+                <span data-color="1BA1E2"></span>
+                <span data-color="FF8E83"></span>
+                <span data-color="339933"></span>
+            </div>
+            <br>
+            <div class="launcher">
+                <input type="checkbox" id="launcherswitch"><label for="launcherswitch">Show Unity Launcher Count</label>
+            </div>
+                <br>
+                Opacity <br><br>
+                <input id="slider" type="range" min ="0.1" max="1.0" step ="0.05" onchange="updateTitle(this.value);"/>
+            
+            <br><br>&nbsp;&nbsp;&nbsp;<a class="btn" tag="credits">CREDITS</a>&nbsp;&nbsp;<a class="btn" id="resetButton">RESET SETTINGS</a>
+            <!-- <a class="btn" href="https://sites.google.com/site/typhoonweatherapp/help-and-how-to-1">HOW TO</a>&nbsp;&nbsp;<a class="btn" href="https://gabrielbarbosanascimento.github.io/Up-Clock/">UP CLOCK</a> -->
+        <br><br><br><br>
+        </div>
+    </div>
 <div id="errorMessage">
-	Could not connect to internet.<br>
-	Check your internet connection.<br>
-	<button class="btn">TRY AGAIN</button>
+    Could not connect to internet.<br>
+    Check your internet connection.<br>
+    <button class="btn">TRY AGAIN</button>
+</div>
 </div>
 <script src="jquery-3.7.1.min.js"></script>
 <script src="script.js"></script>
