@@ -17,6 +17,24 @@
         selectedSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); // Scroll to the section
       }
     </script>
+    <script>
+      async function updateFlatpakLink() {
+        const flatpakButton = document.querySelector('.btn-ubuntu[href*="typhoon.flatpak"]');
+        try {
+          const response = await fetch('https://api.github.com/repos/archisman-panigrahi/typhoon/releases/latest');
+          if (!response.ok) throw new Error('Failed to fetch release info');
+          const release = await response.json();
+          const latestFlatpakUrl = release.assets.find(asset => asset.name.endsWith('.flatpak'))?.browser_download_url;
+          if (latestFlatpakUrl) {
+            flatpakButton.href = latestFlatpakUrl;
+          }
+        } catch (error) {
+          console.error('Error updating Flatpak link:', error);
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', updateFlatpakLink);
+    </script>
   </head>
   <body>
     <div class="content">
@@ -44,14 +62,14 @@ sudo apt install typhoon</code></pre>
       </div>
       
       <!-- Flatpak Installation Instructions -->
-      <div id="flatpak-instructions" class="instructions">
+      <!-- <div id="flatpak-instructions" class="instructions">
         <h2>Flatpak Installation Instructions</h2>
         <p>Coming Soon :)</p>
-        <!-- <p>Install via Flatpak:</p>
+        <p>Install via Flatpak:</p>
         <pre><code>flatpak install flathub com.github.apandada1.Typhoon</code></pre>
         <p>Run the app with:</p>
-        <pre><code>flatpak run com.github.apandada1.Typhoon</code></pre> -->
-      </div>
+        <pre><code>flatpak run com.github.apandada1.Typhoon</code></pre>
+      </div> -->
 
       <div id="other-gnu-linux-instructions" class="instructions">
         <a href="https://repology.org/project/typhoon/versions">
