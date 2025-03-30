@@ -28,12 +28,20 @@ class TyphoonWindow(Gtk.Window):
         self._setup_unity_launcher()
         self.drag_enabled = True  # Enable dragging by default
 
-        # Retrieve the last remembered size from a configuration file
+        # Retrieve the last remembered size and position from a configuration file
         last_width, last_height = self._get_last_window_size()
-        self.set_default_size(last_width, last_height)
+        last_position = self._get_last_window_position()
 
-        # Connect to the configure-event signal to maintain aspect ratio
+        self.set_default_size(last_width, last_height)
+        if last_position:
+            last_x, last_y = last_position
+            self.move(last_x, last_y)
+        else:
+            self.set_position(Gtk.WindowPosition.CENTER)  # Default to center of the screen
+
+        # Connect to the configure-event signal to maintain aspect ratio and save position
         self.connect("configure-event", self._maintain_aspect_ratio)
+        self.connect("configure-event", self._save_window_position)
 
         # Enable resizing by setting the window as resizable
         self.set_resizable(True)
@@ -172,7 +180,7 @@ class TyphoonWindow(Gtk.Window):
 
     def _get_last_window_size(self):
         """Retrieves the last remembered window size from a configuration file."""
-        config_file = os.path.expanduser("~/.config/typhoon.conf")
+        config_file = os.path.expanduser("~/.config/typhoon_size.conf")
         try:
             with open(config_file, "r") as file:
                 size = file.read().strip().split("x")
@@ -184,9 +192,28 @@ class TyphoonWindow(Gtk.Window):
 
     def _save_window_size(self, width, height):
         """Saves the current window size to a configuration file."""
-        config_file = os.path.expanduser("~/.config/typhoon.conf")
+        config_file = os.path.expanduser("~/.config/typhoon_size.conf")
         with open(config_file, "w") as file:
             file.write(f"{width}x{height}")
+
+    def _get_last_window_position(self):
+        """Retrieves the last remembered window position from a configuration file."""
+        config_file = os.path.expanduser("~/.config/typhoon_position.conf")
+        try:
+            with open(config_file, "r") as file:
+                position = file.read().strip().split(",")
+                x, y = int(position[0]), int(position[1])
+                return x, y
+        except (FileNotFoundError, ValueError):
+            # Return None if no configuration is found
+            return None
+
+    def _save_window_position(self, widget, event):
+        """Saves the current window position to a configuration file."""
+        x, y = self.get_position()
+        config_file = os.path.expanduser("~/.config/typhoon_position.conf")
+        with open(config_file, "w") as file:
+            file.write(f"{x},{y}")
 
     def _handle_policy_decision(self, webview, decision, decision_type):
         """Handles navigation policy decisions for the WebView."""
