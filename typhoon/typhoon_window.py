@@ -154,7 +154,26 @@ class TyphoonWindow(Gtk.Window):
     def _on_load_changed(self, webview, load_event):
         """Handles the load-changed event for the WebView."""
         if load_event == WebKit2.LoadEvent.FINISHED:
-            # Run the xprop command to get the GNOME background representative colors
+            # Try to get the dominant color from the wallpaper
+            try:
+                # Get the wallpaper path
+                wallpaper_path = self.get_wallpaper_path()
+
+                # Use ImageMagick's `convert` command to get the dominant color
+                command = f'convert "{wallpaper_path}" -resize 1x1 txt:- | awk \'NR==2 {{print $3}}\''
+                dominant_color = subprocess.check_output(command, shell=True, text=True).strip()
+
+                # Validate the color format
+                if dominant_color.startswith("#"):
+                    print(f"Extracted hex color from wallpaper: {dominant_color}")  # Debugging: Print the hex color
+                    self.send_message_to_webview(f"'{dominant_color[1:]}'")  # Remove the '#' for the WebView
+                    return
+                else:
+                    raise ValueError("Invalid color format from wallpaper method")
+            except Exception as e:
+                print(f"Error determining color from wallpaper: {e}")
+
+            # Fallback to the xprop method
             try:
                 # Run xprop and pipe its output to grep
                 xprop_process = subprocess.Popen(
@@ -184,12 +203,12 @@ class TyphoonWindow(Gtk.Window):
                         rgb_values = rgb_string[4:-1].split(",")
                         rgb = tuple(map(int, rgb_values))  # Convert to integers
                         hex_color = "{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])  # Convert to hex
-                        print(f"Extracted hex color: {hex_color}")  # Debugging: Print the hex color
+                        print(f"Extracted hex color from xprop: {hex_color}")  # Debugging: Print the hex color
 
                         # Send the hex color to the WebView
                         self.send_message_to_webview(f"'{hex_color}'")
                     except (IndexError, ValueError) as e:
-                        print(f"Error parsing RGB values: {e}")
+                        print(f"Error parsing RGB values from xprop: {e}")
                         self.send_message_to_webview("'575591'")  # Default to purple
                 else:
                     print("No representative colors found in xprop output.")
@@ -348,6 +367,25 @@ class TyphoonWindow(Gtk.Window):
                 self.launcher.set_property("count", count)
             except (ValueError, NameError):
                 pass
+
+    def get_wallpaper_path(self):
+        """Retrieves the current wallpaper path based on the desktop environment."""
+        de = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
+
+        if "gnome" in de:
+            command = "gsettings get org.gnome.desktop.background picture-uri"
+            wallpaper = subprocess.check_output(command, shell=True).decode().strip().strip("'").split('file://')[-1]
+        elif "cinnamon" in de:
+            command = "gsettings get org.cinnamon.desktop.background picture-uri"
+            wallpaper = subprocess.check_output(command, shell=True).decode().strip().strip("'").split('file://')[-1]
+        elif "xfce" in de:
+            command = "xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path"
+            wallpaper = subprocess.check_output(command, shell=True).decode().strip()
+        else:
+            raise Exception(f"Unsupported desktop environment: {de}")
+
+        print(f"Wallpaper path: {wallpaper}")
+        return wallpaper
 
     def _handle_mouse_press(self, widget, event):
         """Handles mouse button press events."""
