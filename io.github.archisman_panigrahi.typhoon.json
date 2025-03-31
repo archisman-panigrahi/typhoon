@@ -16,22 +16,6 @@
           "branch": "master"
         }
       ]
-    },
-    {
-      "name": "imagemagick",
-      "buildsystem": "simple",
-      "build-commands": [
-        "./configure --prefix=/app",
-        "make",
-        "make install"
-      ],
-      "sources": [
-        {
-          "type": "archive",
-          "url": "https://download.imagemagick.org/ImageMagick/download/releases/ImageMagick-7.1.1-10.tar.xz",
-          "sha256": "ad5c61dd7e77a963682a5ced1af097026aadf971781b30418c8ee8d487792584"
-        }
-      ]
     }
   ],
   "finish-args": [
