@@ -378,9 +378,27 @@ class TyphoonWindow(Gtk.Window):
         elif "cinnamon" in de:
             command = "gsettings get org.cinnamon.desktop.background picture-uri"
             wallpaper = subprocess.check_output(command, shell=True).decode().strip().strip("'").split('file://')[-1]
-        elif "xfce" in de:
-            command = "xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path"
-            wallpaper = subprocess.check_output(command, shell=True).decode().strip()
+        elif "mate" in de:
+            command = "gsettings get org.mate.desktop.background picture-uri"
+            wallpaper = subprocess.check_output(command, shell=True).decode().strip().strip("'").split('file://')[-1]
+        # elif "xfce" in de:
+        #     command = "xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path"
+        #     wallpaper = subprocess.check_output(command, shell=True).decode().strip()
+        elif "kde" in de:
+            config_file = os.path.expanduser("~/.config/plasma-org.kde.plasma.desktop-appletsrc")
+            with open(config_file, "r") as file:
+                for line in file:
+                    if line.strip().startswith("Image="):
+                        wallpaper = line.strip().split("=", 1)[1]
+                        if wallpaper.endswith("/"):
+                            # If it's a directory, look for jpg or png files
+                            print("kde: wallpaper it is a directory")
+                            wallpaper = os.path.join(wallpaper, "contents", "images")
+                            for file in os.listdir(wallpaper):
+                                if file.lower().endswith((".jpg", ".png")):
+                                    wallpaper = os.path.join(wallpaper, file)
+                                    break
+                        break
         else:
             raise Exception(f"Unsupported desktop environment: {de}")
 
