@@ -153,7 +153,7 @@ pre code {
 }
 
 /* Responsive styles for smaller screens */
-@media (max-width: 1366px) {
+@media (max-width: 768px) {
     h1 {
         font-size: 1.8rem;
     }
