@@ -196,7 +196,7 @@ function renderWeeklyForecast(weeklyData) {
         // Update the DOM with the converted temperatures and Climacons icon
         $(`#${index} .day`).text(day.day);
         $(`#${index} .code`).text(weather_code(day.icon,1)).attr("class", "w" + day.icon);
-        tempElement.text(`${tempMin}° / ${tempMax}° ${unit.toUpperCase()}`);
+        tempElement.text(`${tempMin}${unit === 'k' ? '' : '°'} / ${tempMax}${unit === 'k' ? '' : '°'} ${unit.toUpperCase()}`);
     });
 }
 
