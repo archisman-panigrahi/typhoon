@@ -1,2 +1,3 @@
 #!/bin/bash
+export GDK_BACKEND=x11
 python3 @script@
