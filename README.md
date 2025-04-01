@@ -30,6 +30,8 @@ It is also available on the [AUR](https://aur.archlinux.org/packages/typhoon),
 yay -S typhoon
 ```
 
+An experimetnal [flatpak installer](https://github.com/archisman-panigrahi/typhoon/releases) is also available.
+
 ## Build System
 This project uses the Meson build system for configuration and installation.
 
