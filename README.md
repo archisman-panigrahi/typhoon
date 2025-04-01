@@ -25,9 +25,9 @@ sudo apt update
 sudo apt install typhoon
 ```
 
-It is also available on the [AUR](https://aur.archlinux.org/packages/typhoon-git),
+It is also available on the [AUR](https://aur.archlinux.org/packages/typhoon),
 ```
-yay -S typhoon-git
+yay -S typhoon
 ```
 
 ## Build System
