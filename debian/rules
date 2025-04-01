@@ -5,3 +5,6 @@
 
 %:
 	dh $@ --buildsystem=meson
+
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
