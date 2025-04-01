@@ -4,3 +4,6 @@
 build/
 .flatpak-builder
 repo/
+debian/typhoon*
+debian/*debhelper*
+debian/files
