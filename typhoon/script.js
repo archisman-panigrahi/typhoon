@@ -1,11 +1,11 @@
 // Fetch current weather data from Open-Meteo
 function getWeatherData(cityName, callback) {
-    const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}`;
+    const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
 
-    // First, get the latitude and longitude of the city
+    // First, get the latitude and longitude of the city using OpenStreetMap's Nominatim API
     $.get(geocodingUrl, function (geoData) {
-        if (geoData && geoData.results && geoData.results.length > 0) {
-            const { latitude, longitude } = geoData.results[0];
+        if (geoData && geoData.length > 0) {
+            const { lat: latitude, lon: longitude, display_name } = geoData[0];
 
             // Fetch weather data using the latitude and longitude
             const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m`;
@@ -17,15 +17,18 @@ function getWeatherData(cityName, callback) {
                     const hourlyHumidity = weatherData.hourly.relative_humidity_2m[0]; // Get the first hourly value
                     currentWeather.relative_humidity_2m = hourlyHumidity; // Add it to the current weather object
 
+                    // Use the country from the Nominatim API's address field
+                    const countryName = display_name.split(',').pop().trim() || "Unknown Country";
+
+                    console.log("Full Address:", display_name);
                     // Print is_day and weathercode values to the console
                     console.log("is_day:", currentWeather.is_day);
                     console.log("weathercode:", currentWeather.weathercode);
 
                     $('#errorMessage').fadeOut(350); // Hide the error message if the request succeeds
-                    callback(currentWeather, geoData.results[0]); // Pass weather and location data
+                    callback(currentWeather, geoData[0]); // Pass weather and location data
                 } else {
                     console.error("Unexpected API response:", weatherData);
-                    //showError('Invalid data received from the weather API.');
                     $("#locationModal .loader").attr("class", "loader").html("&#10005;");
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -36,7 +39,6 @@ function getWeatherData(cityName, callback) {
         } else {
             console.error("Geocoding failed:", geoData);
             $("#locationModal .loader").attr("class", "loader").html("&#10005;");
-            // showError('City not found. Please enter a valid city name.');
         }
     }).fail(function (jqXHR, textStatus, errorThrown) {
         console.error("Geocoding request failed:", textStatus, errorThrown);
@@ -47,12 +49,12 @@ function getWeatherData(cityName, callback) {
 
 // Fetch weekly forecast data from Open-Meteo
 function getWeeklyForecast(cityName, callback) {
-    const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}`;
+    const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
 
-    // First, get the latitude and longitude of the city
+    // First, get the latitude and longitude of the city using OpenStreetMap's Nominatim API
     $.get(geocodingUrl, function (geoData) {
-        if (geoData && geoData.results && geoData.results.length > 0) {
-            const { latitude, longitude } = geoData.results[0];
+        if (geoData && geoData.length > 0) {
+            const { lat: latitude, lon: longitude } = geoData[0];
 
             // Fetch forecast data using the latitude and longitude
             const forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_min,temperature_2m_max,weathercode&temperature_unit=fahrenheit&timezone=auto`;
@@ -105,13 +107,12 @@ function render(cityName) {
             showError('Failed to fetch weather data. Please try again.');
             return;
         }
-        // const cityLink = `https://open-meteo.com/en/docs`; // Open-Meteo documentation link
 
         // Update the city div with a hyperlink
-        const mapUrl = `https://www.openstreetmap.org/?mlat=${locationData.latitude}&mlon=${locationData.longitude}#map=10/${locationData.latitude}/${locationData.longitude}`;
-
-        $('#city span').html(`<a href="${mapUrl}">${locationData.name}, ${locationData.country}</a>`);
-        // $('#city span').html(`${locationData.name}, ${locationData.country}`);
+        const mapUrl = `https://www.openstreetmap.org/?mlat=${locationData.lat}&mlon=${locationData.lon}#map=10/${locationData.lat}/${locationData.lon}`;
+        const countryName = locationData.display_name.split(',').pop().trim() || "Unknown Country"; // Extract country from display_name
+        
+        $('#city span').html(`<a href="${mapUrl}">${locationData.name}, ${countryName}</a>`);
         $("#code").text(weather_code(currentWeather.weathercode, currentWeather.is_day)).attr("class", "w" + currentWeather.weathercode);
 
         // Sets initial temp as Fahrenheit

@@ -1,3 +1,9 @@
+typhoon (0.9.5) noble; urgency=medium
+
+  * switched to openstreetmap for better location search (e.g. "London,US")
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Mon, 31 Mar 2025 20:42:53 -0400
+
 typhoon (0.9.4) noble; urgency=medium
 
   * Fix chameleonic background for Wayland and non-gnome DEs
