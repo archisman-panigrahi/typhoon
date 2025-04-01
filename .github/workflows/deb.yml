@@ -25,7 +25,7 @@ jobs:
 
       - run: sudo apt-get update
       - run: sudo apt-get install build-essential debhelper meson python3-setuptools dh-make
-      - run: dpkg-buildpackage -us -uc -nc
+      - run: DPKG_DEB_COMPRESSOR_TYPE=xz dpkg-buildpackage -us -uc -nc
       - run: mv ../*.deb .
 
       # Upload the .deb package to the GitHub release
