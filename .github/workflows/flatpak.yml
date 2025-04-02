@@ -23,9 +23,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: flatpak-bundle
-          path: typhoon.flatpak
+          path: typhoon(experimental).flatpak
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: typhoon.flatpak
+          files: typhoon(experimental).flatpak
