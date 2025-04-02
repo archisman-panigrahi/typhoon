@@ -88,11 +88,12 @@ function getWeeklyForecast(cityName, callback) {
 function processForecastData(dailyData) {
     const { time, temperature_2m_min, temperature_2m_max, weathercode } = dailyData;
 
-    return time.map((date, index) => ({
+    // Skip the zeroth component and include the next four days
+    return time.slice(1, 5).map((date, index) => ({
         day: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
-        tempMin: temperature_2m_min[index],
-        tempMax: temperature_2m_max[index],
-        icon: weathercode[index], // Use weather code for icons
+        tempMin: temperature_2m_min[index + 1],
+        tempMax: temperature_2m_max[index + 1],
+        icon: weathercode[index + 1],
     }));
 }
 
