@@ -37,8 +37,9 @@ This project uses the Meson build system for configuration and installation.
 
 ### Build Instructions
 1. Ensure you have Meson and Ninja installed on your system.
-2. Navigate to the project directory.
-3. Run the following commands to build and install the application:
+2. Install the dependencies: `webkit2gtk`, `gtk3`, `imagemagick`.
+3. Navigate to the project directory.
+4. Run the following commands to build and install the application:
 
 ```bash
 meson setup builddir --prefix=/usr
