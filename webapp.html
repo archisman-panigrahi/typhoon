@@ -32,6 +32,12 @@
         background-color: #ffffff; /* Fallback background for iframe */
       }
     </style>
+    <script>
+      // Disable right-click context menu
+      document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+      });
+    </script>
   </head>
   <body>
     <div class="iframe-wrapper">
