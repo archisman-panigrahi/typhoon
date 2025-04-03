@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Typhoon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="assets/img/typhoon.ico" type="image/x-icon">
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #ffcc99, #ff9966); /* Warm gradient background */
+      }
+      .iframe-wrapper {
+        position: relative;
+        width: 90%; /* Adjust width as needed */
+        max-width: 300px; /* Maintain max width */
+        aspect-ratio: 3 / 5; /* Maintain 300x500 aspect ratio */
+      }
+      iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 10px; /* Rounded corners for the iframe */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        background-color: #ffffff; /* Fallback background for iframe */
+      }
+    </style>
+    <script>
+      // Disable right-click context menu
+      document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+      });
+    </script>
+  </head>
+  <body>
+    <div class="iframe-wrapper">
+      <iframe src="web-app/typhoon.html"></iframe>
+    </div>
+  </body>
+</html>

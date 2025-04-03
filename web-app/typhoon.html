@@ -1,0 +1,139 @@
+<!-- <!DOCTYPE html> -->
+<html>
+<head>
+<meta charset="utf-8">
+<link href="style.css" rel="stylesheet">
+</head>
+<body onload="opacity()">
+<div id="appWrapper">
+    <div id="container">
+        <div class="border">
+            <!-- <div class="close">&#10005;</div> -->
+            <!-- <div class="minimize">&#150;</div> -->
+            <!-- <a href="https://archisman-panigrahi.github.io/typhoon" target="_blank"><img src="back.svg" style="transform: scale(1.2); position: relative; left: 10px; top: 5px; opacity: 0.8;"></a> -->
+            <div class="settings"><img src="settings.svg"></div>
+            <div class="sync"><img src="sync.svg"></div>
+        </div>
+        <div id="actualWeather">
+            <div id="city"><span></span></div>
+            <div id="code"></div>
+            <div class="details">
+                <div class="left">
+                    <span id="thermometer" style="font-family: 'ClimaconsRegular'; position: relative; top: -12px; right: -5px;"></span>
+                    <span id="temperature"></span>
+                </div>
+                <div class="right">
+                    <span id="windSpeed"></span> <span id="windUnit"></span><br>
+                    <!-- <svg id="humidityIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="20" height="20" style="vertical-align: middle;" title="Humidity"> -->
+                        <!-- Tooltip -->
+                        <!-- <title>Humidity</title> -->
+                        <!-- Droplet -->
+                        <!-- <path d="M32 2C32 2 12 22 12 36c0 11.046 8.954 20 20 20s20-8.954 20-20C52 22 32 2 32 2zM32 52c-8.837 0-16-7.163-16-16 0-10.493 12.493-23.493 16-27.493C35.507 12.507 48 25.507 48 36 48 44.837 40.837 52 32 52z" fill="#FFFFFF"/> -->
+                    <!-- </svg> -->
+                    <span id="humidity" title="Humidity"></span>
+                </div>
+            </div>
+            <div class="week">
+                <div id="0">
+                    <span class="day"></span>
+                    <span class="codeweek"><span class="code"></span></span>
+                    <span class="temp"></span>
+                </div>
+                <div id="1">
+                    <span class="day"></span>
+                    <span class="codeweek"><span class="code"></span></span>
+                    <span class="temp"></span>
+                </div>
+                <div id="2">
+                    <span class="day"></span>
+                    <span class="codeweek"><span class="code"></span></span>
+                    <span class="temp"></span>
+                </div>
+                <div id="3">
+                    <span class="day"></span>
+                    <span class="codeweek"><span class="code"></span></span>
+                    <span class="temp"></span>
+                </div>
+                <!-- <div id="4">
+                    <span class="day"></span>
+                    <span class="code2"><span class="code"></span></span>
+                    <span class="temp"></span>
+                </div> -->
+            </div>
+        </div>
+    </div>
+    <div id="locationModal">
+        <div class="credits">
+            <img src="back.svg">
+            <h1 style="text-align: center">Typhoon 0.9.6 webapp</h1>
+            <br>
+            <p>Typhoon is a simple weather application for Ubuntu. It is and always will be free.<br> 
+            <a href="https://github.com/apandada1/typhoon/" target="_blank">Source code</a> is released under <a href="http://www.gnu.org/licenses/gpl.html" target="_blank">GPL-3</a>.</p>
+            <li>Based on <a href="https://github.com/consindo/stormcloud/tree/e7ef8e131466d477075e92337e502c3cac004ee2" target="_blank">Stormcloud 1.1</a> by <a href="https://github.com/consindo" target="_blank">Jono Cooper</a>.</li>
+            <li>Currently developed and maintained by <a href="https://github.com/archisman-panigrahi" target="_blank">Archisman Panigrahi</a> and ChatGPT :)</li>
+            <li>Icons (<a href="https://web.archive.org/web/20160531215708/http://adamwhitcroft.com/climacons/" target="_blank">Climacons</a>) by <a href="https://adamwhitcroft.com/" target="_blank">Adam Whitcroft</a>.</li>
+            <li>Powered by <a href="https://open-meteo.com/" target="_blank">Open Meteo</a> and <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a>.</li>
+            <h3>Contributors:</h3>
+            <li><a href="https://github.com/zlatanvasovic" target="_blank">Zlatan Vasović</a></li>
+<!-- <li>Esteban <a href="https://sites.google.com/site/typhoonweatherapp/help-and-how-to-1/howtomaketyphoonavailableineveryworkspace" target="_blank">(Found the way to make the app visible in every workspace)</a></li> -->
+            <br>
+            <h3 style="text-align: center">Thanks for using.</h3><br><br>
+        </div>
+        <div class="input">
+        <input type="text" placeholder="Location"><span class="loader"></span><br>
+        e.g. Boston, Kolkata, Paris<br>
+        <!-- <div id="apiKeyContainer">
+            <br>
+            <input type="text" id="apiKeyInput" placeholder="Enter API Key"><br>
+            <button class="btn" id="saveApiKeyButton">Save API Key</button>
+            <p>Get your free API key <a href="https://home.openweathermap.org/api_keys">HERE</a></p>
+        </div> -->
+        <a class="btn" href="https://github.com/archisman-panigrahi/typhoon" target="_blank">Support</a>
+    </div>
+        <div class="full">
+            <div class="toggleswitch measurement">
+                <span data-type="c">R</span><span data-type="f">T</span><span data-type="k">K</span>
+            </div>
+            <div class="toggleswitch speed">
+                <span data-type="mph">mph</span><span data-type="kph">km/h</span><span data-type="ms">m/s</span>
+            </div>
+            <div class="color">
+                <span data-color="gradient"></span>
+                <!-- <span data-color="chameleonic"> -->
+                    <!-- <img src="chameleon-svgrepo-com.svg" alt="Chameleon Icon" style="width: 90%; height: 90%; display: block; margin: 0 auto;" title="Wallpaper based Chameleonic background"> -->
+                <!-- </span> -->
+                <span data-color="575591"></span>
+                <span data-color="FF0097"></span>
+                <span data-color="00ABA9"></span>
+                <span data-color="8CBF26"></span>
+                <span data-color="A05000"></span>
+                <span data-color="333333"></span>
+                <span data-color="F09609"></span>
+                <span data-color="1BA1E2"></span>
+                <span data-color="FF8E83"></span>
+                <span data-color="339933"></span>
+            </div>
+            <!-- <br> -->
+            <!-- <div class="launcher"> -->
+                <!-- <input type="checkbox" id="launcherswitch"><label for="launcherswitch">Show Unity Launcher Count</label> -->
+            <!-- </div> -->
+                <!-- <br> -->
+                <!-- Opacity <br><br> -->
+                <!-- <input id="slider" type="range" min ="0.1" max="1.0" step ="0.05" onchange="updateTitle(this.value);"/> -->
+            
+        <br><br>&nbsp;&nbsp;&nbsp;
+        <a class="btn" tag="credits">CREDITS</a>&nbsp;&nbsp;<a class="btn" href="https://archisman-panigrahi.github.io/typhoon" target="_blank">HOMEPAGE</a>&nbsp;&nbsp;<a class="btn" id="resetButton">RESET</a>
+        <br>
+        <p>More features like opacity and chameleonic background color are available on the <strong>GNU/Linux</strong> version of Typhoon. Check it out <a href="https://archisman-panigrahi.github.io/typhoon" target="_blank"><u>here</u></a>.</p>
+        </div>
+    </div>
+<div id="errorMessage">
+    Could not connect to internet.<br>
+    Check your internet connection.<br>
+    <button class="btn">TRY AGAIN</button>
+</div>
+</div>
+<script src="jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
