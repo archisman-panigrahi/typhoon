@@ -113,7 +113,7 @@ function render(cityName) {
         const mapUrl = `https://www.openstreetmap.org/?mlat=${locationData.lat}&mlon=${locationData.lon}#map=10/${locationData.lat}/${locationData.lon}`;
         const countryName = locationData.display_name.split(',').pop().trim() || "Unknown Country"; // Extract country from display_name
         
-        $('#city span').html(`<a href="${mapUrl}">${locationData.name}, ${countryName}</a>`);
+        $('#city span').html(`<a href="${mapUrl}" target="_blank">${locationData.name}, ${countryName}</a>`);
         $("#code").text(weather_code(currentWeather.weathercode, currentWeather.is_day)).attr("class", "w" + currentWeather.weathercode);
 
         // Sets initial temp as Fahrenheit

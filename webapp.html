@@ -14,9 +14,18 @@
         height: 100vh;
         background: linear-gradient(135deg, #ffcc99, #ff9966); /* Warm gradient background */
       }
+      .iframe-wrapper {
+        position: relative;
+        width: 90%; /* Adjust width as needed */
+        max-width: 300px; /* Maintain max width */
+        aspect-ratio: 3 / 5; /* Maintain 300x500 aspect ratio */
+      }
       iframe {
-        width: 300px;
-        height: 500px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         border: none;
         border-radius: 10px; /* Rounded corners for the iframe */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -25,6 +34,8 @@
     </style>
   </head>
   <body>
-    <iframe src="web-app/typhoon.html"></iframe>
+    <div class="iframe-wrapper">
+      <iframe src="web-app/typhoon.html"></iframe>
+    </div>
   </body>
 </html>
