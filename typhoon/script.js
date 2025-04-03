@@ -410,8 +410,9 @@ $(document).ready(function() {
 
         setInterval(function() {
             console.log("Updating Data...")
+            document.title = "refreshing data";
             $(".border .sync").click()
-        }, 12000000)
+        }, 1200000)
     }
 
     // Add event listener for the reset button
