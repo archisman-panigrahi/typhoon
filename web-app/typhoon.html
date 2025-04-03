@@ -135,5 +135,11 @@
 </div>
 <script src="jquery-3.7.1.min.js"></script>
 <script src="script.js"></script>
+<!-- Add this script to disable right-clicking -->
+<script>
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+</script>
 </body>
 </html>
