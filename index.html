@@ -29,9 +29,8 @@
 
         // Function to update Flatpak and .deb links and fetch the latest version
         async function updateFlatpakLink() {
-          const $flatpakButton = $('.btn-ubuntu[href*="typhoon.flatpak"]');
-          const $debianLink = $('a[href*="typhoon/releases"]'); // Select the Debian/Chrome OS link
-          const $debTextLink = $('#deb-text-link'); // Select the text link for the .deb package
+          const $flatpakButton = $('.btn-ubunru[href*="typhoon.flatpak"]');
+          const $debTextLinks = $('[id="deb-text-link"]'); // Select all elements with the ID 'deb-text-link'
           const $versionElement = $('#latest-version'); // Select the element to display the latest version
 
           try {
@@ -45,11 +44,10 @@
               $flatpakButton.attr('href', latestFlatpakUrl);
             }
 
-            // Update .deb link
+            // Update .deb links
             const latestDebUrl = release.assets.find(asset => asset.name.endsWith('.deb'))?.browser_download_url;
             if (latestDebUrl) {
-              $debianLink.attr('href', latestDebUrl);
-              $debTextLink.attr('href', latestDebUrl); // Update the text link for the .deb package
+              $debTextLinks.attr('href', latestDebUrl); // Update all elements with the ID 'deb-text-link'
             }
 
             // Update the latest version
@@ -112,7 +110,7 @@ sudo apt install typhoon</code></pre>
             <pre><code>yay -S typhoon</code></pre>
           </li>
           <li>
-            <strong>Debian/Chrome OS:</strong> <a href="https://github.com/archisman-panigrahi/typhoon/releases" target="_blank">Download the latest .deb file</a> from GitHub releases.
+            <strong>Debian/Chrome OS:</strong> <a id="deb-text-link" href="https://github.com/archisman-panigrahi/typhoon/releases" target="_blank">Download the latest .deb file</a> from GitHub releases.
           </li>
           <li>
             <strong>Other Distributions:</strong> Download the source code from <a href="https://github.com/archisman-panigrahi/typhoon" target="_blank">GitHub</a> and build it manually:
