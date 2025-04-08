@@ -546,13 +546,21 @@ function init_settings() {
         document.title = "enable_launcher"
     }
     $('#locationModal .launcher input').click(function() {
-        localStorage.typhoon_launcher = $('#locationModal .launcher input').attr("checked")
-        if (localStorage.typhoon_launcher == "checked") {
-            document.title = "enable_launcher"
+        localStorage.typhoon_launcher = $('#locationModal .launcher input').prop("checked") ? "checked" : "unchecked";
+        if (localStorage.typhoon_launcher === "checked") {
+            document.title = "enable_launcher";
         } else {
-            document.title = "disable_launcher"
+            document.title = "disable_launcher";
         }
-    })
+    });
+
+    if (localStorage.typhoon_launcher === "checked") {
+        $('#locationModal .launcher input').prop("checked", true);
+        document.title = "enable_launcher";
+    } else {
+        $('#locationModal .launcher input').prop("checked", false);
+        document.title = "disable_launcher";
+    }
 
     //Control CSS.
     $("span[data-color]:not([data-color=gradient])").map(function() { $(this).css('background', '#' + $(this).attr("data-color")) })
