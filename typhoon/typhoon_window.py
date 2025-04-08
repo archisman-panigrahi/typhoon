@@ -17,6 +17,12 @@ try:
 except ImportError:
     Unity = None
 
+try:
+    from PyQt5.QtDBus import QDBusMessage, QDBusConnection
+    from PyQt5.QtCore import QVariant
+except ImportError:
+    PyQt5 = None
+
 
 class TyphoonWindow(Gtk.Window):
     def __init__(self):
@@ -327,6 +333,7 @@ class TyphoonWindow(Gtk.Window):
             except ValueError:
                 print("Invalid height value in title.")
         elif title == "close":
+            self._toggle_unity_launcher("disable_launcher")
             Gtk.main_quit()
         elif title == "minimize":
             self.iconify()
@@ -358,6 +365,22 @@ class TyphoonWindow(Gtk.Window):
             visible = title == "enable_launcher"
             print(f"{'Enabling' if visible else 'Disabling'} Unity launcher count.")
             self.launcher.set_property("count_visible", visible)
+        else:
+            try:
+                visible = title == "enable_launcher"
+                print(f"{'Enabling' if visible else 'Disabling'} KDE launcher count.")
+                properties = {
+                    "count-visible": visible,     # Display the "counter badge"
+                }
+                message = QDBusMessage.createSignal(
+                        "/com/example/typhoon",
+                        "com.canonical.Unity.LauncherEntry",
+                        "Update"
+                    )
+                message << "application://typhoon.desktop" << QVariant(properties)
+                QDBusConnection.sessionBus().send(message)
+            except (ValueError, NameError):
+                pass
 
     def _update_unity_count(self, title):
         """Updates the Unity launcher count based on the title."""
@@ -365,6 +388,21 @@ class TyphoonWindow(Gtk.Window):
             try:
                 count = int(title)
                 self.launcher.set_property("count", count)
+            except (ValueError, NameError):
+                pass
+        else:
+            try:
+                count = int(title)
+                message = QDBusMessage.createSignal(
+                    "/com/example/typhoon",
+                    "com.canonical.Unity.LauncherEntry",
+                    "Update"
+                )
+                properties = {
+                    "count": count,
+                }
+                message << "application://typhoon.desktop" << QVariant(properties)
+                QDBusConnection.sessionBus().send(message)
             except (ValueError, NameError):
                 pass
 
