@@ -4,6 +4,11 @@ import os
 import sys
 import gi
 import subprocess  # For opening external links with xdg-open
+import dbus
+import dbus.service
+import dbus.mainloop.glib
+from gi.repository import GObject, GLib
+import threading
 
 gi.require_version("Gtk", "3.0")
 try:
@@ -17,22 +22,19 @@ try:
 except ImportError:
     Unity = None
 
-try:
-    from PyQt5.QtDBus import QDBusMessage, QDBusConnection
-    from PyQt5.QtCore import QVariant
-except ImportError:
-    PyQt5 = None
-
 
 class TyphoonWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="Typhoon")
-        self.aspect_ratio = 3/5  # Desired aspect ratio (width / height)
+        self.aspect_ratio = 3 / 5  # Desired aspect ratio (width / height)
         self._initialize_window()
         self._setup_webview()
         self._setup_scrolled_window()
         self._setup_unity_launcher()
         self.drag_enabled = True  # Enable dragging by default
+
+        # Connect the destroy signal to stop the D-Bus service
+        self.connect("destroy", self._on_destroy)
 
         # Retrieve the last remembered size and position from a configuration file
         last_width, last_height = self._get_last_window_size()
@@ -57,6 +59,12 @@ class TyphoonWindow(Gtk.Window):
 
         # Add the resize grip
         self.add_resize_grip()
+
+    def _on_destroy(self, widget):
+        """Stops the D-Bus service when the application is closed."""
+        if hasattr(self, "launcher_service") and self.launcher_service:
+            print("Stopping D-Bus service...")
+            self.launcher_service.stop()
 
     def _maintain_aspect_ratio(self, widget, event):
         """Adjusts the window size to maintain the aspect ratio."""
@@ -242,6 +250,11 @@ class TyphoonWindow(Gtk.Window):
                 self.launcher.set_property("count_visible", False)
             except NameError:
                 self.launcher = None
+        else:
+            # Fallback to dbus service if Unity is not available
+            self.launcher_service = Service()
+            self.launcher_thread = threading.Thread(target=self.launcher_service.run, daemon=True)
+            self.launcher_thread.start()
 
     def _set_size_constraints(self):
         """Sets the minimum and maximum size constraints for the window."""
@@ -344,6 +357,7 @@ class TyphoonWindow(Gtk.Window):
         elif title.startswith("o"):
             self._set_opacity_from_title(title)
         elif title == "reset":
+            self._toggle_unity_launcher("disable_launcher")
             self.resize(300, 500)  # Reset the window size to 300x500
         elif title in ["enable_launcher", "disable_launcher"]:
             self._toggle_unity_launcher(title)
@@ -367,19 +381,14 @@ class TyphoonWindow(Gtk.Window):
             self.launcher.set_property("count_visible", visible)
         else:
             try:
+                if not hasattr(self, "launcher_service"):
+                    self.launcher_service = Service()
+                    self.launcher_thread = threading.Thread(target=self.launcher_service.run, daemon=True)
+                    self.launcher_thread.start()
                 visible = title == "enable_launcher"
-                print(f"{'Enabling' if visible else 'Disabling'} KDE launcher count.")
-                properties = {
-                    "count-visible": visible,     # Display the "counter badge"
-                }
-                message = QDBusMessage.createSignal(
-                        "/com/example/typhoon",
-                        "com.canonical.Unity.LauncherEntry",
-                        "Update"
-                    )
-                message << "application://typhoon.desktop" << QVariant(properties)
-                QDBusConnection.sessionBus().send(message)
-            except (ValueError, NameError):
+                print(f"{'Enabling' if visible else 'Disabling'} dbus launcher count.")
+                self.launcher_service.Update("application://typhoon.desktop", {"count-visible": visible})
+            except ValueError:
                 pass
 
     def _update_unity_count(self, title):
@@ -391,19 +400,15 @@ class TyphoonWindow(Gtk.Window):
             except (ValueError, NameError):
                 pass
         else:
+            # Fallback to dbus service if Unity is not available
             try:
                 count = int(title)
-                message = QDBusMessage.createSignal(
-                    "/com/example/typhoon",
-                    "com.canonical.Unity.LauncherEntry",
-                    "Update"
-                )
-                properties = {
-                    "count": count,
-                }
-                message << "application://typhoon.desktop" << QVariant(properties)
-                QDBusConnection.sessionBus().send(message)
-            except (ValueError, NameError):
+                if not hasattr(self, "launcher_service"):
+                    self.launcher_service = Service()
+                    self.launcher_thread = threading.Thread(target=self.launcher_service.run, daemon=True)
+                    self.launcher_thread.start()
+                self.launcher_service.Update("application://typhoon.desktop", {"count": dbus.Int64(count)})
+            except ValueError:
                 pass
 
     def get_wallpaper_path(self):
@@ -449,6 +454,21 @@ class TyphoonWindow(Gtk.Window):
             return True  # Prevent default right-click behavior
         if self.drag_enabled and event.button in [1, 2]:  # Left or middle button
             self.begin_move_drag(event.button, event.x_root, event.y_root, event.time)
+
+
+class Service(dbus.service.Object):
+    def __init__(self):
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        bus_name = dbus.service.BusName("com.typhoon.typhoon", dbus.SessionBus())
+        dbus.service.Object.__init__(self, bus_name, "/com/typhoon/typhoon")
+
+    def run(self):
+        # Use GObject.idle_add to schedule the Update signal
+        GObject.idle_add(lambda: self.Update("application://typhoon.desktop", {}))
+
+    @dbus.service.signal(dbus_interface="com.canonical.Unity.LauncherEntry", signature='sa{sv}')
+    def Update(self, app_uri, properties):
+        print(app_uri, properties)
 
 
 if __name__ == "__main__":
