@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: typhoon(experimental).flatpak
+          bundle: typhoon-experimental.flatpak
           manifest-path: io.github.archisman_panigrahi.typhoon.json
           cache-key: flatpak-builder-${{ github.sha }}
       
@@ -23,9 +23,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: flatpak-bundle
-          path: typhoon(experimental).flatpak
+          path: typhoon-experimental.flatpak
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: typhoon(experimental).flatpak
+          files: typhoon-experimental.flatpak
