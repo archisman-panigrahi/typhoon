@@ -1,3 +1,9 @@
+typhoon (0.9.71) noble; urgency=medium
+
+  * fix count for negative temp
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Tue, 08 Apr 2025 19:23:58 -0400
+
 typhoon (0.9.7) noble; urgency=medium
 
   * Make launcher count work in plank and KDE
