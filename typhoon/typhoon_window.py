@@ -174,7 +174,7 @@ class TyphoonWindow(Gtk.Window):
                 wallpaper_path = self.get_wallpaper_path()
 
                 # Use ImageMagick's `convert` command to get the dominant color
-                command = f'magick convert "{wallpaper_path}" -resize 1x1 txt:- | awk \'NR==2 {{print $3}}\''
+                command = f'convert convert "{wallpaper_path}" -resize 1x1 txt:- | awk \'NR==2 {{print $3}}\''
                 dominant_color = subprocess.check_output(command, shell=True, text=True).strip()
 
                 # Validate the color format
