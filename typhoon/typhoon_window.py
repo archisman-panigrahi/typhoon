@@ -361,7 +361,7 @@ class TyphoonWindow(Gtk.Window):
             self.resize(300, 500)  # Reset the window size to 300x500
         elif title in ["enable_launcher", "disable_launcher"]:
             self._toggle_unity_launcher(title)
-        elif title.isdigit():
+        elif title.lstrip('-').isdigit():
             self._update_unity_count(title)
 
     def _set_opacity_from_title(self, title):
