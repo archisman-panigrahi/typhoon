@@ -91,7 +91,10 @@ class TyphoonWindow(Gtk.Window):
     def _set_window_icon(self):
         """Sets the window icon if available."""
         icon_theme = Gtk.IconTheme.get_default()
-        icon = icon_theme.load_icon("typhoon", 48, 0)  # Load icon of size 48
+        try:
+            icon = icon_theme.load_icon("typhoon", 48, 0)  # Load icon of size 48
+        except GLib.Error:
+            icon = None  # If loading the icon fails, set it to None
         if icon:
             self.set_icon(icon)
 
