@@ -16,6 +16,13 @@
           "branch": "master"
         }
       ]
+    },
+    {
+      "name": "python3-dbus",
+      "buildsystem": "simple",
+      "build-commands": [
+        "pip3 install dbus-python --prefix=/app"
+      ]
     }
   ],
   "finish-args": [
