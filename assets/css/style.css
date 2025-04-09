@@ -57,6 +57,9 @@ a:not([class*="btn"]):hover {
 .btn-ubuntu {
     background-color: #dd4814;
 }
+.btn-flatpak {
+    background-color: #232225;
+}
 .btn-windows {
     background-color: #56c5ff;
 }
@@ -113,7 +116,7 @@ p img {
     background: #d64937;
 }
 /* Button styles */
-a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site {
+a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site, a.btn-flatpak {
     display: inline-block;
     margin: 10px 5px;
     padding: 10px 15px;
