@@ -22,6 +22,7 @@
     "--share=network",
     "--filesystem=host",
     "--socket=x11",
-    "--socket=wayland"
+    "--socket=wayland",
+    "--talk-name=org.freedesktop.DBus"
   ]
 }
