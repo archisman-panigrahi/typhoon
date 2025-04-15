@@ -1,0 +1,69 @@
+name: Build and Upload Packages
+
+on:
+  # Triggers the workflow on release publication
+  release:
+    types: [published]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-deb:
+    name: Build Debian Package
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential debhelper meson python3-setuptools dh-make
+
+      - name: Build .deb package
+        run: |
+          DPKG_DEB_COMPRESSOR_TYPE=xz dpkg-buildpackage -us -uc -nc
+          mv ../*.deb .
+
+      - name: Upload .deb to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "*.deb"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-rpm:
+    name: Build RPM Package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Fedora container
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman
+
+      - name: Build RPM in Fedora container
+        run: |
+          # Create a directory for the RPM build environment
+          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+
+          # Copy the spec file and source tarball
+          cp fedora-package.spec ~/rpmbuild/SPECS/
+          git archive --format=tar.gz --prefix=typhoon-master/ -o ~/rpmbuild/SOURCES/master.tar.gz HEAD
+
+          # Run the build inside a Fedora container
+          podman run --rm -v ~/rpmbuild:/root/rpmbuild:Z -w /root/rpmbuild \
+            registry.fedoraproject.org/fedora:latest \
+            bash -c "dnf install -y rpm-build redhat-rpm-config meson python3-setuptools glib2-devel gtk3-devel webkit2gtk3-devel ImageMagick dbus-devel python3-dbus && rpmbuild -ba SPECS/fedora-package.spec"
+
+      - name: Upload .rpm to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "~/rpmbuild/RPMS/**/*.rpm"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
