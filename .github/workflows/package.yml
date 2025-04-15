@@ -5,6 +5,9 @@ on:
   release:
     types: [published]
 
+  # Triggers the workflow on every push
+  push:
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -27,7 +30,8 @@ jobs:
           DPKG_DEB_COMPRESSOR_TYPE=xz dpkg-buildpackage -us -uc -nc
           mv ../*.deb .
 
-      - name: Upload .deb to GitHub Release
+      - name: Upload .deb to GitHub Release (only for releases)
+        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
           files: "*.deb"
@@ -61,9 +65,15 @@ jobs:
             registry.fedoraproject.org/fedora:latest \
             bash -c "dnf install -y rpm-build redhat-rpm-config meson python3-setuptools glib2-devel gtk3-devel webkit2gtk3-devel ImageMagick dbus-devel python3-dbus && rpmbuild -ba SPECS/fedora-package.spec"
 
-      - name: Upload .rpm to GitHub Release
+      - name: Copy RPM to host
+        run: |
+          mkdir -p artifacts
+          cp ~/rpmbuild/RPMS/x86_64/*.rpm artifacts/
+
+      - name: Upload .rpm to GitHub Release (only for releases)
+        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: "/root/rpmbuild/RPMS/**/*.rpm"
+          files: "artifacts/*.rpm"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
