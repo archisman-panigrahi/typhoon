@@ -116,7 +116,7 @@ p img {
     background: #d64937;
 }
 /* Button styles */
-a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site, a.btn-flatpak {
+a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site, a.btn-rpm {
     display: inline-block;
     margin: 10px 5px;
     padding: 10px 15px;
