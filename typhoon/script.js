@@ -207,13 +207,13 @@ function render(cityName) {
 
         // Update "Feels Like" and "Rain Percentage"
         const feelsLike = localStorage.typhoon_measurement === "c"
-            ? Math.round((currentWeather.feels_like - 32) * 5 / 9) + " °C"
+            ? Math.round((currentWeather.feels_like - 32) * 5 / 9) + "°C"
             : localStorage.typhoon_measurement === "k"
-            ? Math.round((currentWeather.feels_like - 32) * 5 / 9 + 273.15) + " K"
-            : Math.round(currentWeather.feels_like) + " °F";
+            ? Math.round((currentWeather.feels_like - 32) * 5 / 9 + 273.15) + "K"
+            : Math.round(currentWeather.feels_like) + "°F";
 
         $("#feelsLike").text(`Feels Like: ${feelsLike}`);
-        $("#rainPercentage").text(`Rain: ${currentWeather.rain_percentage} %`);
+        $("#rainPercentage").text(`Rain: ${currentWeather.rain_percentage}%`);
 
         // Show the additional-info div when weather data is available
         $('.additional-info').removeClass('hidden');
