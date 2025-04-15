@@ -479,3 +479,6 @@ input[type="range"]::-webkit-slider-thumb:active {
     text-align: left;
     margin-left: 30px; /* Move only the right section further to the right */
 }
+.hidden {
+    display: none;
+}

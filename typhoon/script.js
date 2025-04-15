@@ -171,6 +171,9 @@ function render(cityName) {
         $("#feelsLike").text(`Feels Like: ${feelsLike}`);
         $("#rainPercentage").text(`Rain: ${currentWeather.rain_percentage} %`);
 
+        // Show the additional-info div when weather data is available
+        $('.additional-info').removeClass('hidden');
+
         // Background Color
         background(currentWeather.temperature);
 
