@@ -57,7 +57,7 @@ a:not([class*="btn"]):hover {
 .btn-ubuntu {
     background-color: #dd4814;
 }
-.btn-flatpak {
+.btn-rpm {
     background-color: #232225;
 }
 .btn-windows {
