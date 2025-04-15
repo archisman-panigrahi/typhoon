@@ -28,6 +28,7 @@ Typhoon is a free and open source weather application. It is a continuation
 of the discontinued Stormcloud 1.1, however with some changes. It is and
 always will be free.
 
+%global debug_package %{nil}
 %prep
 %autosetup -n %{name}-master
 
