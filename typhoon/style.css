@@ -147,6 +147,9 @@ p, span, div {
 #code.w2 {
     left: 20px;
 }
+#code.w80 {
+    top: 55px;
+}
 #city {
     text-align: center;
     font-size: 24px;
