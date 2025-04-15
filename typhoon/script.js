@@ -16,15 +16,59 @@ function getWeatherData(cityName, callback) {
 
                 if (weatherData && weatherData.current_weather && weatherData.hourly) {
                     const currentWeather = weatherData.current_weather;
-                    const hourlyHumidity = weatherData.hourly.relative_humidity_2m[0]; // Get the first hourly value
-                    const feelsLike = weatherData.hourly.apparent_temperature[0]; // Get the apparent temperature
-                    const rainPercentageNextHour = weatherData.hourly.precipitation_probability[1]; // Get the rain probability for the next hour
 
-                    console.log("Rain Probability (Next Hour):", rainPercentageNextHour); // Log the rain probability for the next hour
+                    // Get the current time in GMT
+                    const currentTime = new Date().toISOString(); // Current time in ISO format (GMT)
 
-                    currentWeather.relative_humidity_2m = hourlyHumidity; // Add humidity to the current weather object
-                    currentWeather.feels_like = feelsLike; // Add feels-like temperature
-                    currentWeather.rain_percentage = rainPercentageNextHour || 0; // Add rain percentage for the next hour (default to 0 if missing)
+                    // Find the index of the closest time in the hourly data
+                    const timeIndex = weatherData.hourly.time.findIndex(hour => hour === currentTime.slice(0, 13) + ":00");
+
+                    // Print the timeIndex for debugging
+                    console.log("Time Index:", timeIndex);
+
+                    if (timeIndex !== -1) {
+                        // Get the rain probabilities for the previous 2 hours and the next 5 hours
+                        const previousHours = weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 2), timeIndex);
+                        const nextHours = weatherData.hourly.precipitation_probability.slice(timeIndex + 1, timeIndex + 6);
+
+                        // Combine the previous and next hours into a single array
+                        const combinedHours = [...previousHours, ...nextHours];
+
+                        // Find the maximum rain probability
+                        const rainPercentage = combinedHours.length > 0 ? Math.max(...combinedHours) : 0;
+
+                        console.log("Rain Probability (Previous 2 Hours):", previousHours);
+                        console.log("Rain Probability (Next 5 Hours):", nextHours);
+                        console.log("Maximum Rain Probability:", rainPercentage);
+
+                        // Add the rain percentage to the current weather object
+                        currentWeather.rain_percentage = rainPercentage;
+
+                        // Use the humidity and feels like temperature at the current time
+                        currentWeather.relative_humidity_2m = weatherData.hourly.relative_humidity_2m[timeIndex];
+                        currentWeather.feels_like = weatherData.hourly.apparent_temperature[timeIndex];
+
+                        console.log("Current Humidity:", currentWeather.relative_humidity_2m);
+                        console.log("Feels Like Temperature:", currentWeather.feels_like);
+
+                        // Add the rain percentage to the current weather object
+                        const nextHoursSum = nextHours.reduce((sum, value) => sum + value, 0);
+                        const nextHoursAverage = nextHours.length > 0 ? nextHoursSum / nextHours.length : 0;
+
+                        // Calculate the average rain percentage for the last 2 hours
+                        const lastHours = weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 2), timeIndex);
+                        const lastHoursSum = lastHours.reduce((sum, value) => sum + value, 0);
+                        const lastHoursAverage = lastHours.length > 0 ? lastHoursSum / lastHours.length : 0;
+
+                        console.log("Average Rain Percentage (Next 5 Hours):", nextHoursAverage);
+                        console.log("Average Rain Percentage (Last 2 Hours):", lastHoursAverage);
+
+                        // Add these averages to the current weather object for further use
+                        currentWeather.average_rain_next_5_hours = nextHoursAverage;
+                        currentWeather.average_rain_last_2_hours = lastHoursAverage;
+                    } else {
+                        console.error("No matching time found in hourly data.");
+                    }
 
                     // Use the country from the Nominatim API's address field
                     const countryName = display_name.split(',').pop().trim() || "Unknown Country";
