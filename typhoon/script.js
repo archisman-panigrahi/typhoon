@@ -8,14 +8,23 @@ function getWeatherData(cityName, callback) {
             const { lat: latitude, lon: longitude, display_name } = geoData[0];
 
             // Fetch weather data using the latitude and longitude
-            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m`;
+            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m,apparent_temperature,precipitation_probability`;
 
             $.get(weatherUrl, function (weatherData) {
                 console.log("API Response (Current Weather):", weatherData); // Log the API response for debugging
+                console.log("Rain Probability Data:", weatherData.hourly.precipitation_probability); // Log rain probability data
+
                 if (weatherData && weatherData.current_weather && weatherData.hourly) {
                     const currentWeather = weatherData.current_weather;
                     const hourlyHumidity = weatherData.hourly.relative_humidity_2m[0]; // Get the first hourly value
-                    currentWeather.relative_humidity_2m = hourlyHumidity; // Add it to the current weather object
+                    const feelsLike = weatherData.hourly.apparent_temperature[0]; // Get the apparent temperature
+                    const rainPercentageNextHour = weatherData.hourly.precipitation_probability[1]; // Get the rain probability for the next hour
+
+                    console.log("Rain Probability (Next Hour):", rainPercentageNextHour); // Log the rain probability for the next hour
+
+                    currentWeather.relative_humidity_2m = hourlyHumidity; // Add humidity to the current weather object
+                    currentWeather.feels_like = feelsLike; // Add feels-like temperature
+                    currentWeather.rain_percentage = rainPercentageNextHour || 0; // Add rain percentage for the next hour (default to 0 if missing)
 
                     // Use the country from the Nominatim API's address field
                     const countryName = display_name.split(',').pop().trim() || "Unknown Country";
@@ -151,6 +160,16 @@ function render(cityName) {
         $("#windSpeed").text(windSpeed);
         $("#windUnit").text((localStorage.typhoon_speed == "ms") ? "m/s" : (localStorage.typhoon_speed == "kph") ? "km/h" : localStorage.typhoon_speed);
         $("#humidity").text(currentWeather.relative_humidity_2m + " %");
+
+        // Update "Feels Like" and "Rain Percentage"
+        const feelsLike = localStorage.typhoon_measurement === "c"
+            ? Math.round((currentWeather.feels_like - 32) * 5 / 9) + " °C"
+            : localStorage.typhoon_measurement === "k"
+            ? Math.round((currentWeather.feels_like - 32) * 5 / 9 + 273.15) + " K"
+            : Math.round(currentWeather.feels_like) + " °F";
+
+        $("#feelsLike").text(`Feels Like: ${feelsLike}`);
+        $("#rainPercentage").text(`Rain: ${currentWeather.rain_percentage} %`);
 
         // Background Color
         background(currentWeather.temperature);
