@@ -18,10 +18,30 @@
       ]
     },
     {
-      "name": "python3-dbus",
-      "buildsystem": "simple",
-      "build-commands": [
-        "pip3 install dbus-python --prefix=/app"
+      "name": "dbus",
+      "buildsystem": "autotools",
+      "config-opts": [
+        "--disable-static",
+        "--enable-shared"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://dbus.freedesktop.org/releases/dbus/dbus-1.14.6.tar.xz",
+          "sha256": "fd2bdf1bb89dc365a46531bff631536f22b0d1c6d5ce2c5c5e59b55265b3d66b"
+        }
+      ]
+    },
+    {
+      "name": "dbus-python",
+      "buildsystem": "meson",
+      "builddir": "build",
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://dbus.freedesktop.org/releases/dbus-python/dbus-python-1.2.18.tar.gz",
+          "sha256": "92bdd1e68b45596c833307a5ff4b217ee6929a1502f5341bae28fd120acf7260"
+        }
       ]
     }
   ],
@@ -31,5 +51,10 @@
     "--socket=x11",
     "--socket=wayland",
     "--talk-name=org.freedesktop.DBus"
-  ]
+  ],
+  "build-options": {
+    "env": {
+      "PYTHONPATH": "/app/lib/python3.10/site-packages"
+    }
+  }
 }
