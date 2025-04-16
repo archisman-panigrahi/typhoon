@@ -8,14 +8,67 @@ function getWeatherData(cityName, callback) {
             const { lat: latitude, lon: longitude, display_name } = geoData[0];
 
             // Fetch weather data using the latitude and longitude
-            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m`;
+            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m,apparent_temperature,precipitation_probability`;
 
             $.get(weatherUrl, function (weatherData) {
                 console.log("API Response (Current Weather):", weatherData); // Log the API response for debugging
+                console.log("Rain Probability Data:", weatherData.hourly.precipitation_probability); // Log rain probability data
+
                 if (weatherData && weatherData.current_weather && weatherData.hourly) {
                     const currentWeather = weatherData.current_weather;
-                    const hourlyHumidity = weatherData.hourly.relative_humidity_2m[0]; // Get the first hourly value
-                    currentWeather.relative_humidity_2m = hourlyHumidity; // Add it to the current weather object
+
+                    // Get the current time in GMT
+                    const currentTime = new Date().toISOString(); // Current time in ISO format (GMT)
+
+                    // Find the index of the closest time in the hourly data
+                    const timeIndex = weatherData.hourly.time.findIndex(hour => hour === currentTime.slice(0, 13) + ":00");
+
+                    // Print the timeIndex for debugging
+                    console.log("Time Index:", timeIndex);
+
+                    if (timeIndex !== -1) {
+                        // Get the rain probabilities for the previous 2 hours and the next 5 hours
+                        const previousHours = weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 2), timeIndex);
+                        const nextHours = weatherData.hourly.precipitation_probability.slice(timeIndex + 1, timeIndex + 6);
+
+                        // Combine the previous and next hours into a single array
+                        const combinedHours = [...previousHours, ...nextHours];
+
+                        // Find the maximum rain probability
+                        const rainPercentage = combinedHours.length > 0 ? Math.max(...combinedHours) : 0;
+
+                        console.log("Rain Probability (Previous 2 Hours):", previousHours);
+                        console.log("Rain Probability (Next 5 Hours):", nextHours);
+                        console.log("Maximum Rain Probability:", rainPercentage);
+
+                        // Add the rain percentage to the current weather object
+                        currentWeather.rain_percentage = rainPercentage;
+
+                        // Use the humidity and feels like temperature at the current time
+                        currentWeather.relative_humidity_2m = weatherData.hourly.relative_humidity_2m[timeIndex];
+                        currentWeather.feels_like = weatherData.hourly.apparent_temperature[timeIndex];
+
+                        console.log("Current Humidity:", currentWeather.relative_humidity_2m);
+                        console.log("Feels Like Temperature:", currentWeather.feels_like);
+
+                        // Add the rain percentage to the current weather object
+                        const nextHoursSum = nextHours.reduce((sum, value) => sum + value, 0);
+                        const nextHoursAverage = nextHours.length > 0 ? nextHoursSum / nextHours.length : 0;
+
+                        // Calculate the average rain percentage for the last 2 hours
+                        const lastHours = weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 2), timeIndex);
+                        const lastHoursSum = lastHours.reduce((sum, value) => sum + value, 0);
+                        const lastHoursAverage = lastHours.length > 0 ? lastHoursSum / lastHours.length : 0;
+
+                        console.log("Average Rain Percentage (Next 5 Hours):", nextHoursAverage);
+                        console.log("Average Rain Percentage (Last 2 Hours):", lastHoursAverage);
+
+                        // Add these averages to the current weather object for further use
+                        currentWeather.average_rain_next_5_hours = nextHoursAverage;
+                        currentWeather.average_rain_last_2_hours = lastHoursAverage;
+                    } else {
+                        console.error("No matching time found in hourly data.");
+                    }
 
                     // Use the country from the Nominatim API's address field
                     const countryName = display_name.split(',').pop().trim() || "Unknown Country";
@@ -113,7 +166,7 @@ function render(cityName) {
         const mapUrl = `https://www.openstreetmap.org/?mlat=${locationData.lat}&mlon=${locationData.lon}#map=10/${locationData.lat}/${locationData.lon}`;
         const countryName = locationData.display_name.split(',').pop().trim() || "Unknown Country"; // Extract country from display_name
         
-        $('#city span').html(`<a href="${mapUrl}" target="_blank">${locationData.name}, ${countryName}</a>`);
+        $('#city span').html(`<a href="${mapUrl}">${locationData.name}, ${countryName}</a>`);
         $("#code").text(weather_code(currentWeather.weathercode, currentWeather.is_day)).attr("class", "w" + currentWeather.weathercode);
 
         // Sets initial temp as Fahrenheit
@@ -151,6 +204,19 @@ function render(cityName) {
         $("#windSpeed").text(windSpeed);
         $("#windUnit").text((localStorage.typhoon_speed == "ms") ? "m/s" : (localStorage.typhoon_speed == "kph") ? "km/h" : localStorage.typhoon_speed);
         $("#humidity").text(currentWeather.relative_humidity_2m + " %");
+
+        // Update "Feels Like" and "Rain Percentage"
+        const feelsLike = localStorage.typhoon_measurement === "c"
+            ? Math.round((currentWeather.feels_like - 32) * 5 / 9) + "°C"
+            : localStorage.typhoon_measurement === "k"
+            ? Math.round((currentWeather.feels_like - 32) * 5 / 9 + 273.15) + "K"
+            : Math.round(currentWeather.feels_like) + "°F";
+
+        $("#feelsLike").text(`Feels Like: ${feelsLike}`);
+        $("#rainPercentage").text(`Rain: ${currentWeather.rain_percentage}%`);
+
+        // Show the additional-info div when weather data is available
+        $('.additional-info').removeClass('hidden');
 
         // Background Color
         background(currentWeather.temperature);
@@ -513,6 +579,7 @@ function init_settings() {
     localStorage.typhoon_speed = localStorage.typhoon_speed || "kph";
     localStorage.typhoon_color = localStorage.typhoon_color || "gradient";
     localStorage.typhoon_launcher = localStorage.typhoon_launcher || "checked";
+    document.title = "enable_launcher"
 
     $('#locationModal .measurement [data-type=' + localStorage.typhoon_measurement + ']').addClass('selected');
     $('#locationModal .speed [data-type=' + localStorage.typhoon_speed + ']').addClass('selected');
@@ -546,13 +613,21 @@ function init_settings() {
         document.title = "enable_launcher"
     }
     $('#locationModal .launcher input').click(function() {
-        localStorage.typhoon_launcher = $('#locationModal .launcher input').attr("checked")
-        if (localStorage.typhoon_launcher == "checked") {
-            document.title = "enable_launcher"
+        localStorage.typhoon_launcher = $('#locationModal .launcher input').prop("checked") ? "checked" : "unchecked";
+        if (localStorage.typhoon_launcher === "checked") {
+            document.title = "enable_launcher";
         } else {
-            document.title = "disable_launcher"
+            document.title = "disable_launcher";
         }
-    })
+    });
+
+    if (localStorage.typhoon_launcher === "checked") {
+        $('#locationModal .launcher input').prop("checked", true);
+        document.title = "enable_launcher";
+    } else {
+        $('#locationModal .launcher input').prop("checked", false);
+        document.title = "disable_launcher";
+    }
 
     //Control CSS.
     $("span[data-color]:not([data-color=gradient])").map(function() { $(this).css('background', '#' + $(this).attr("data-color")) })
