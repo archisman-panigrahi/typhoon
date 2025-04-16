@@ -28,7 +28,9 @@ function getWeatherData(cityName, callback) {
 
                     if (timeIndex !== -1) {
                         // Get the rain probabilities for the previous 2 hours and the next 5 hours
-                        const previousHours = weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 2), timeIndex);
+                        const previousHours = timeIndex === 0 
+                            ? [weatherData.hourly.precipitation_probability[timeIndex]] 
+                            : weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 2), timeIndex);
                         const nextHours = weatherData.hourly.precipitation_probability.slice(timeIndex + 1, timeIndex + 6);
 
                         // Combine the previous and next hours into a single array
@@ -37,8 +39,6 @@ function getWeatherData(cityName, callback) {
                         // Find the maximum rain probability
                         const rainPercentage = combinedHours.length > 0 ? Math.max(...combinedHours) : 0;
 
-                        console.log("Rain Probability (Previous 2 Hours):", previousHours);
-                        console.log("Rain Probability (Next 5 Hours):", nextHours);
                         console.log("Maximum Rain Probability:", rainPercentage);
 
                         // Add the rain percentage to the current weather object
@@ -60,8 +60,6 @@ function getWeatherData(cityName, callback) {
                         const lastHoursSum = lastHours.reduce((sum, value) => sum + value, 0);
                         const lastHoursAverage = lastHours.length > 0 ? lastHoursSum / lastHours.length : 0;
 
-                        console.log("Average Rain Percentage (Next 5 Hours):", nextHoursAverage);
-                        console.log("Average Rain Percentage (Last 2 Hours):", lastHoursAverage);
 
                         // Add these averages to the current weather object for further use
                         currentWeather.average_rain_next_5_hours = nextHoursAverage;
