@@ -220,19 +220,39 @@ class TyphoonWindow(Gtk.Window):
                         rgb_values = rgb_string[4:-1].split(",")
                         rgb = tuple(map(int, rgb_values))  # Convert to integers
                         hex_color = "{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])  # Convert to hex
-                        print(f"Extracted hex color from xprop: {hex_color}")  # Debugging: Print the hex color
-
-                        # Send the hex color to the WebView
+                        print(f"Extracted hex color from xprop: {hex_color}")
                         self.send_message_to_webview(f"'{hex_color}'")
                     except (IndexError, ValueError) as e:
                         print(f"Error parsing RGB values from xprop: {e}")
-                        self.send_message_to_webview("'575591'")  # Default to purple
+                        raise Exception("Fallback to gdbus")
                 else:
                     print("No representative colors found in xprop output.")
-                    self.send_message_to_webview("'575591'")  # Default to purple
+                    raise Exception("Fallback to gdbus")
             except Exception as e:
-                print(f"Error running xprop: {e}")
-                self.send_message_to_webview("'575591'")  # Default to purple
+                # Fallback to the gdbus method to get accent color
+                print(f"Error running xprop or no colors found: {e}")
+                try:
+                    # Use gdbus to get the accent color
+                    gdbus_command = [
+                        "gdbus", "call", "--session",
+                        "--dest", "org.freedesktop.portal.Desktop",
+                        "--object-path", "/org/freedesktop/portal/desktop",
+                        "--method", "org.freedesktop.portal.Settings.Read",
+                        "org.freedesktop.appearance", "accent-color"
+                    ]
+                    gdbus_output = subprocess.check_output(gdbus_command, text=True).strip()
+                    # Extract the RGB values from the output
+                    if "(<<(" in gdbus_output:
+                        rgb_values = gdbus_output.split("(<<(")[1].split(")>>,)")[0].split(",")
+                        rgb = tuple(int(float(value.strip()) * 255) for value in rgb_values)
+                        hex_color = "{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])  # Convert to hex
+                        print(f"Extracted hex color from gdbus: {hex_color}")
+                        self.send_message_to_webview(f"'{hex_color}'")
+                    else:
+                        raise ValueError("Invalid gdbus output format")
+                except Exception as gdbus_error:
+                    print(f"Error running gdbus: {gdbus_error}")
+                    self.send_message_to_webview("'575591'")  # Default to purple
 
     def send_message_to_webview(self, message):
         """Sends a message to the WebView."""
