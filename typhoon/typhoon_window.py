@@ -254,12 +254,12 @@ class TyphoonWindow(Gtk.Window):
         if accent_color is not None:
             r, g, b = accent_color
             hex_color = "{:02x}{:02x}{:02x}".format(int(r*255), int(g*255), int(b*255))
-            logger.info(f"Accent color found in settings: {hex_color}")
+            logger.info(f"Accent color found in settings: '{hex_color}'")
         else:
             logger.error("Accent color not found in settings")
             logger.warning("Using Purple default color")
             hex_color = "575591"
-        self.send_message_to_webview(hex_color)
+        self.send_message_to_webview(f"'{hex_color}'")
         
 
     def send_message_to_webview(self, message):
