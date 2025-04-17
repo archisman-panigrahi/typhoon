@@ -7,21 +7,33 @@ import subprocess  # For opening external links with xdg-open
 import dbus
 import dbus.service
 import dbus.mainloop.glib
+import logging
 from gi.repository import GObject, GLib
 import threading
 
 gi.require_version("Gtk", "3.0")
+gi.require_version("Xdp", "1.0")
 try:
     gi.require_version("WebKit2", "4.1")  # Attempt to use WebKit2 4.1
 except ValueError:
     gi.require_version("WebKit2", "4.0")  # Fallback to WebKit2 4.0
-from gi.repository import Gtk, WebKit2, GdkPixbuf, Gdk
+from gi.repository import Gtk, WebKit2, GdkPixbuf, Gdk, Xdp
 
 try:
     from gi.repository import Unity
 except ImportError:
     Unity = None
 
+
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(
+    level=logging.WARNING,
+    format="%(levelname)s - %(message)s",
+)
+
+if os.getenv("DEBUG"):
+    logger.setLevel(logging.INFO)
 
 class TyphoonWindow(Gtk.Window):
     def __init__(self):
@@ -231,28 +243,24 @@ class TyphoonWindow(Gtk.Window):
             except Exception as e:
                 # Fallback to the gdbus method to get accent color
                 print(f"Error running xprop or no colors found: {e}")
-                try:
-                    # Use gdbus to get the accent color
-                    gdbus_command = [
-                        "gdbus", "call", "--session",
-                        "--dest", "org.freedesktop.portal.Desktop",
-                        "--object-path", "/org/freedesktop/portal/desktop",
-                        "--method", "org.freedesktop.portal.Settings.Read",
-                        "org.freedesktop.appearance", "accent-color"
-                    ]
-                    gdbus_output = subprocess.check_output(gdbus_command, text=True).strip()
-                    # Extract the RGB values from the output
-                    if "(<<(" in gdbus_output:
-                        rgb_values = gdbus_output.split("(<<(")[1].split(")>>,)")[0].split(",")
-                        rgb = tuple(int(float(value.strip()) * 255) for value in rgb_values)
-                        hex_color = "{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])  # Convert to hex
-                        print(f"Extracted hex color from gdbus: {hex_color}")
-                        self.send_message_to_webview(f"'{hex_color}'")
-                    else:
-                        raise ValueError("Invalid gdbus output format")
-                except Exception as gdbus_error:
-                    print(f"Error running gdbus: {gdbus_error}")
-                    self.send_message_to_webview("'575591'")  # Default to purple
+                self._get_accent_color()
+
+    def _get_accent_color(self):
+        logger.info("Getting System Accent Color")
+        portal=Xdp.Portal()
+        settings=portal.get_settings()
+        hex_color: str
+        accent_color = settings.read_value("org.freedesktop.appearance", "accent-color")
+        if accent_color is not None:
+            r, g, b = accent_color
+            hex_color = "{:02x}{:02x}{:02x}".format(int(r*255), int(g*255), int(b*255))
+            logger.info(f"Accent color found in settings: '{hex_color}'")
+        else:
+            logger.error("Accent color not found in settings")
+            logger.warning("Using Purple default color")
+            hex_color = "575591"
+        self.send_message_to_webview(f"'{hex_color}'")
+        
 
     def send_message_to_webview(self, message):
         """Sends a message to the WebView."""
