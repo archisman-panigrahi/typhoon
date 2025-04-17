@@ -257,7 +257,7 @@ class TyphoonWindow(Gtk.Window):
     def send_message_to_webview(self, message):
         """Sends a message to the WebView."""
         js_code = f"receiveMessage({message});"  # Call the JavaScript function with the message
-        self.webview.run_javascript(js_code, None, None, None)
+        self.webview.evaluate_javascript(js_code, len(js_code), None, None, None)
 
     def _setup_scrolled_window(self):
         """Wraps the WebView in a scrolled window and adds it to the overlay."""
@@ -346,8 +346,8 @@ class TyphoonWindow(Gtk.Window):
             if uri.startswith("file://"):
                 print("Internal navigation detected, allowing WebView to handle it.")
             else:
-                print("Opening external link with xdg-open.")
-                subprocess.run(["xdg-open", uri])  # Open external links
+                print("Opening Link Externally")
+                Gtk.show_uri_on_window(self, uri, 0)
                 decision.ignore()  # Prevent WebView from handling the navigation
                 return True
         return False
@@ -486,8 +486,8 @@ class Service(dbus.service.Object):
         dbus.service.Object.__init__(self, bus_name, "/com/typhoon/typhoon")
 
     def run(self):
-        # Use GObject.idle_add to schedule the Update signal
-        GObject.idle_add(lambda: self.Update("application://typhoon.desktop", {}))
+        # Use GLib.idle_add to schedule the Update signal
+        GLib.idle_add(lambda: self.Update("application://typhoon.desktop", {}))
 
     @dbus.service.signal(dbus_interface="com.canonical.Unity.LauncherEntry", signature='sa{sv}')
     def Update(self, app_uri, properties):
