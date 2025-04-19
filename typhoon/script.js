@@ -203,7 +203,9 @@ function render(cityName) {
         }
         $("#windSpeed").text(windSpeed);
         $("#windUnit").text((localStorage.typhoon_speed == "ms") ? "m/s" : (localStorage.typhoon_speed == "kph") ? "km/h" : localStorage.typhoon_speed);
-        $("#humidity").text(currentWeather.relative_humidity_2m + " %");
+        $("#humidity").html(
+            `<img id="humidityIcon" src="humidity.svg" height="18" style="vertical-align: middle; filter: none; box-shadow: none;"> ${currentWeather.relative_humidity_2m} %`
+        );
 
         // Update "Feels Like" and "Rain Percentage"
         const feelsLike = localStorage.typhoon_measurement === "c"
@@ -213,9 +215,7 @@ function render(cityName) {
             : Math.round(currentWeather.feels_like) + "°F";
 
         $("#feelsLike").text(`Feels Like: ${feelsLike}`);
-        $("#rainPercentage").text(`Rain: ${currentWeather.rain_percentage}%`);
-
-        // Show the additional-info div when weather data is available
+        $("#rainPercentage").html(`<span style="font-family: 'ClimaconsRegular'; font-size: 1.2em; vertical-align: top;">{</span>${currentWeather.rain_percentage}%`);        // Show the additional-info div when weather data is available
         $('.additional-info').removeClass('hidden');
 
         // Background Color
