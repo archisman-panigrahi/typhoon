@@ -165,7 +165,7 @@ pre code {
         font-size: 1rem;
     }
 
-    a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site {
+    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-windows, a.btn-site {
         font-size: 0.9rem;
         padding: 8px 12px;
     }
@@ -185,7 +185,7 @@ pre code {
         font-size: 0.9rem;
     }
 
-    a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site {
+    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-windows, a.btn-site {
         font-size: 0.8rem;
         padding: 6px 10px;
     }
