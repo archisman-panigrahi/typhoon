@@ -68,7 +68,7 @@ jobs:
       - name: Copy RPM to host
         run: |
           mkdir -p artifacts
-          cp ~/rpmbuild/RPMS/x86_64/*.rpm artifacts/
+          cp ~/rpmbuild/RPMS/*/*.rpm artifacts/
 
       - name: Upload .rpm to GitHub Release (only for releases)
         if: github.event_name == 'release'

@@ -6,6 +6,7 @@ Summary:        Quickly check the weather with this beautiful application
 License:        MIT
 URL:            https://archisman-panigrahi.github.io/typhoon
 Source0:        https://github.com/archisman-panigrahi/typhoon/archive/refs/heads/master.tar.gz
+BuildArch:      noarch
 
 BuildRequires:  meson
 BuildRequires:  python3-setuptools
