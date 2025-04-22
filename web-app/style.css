@@ -474,7 +474,7 @@ input[type="range"]::-webkit-slider-thumb:active {
 
 .additional-info .info-left {
     text-align: right;
-    margin-left: -20px; /* Move only the left section further to the left */
+    margin-left: -45px; /* Move only the left section further to the left */
     margin-right: 0; /* Keep it in its current position */
 }
 

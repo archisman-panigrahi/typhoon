@@ -24,18 +24,16 @@
                 </div>
                 <div class="right">
                     <span id="windSpeed"></span> <span id="windUnit"></span><br>
-                    <!-- <svg id="humidityIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="20" height="20" style="vertical-align: middle;" title="Humidity"> -->
-                        <!-- Tooltip -->
-                        <!-- <title>Humidity</title> -->
-                        <!-- Droplet -->
-                        <!-- <path d="M32 2C32 2 12 22 12 36c0 11.046 8.954 20 20 20s20-8.954 20-20C52 22 32 2 32 2zM32 52c-8.837 0-16-7.163-16-16 0-10.493 12.493-23.493 16-27.493C35.507 12.507 48 25.507 48 36 48 44.837 40.837 52 32 52z" fill="#FFFFFF"/> -->
-                    <!-- </svg> -->
-                    <span id="humidity" title="Humidity"></span>
+                    <span id="humidity" title="Humidity">
+                        <img id="humidityIcon" src="humidity.svg" width="15" height="15" style="vertical-align: middle;  filter: none; box-shadow: none;" title="Humidity">
+                    </span>
                 </div>
             </div>
             <div class="additional-info hidden">
                 <div class="info-left" id="feelsLike">Feels Like: --°</div>
-                <div class="info-right" id="rainPercentage">Rain: --%</div>
+                <div class="info-right" id="rainPercentage" title="Rain Percentage">
+                    <span style="font-family: 'ClimaconsRegular';">{</span> --%
+                </div>
             </div>
             <div class="week">
                 <div id="0">
@@ -69,7 +67,7 @@
     <div id="locationModal">
         <div class="credits">
             <img src="back.svg">
-            <h1 style="text-align: center">Typhoon 0.9.80 webapp</h1>
+            <h1 style="text-align: center">Typhoon 0.9.85 webapp</h1>
             <br>
             <p>Typhoon is a simple weather application for Ubuntu. It is and always will be free.<br> 
             <a href="https://github.com/apandada1/typhoon/" target="_blank">Source code</a> is released under <a href="http://www.gnu.org/licenses/gpl.html" target="_blank">GPL-3</a>.</p>
@@ -79,7 +77,8 @@
             <li>Powered by <a href="https://open-meteo.com/" target="_blank">Open Meteo</a> and <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a>.</li>
             <h3>Contributors:</h3>
             <li><a href="https://github.com/zlatanvasovic" target="_blank">Zlatan Vasović</a></li>
-<!-- <li>Esteban <a href="https://sites.google.com/site/typhoonweatherapp/help-and-how-to-1/howtomaketyphoonavailableineveryworkspace" target="_blank">(Found the way to make the app visible in every workspace)</a></li> -->
+            <li><a href="https://github.com/soumyaDghosh" target="_blank">Soumyadeep Ghosh</a></li>
+            <!-- <li>Esteban <a href="https://sites.google.com/site/typhoonweatherapp/help-and-how-to-1/howtomaketyphoonavailableineveryworkspace">(Found the way to make the app visible in every workspace)</a></li> -->
             <br>
             <h3 style="text-align: center">Thanks for using.</h3><br><br>
         </div>

@@ -139,12 +139,14 @@ function getWeeklyForecast(cityName, callback) {
 function processForecastData(dailyData) {
     const { time, temperature_2m_min, temperature_2m_max, weathercode } = dailyData;
 
-    // Skip the zeroth component and include the next four days
-    return time.slice(1, 5).map((date, index) => ({
-        day: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
-        tempMin: temperature_2m_min[index + 1],
-        tempMax: temperature_2m_max[index + 1],
-        icon: weathercode[index + 1],
+    const slicedTime = time.slice(0, 4); // Get the first four days of data
+
+    // Include the first four days (indices 0 to 3)
+    return slicedTime.map((date, index) => ({
+        day: new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }),
+        tempMin: temperature_2m_min[index],
+        tempMax: temperature_2m_max[index],
+        icon: weathercode[index],
     }));
 }
 
@@ -201,7 +203,9 @@ function render(cityName) {
         }
         $("#windSpeed").text(windSpeed);
         $("#windUnit").text((localStorage.typhoon_speed == "ms") ? "m/s" : (localStorage.typhoon_speed == "kph") ? "km/h" : localStorage.typhoon_speed);
-        $("#humidity").text(currentWeather.relative_humidity_2m + " %");
+        $("#humidity").html(
+            `<img id="humidityIcon" src="humidity.svg" height="18" style="vertical-align: middle; filter: none; box-shadow: none;"> ${currentWeather.relative_humidity_2m} %`
+        );
 
         // Update "Feels Like" and "Rain Percentage"
         const feelsLike = localStorage.typhoon_measurement === "c"
@@ -211,9 +215,7 @@ function render(cityName) {
             : Math.round(currentWeather.feels_like) + "°F";
 
         $("#feelsLike").text(`Feels Like: ${feelsLike}`);
-        $("#rainPercentage").text(`Rain: ${currentWeather.rain_percentage}%`);
-
-        // Show the additional-info div when weather data is available
+        $("#rainPercentage").html(`<span style="font-family: 'ClimaconsRegular'; font-size: 1.2em; vertical-align: top;">{</span>${currentWeather.rain_percentage}%`);        // Show the additional-info div when weather data is available
         $('.additional-info').removeClass('hidden');
 
         // Background Color
