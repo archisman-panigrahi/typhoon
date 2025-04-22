@@ -1,5 +1,5 @@
 Name:           typhoon
-Version:        0.9.80
+Version:        0.9.85
 Release:        1%{?dist}
 Summary:        Quickly check the weather with this beautiful application
 

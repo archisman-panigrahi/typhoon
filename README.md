@@ -29,8 +29,9 @@ It is also available on the [AUR](https://aur.archlinux.org/packages/typhoon),
 ```
 yay -S typhoon
 ```
+You can also find prebuild .deb and .rpm packages on [GitHub releases](https://github.com/archisman-panigrahi/typhoon/releases).
 
-An experimetnal [flatpak installer](https://github.com/archisman-panigrahi/typhoon/releases) is also available.
+<!-- An experimetnal [flatpak installer](https://github.com/archisman-panigrahi/typhoon/releases) is also available. -->
 
 ## Build System
 This project uses the Meson build system for configuration and installation.
