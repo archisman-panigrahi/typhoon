@@ -1,60 +1,46 @@
 {
-  "app-id": "io.github.archisman_panigrahi.typhoon",
-  "runtime": "org.gnome.Platform",
-  "runtime-version": "48",
-  "sdk": "org.gnome.Sdk",
-  "command": "typhoon",
-  "modules": [
-    {
-      "name": "typhoon",
-      "buildsystem": "meson",
-      "builddir": "build",
-      "sources": [
+    "app-id" : "io.github.archisman_panigrahi.typhoon",
+    "runtime" : "org.gnome.Platform",
+    "runtime-version" : "48",
+    "sdk" : "org.gnome.Sdk",
+    "sdk-version" : "48",
+    "command" : "typhoon",
+    "finish-args" : [
+        "--share=network",
+        "--share=ipc",
+        "--socket=x11",
+        "--socket=wayland",
+        "--device=all",
+        "--talk-name=org.freedesktop.DBus"
+    ],
+    "build-extensions": [
+        "org.gnome.Platform.Extension.Python3-dbus"
+    ],
+    "modules" : [
         {
-          "type": "git",
-          "url": "https://github.com/archisman-panigrahi/typhoon.git",
-          "branch": "master"
+            "name": "typhoon",
+            "buildsystem": "meson",
+            "config-opts": [
+                "--prefix=/app",
+                "--libdir=lib"
+            ],
+            "sources": [
+                {
+                    "type": "dir"
+                }
+            ]
         }
-      ]
+    ],
+    "metadata" : {
+        "name" : "Typhoon",
+        "version" : "0.9.85",
+        "summary" : "A weather application providing real-time weather updates.",
+        "description" : "Typhoon is a weather application that provides real-time weather updates and forecasts. It is designed to be user-friendly and efficient.",
+        "license" : "MIT",
+        "homepage" : "https://github.com/archisman-panigrahi/typhoon",
+        "issues" : "https://github.com/archisman-panigrahi/typhoon/issues"
     },
-    {
-      "name": "dbus",
-      "buildsystem": "autotools",
-      "config-opts": [
-        "--disable-static",
-        "--enable-shared"
-      ],
-      "sources": [
-        {
-          "type": "archive",
-          "url": "https://dbus.freedesktop.org/releases/dbus/dbus-1.14.6.tar.xz",
-          "sha256": "fd2bdf1bb89dc365a46531bff631536f22b0d1c6d5ce2c5c5e59b55265b3d66b"
-        }
-      ]
-    },
-    {
-      "name": "dbus-python",
-      "buildsystem": "meson",
-      "builddir": "build",
-      "sources": [
-        {
-          "type": "archive",
-          "url": "https://dbus.freedesktop.org/releases/dbus-python/dbus-python-1.2.18.tar.gz",
-          "sha256": "92bdd1e68b45596c833307a5ff4b217ee6929a1502f5341bae28fd120acf7260"
-        }
-      ]
+    "build-options" : {
+        "env" : {        }
     }
-  ],
-  "finish-args": [
-    "--share=network",
-    "--filesystem=host",
-    "--socket=x11",
-    "--socket=wayland",
-    "--talk-name=org.freedesktop.DBus"
-  ],
-  "build-options": {
-    "env": {
-      "PYTHONPATH": "/app/lib/python3.10/site-packages"
-    }
-  }
 }
