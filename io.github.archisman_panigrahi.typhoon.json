@@ -1,35 +1,58 @@
 {
-  "app-id": "io.github.archisman_panigrahi.typhoon",
-  "runtime": "org.gnome.Platform",
-  "runtime-version": "48",
-  "sdk": "org.gnome.Sdk",
-  "command": "typhoon",
-  "modules": [
-    {
-      "name": "typhoon",
-      "buildsystem": "meson",
-      "builddir": "build",
-      "sources": [
+    "app-id" : "io.github.archisman_panigrahi.typhoon",
+    "runtime" : "org.gnome.Platform",
+    "runtime-version" : "48",
+    "sdk" : "org.gnome.Sdk",
+    "sdk-version" : "48",
+    "command" : "typhoon",
+    "finish-args" : [
+        "--share=network",
+        "--share=ipc",
+        "--socket=x11",
+        "--socket=wayland",
+        "--device=all",
+        "--own-name=com.typhoon.typhoon",
+        "--talk-name=org.freedesktop.DBus"
+    ],
+    "build-extensions": [
+        "org.gnome.Platform.Extension.Python3-dbus"
+    ],
+    "modules" : [
         {
-          "type": "git",
-          "url": "https://github.com/archisman-panigrahi/typhoon.git",
-          "branch": "master"
+            "name": "dbus-python",
+            "buildsystem": "meson",
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://dbus.freedesktop.org/releases/dbus-python/dbus-python-1.3.2.tar.gz",
+                    "sha256": "ad67819308618b5069537be237f8e68ca1c7fcc95ee4a121fe6845b1418248f8"
+                }
+            ]
+        },
+        {
+            "name": "typhoon",
+            "buildsystem": "meson",
+            "config-opts": [
+                "--prefix=/app",
+                "--libdir=lib"
+            ],
+            "sources": [
+                {
+                    "type": "dir"
+                }
+            ]
         }
-      ]
+    ],
+    "metadata" : {
+        "name" : "Typhoon",
+        "version" : "0.9.85",
+        "summary" : "A weather application providing real-time weather updates.",
+        "description" : "Typhoon is a weather application that provides real-time weather updates and forecasts. It is designed to be user-friendly and efficient.",
+        "license" : "MIT",
+        "homepage" : "https://github.com/archisman-panigrahi/typhoon",
+        "issues" : "https://github.com/archisman-panigrahi/typhoon/issues"
     },
-    {
-      "name": "python3-dbus",
-      "buildsystem": "simple",
-      "build-commands": [
-        "pip3 install dbus-python --prefix=/app"
-      ]
+    "build-options" : {
+        "env" : {        }
     }
-  ],
-  "finish-args": [
-    "--share=network",
-    "--filesystem=host",
-    "--socket=x11",
-    "--socket=wayland",
-    "--talk-name=org.freedesktop.DBus"
-  ]
 }
