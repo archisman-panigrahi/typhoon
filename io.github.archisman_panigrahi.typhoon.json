@@ -10,8 +10,9 @@
         "--share=ipc",
         "--socket=x11",
         "--socket=wayland",
+        "--filesystem=xdg-config/io.github.archisman_panigrahi.typhoon:create",
         "--device=all",
-        "--own-name=com.typhoon.typhoon",
+        "--own-name=io.github.archisman_panigrahi.typhoon",
         "--talk-name=org.freedesktop.DBus"
     ],
     "build-extensions": [
@@ -38,7 +39,8 @@
             ],
             "sources": [
                 {
-                    "type": "dir"
+                    "type": "dir",
+                    "path": "."
                 }
             ]
         }
@@ -48,7 +50,7 @@
         "version" : "0.9.85",
         "summary" : "Simple weather application, powered by Open-Meteo and OpenStreetMap",
         "description" : "Typhoon is a weather application that provides real-time weather updates and forecasts. It is based on Stormcloud.",
-        "license" : "MIT",
+        "license" : "GPL3",
         "homepage" : "https://github.com/archisman-panigrahi/typhoon",
         "issues" : "https://github.com/archisman-panigrahi/typhoon/issues"
     },

@@ -92,7 +92,7 @@ class TyphoonWindow(Gtk.Window):
         """Sets the window icon if available."""
         icon_theme = Gtk.IconTheme.get_default()
         try:
-            icon = icon_theme.load_icon("typhoon", 48, 0)  # Load icon of size 48
+            icon = icon_theme.load_icon("io.github.archisman_panigrahi.typhoon", 48, 0)  # Load icon of size 48
         except GLib.Error:
             icon = None  # If loading the icon fails, set it to None
         if icon:
@@ -269,7 +269,7 @@ class TyphoonWindow(Gtk.Window):
         """Configures Unity launcher integration if available."""
         if Unity:
             try:
-                self.launcher = Unity.LauncherEntry.get_for_desktop_id("typhoon.desktop")
+                self.launcher = Unity.LauncherEntry.get_for_desktop_id("io.github.archisman_panigrahi.typhoon.desktop")
                 self.launcher.set_property("count_visible", False)
             except NameError:
                 self.launcher = None
@@ -299,9 +299,16 @@ class TyphoonWindow(Gtk.Window):
             Gdk.WindowHints.MIN_SIZE | Gdk.WindowHints.MAX_SIZE,  # Use MAX_SIZE for maximum constraints
         )
 
+    def _get_config_dir(self):
+        """Returns the Flatpak-compatible configuration directory."""
+        config_dir = os.getenv("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
+        app_config_dir = os.path.join(config_dir, "io.github.archisman_panigrahi.typhoon")
+        os.makedirs(app_config_dir, exist_ok=True)
+        return app_config_dir
+
     def _get_last_window_size(self):
         """Retrieves the last remembered window size from a configuration file."""
-        config_file = os.path.expanduser("~/.config/typhoon_size.conf")
+        config_file = os.path.join(self._get_config_dir(), "typhoon_size.conf")
         try:
             with open(config_file, "r") as file:
                 size = file.read().strip().split("x")
@@ -313,13 +320,13 @@ class TyphoonWindow(Gtk.Window):
 
     def _save_window_size(self, width, height):
         """Saves the current window size to a configuration file."""
-        config_file = os.path.expanduser("~/.config/typhoon_size.conf")
+        config_file = os.path.join(self._get_config_dir(), "typhoon_size.conf")
         with open(config_file, "w") as file:
             file.write(f"{width}x{height}")
 
     def _get_last_window_position(self):
         """Retrieves the last remembered window position from a configuration file."""
-        config_file = os.path.expanduser("~/.config/typhoon_position.conf")
+        config_file = os.path.join(self._get_config_dir(), "typhoon_position.conf")
         try:
             with open(config_file, "r") as file:
                 position = file.read().strip().split(",")
@@ -332,7 +339,7 @@ class TyphoonWindow(Gtk.Window):
     def _save_window_position(self, widget, event):
         """Saves the current window position to a configuration file."""
         x, y = self.get_position()
-        config_file = os.path.expanduser("~/.config/typhoon_position.conf")
+        config_file = os.path.join(self._get_config_dir(), "typhoon_position.conf")
         with open(config_file, "w") as file:
             file.write(f"{x},{y}")
 
@@ -410,7 +417,7 @@ class TyphoonWindow(Gtk.Window):
                     self.launcher_thread.start()
                 visible = title == "enable_launcher"
                 print(f"{'Enabling' if visible else 'Disabling'} dbus launcher count.")
-                self.launcher_service.Update("application://typhoon.desktop", {"count-visible": visible})
+                self.launcher_service.Update("application://io.github.archisman_panigrahi.typhoon.desktop", {"count-visible": visible})
             except ValueError:
                 pass
 
@@ -482,12 +489,12 @@ class TyphoonWindow(Gtk.Window):
 class Service(dbus.service.Object):
     def __init__(self):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        bus_name = dbus.service.BusName("com.typhoon.typhoon", dbus.SessionBus())
-        dbus.service.Object.__init__(self, bus_name, "/com/typhoon/typhoon")
+        bus_name = dbus.service.BusName("io.github.archisman_panigrahi.typhoon", dbus.SessionBus())
+        dbus.service.Object.__init__(self, bus_name, "/io/github/archisman_panigrahi/typhoon")
 
     def run(self):
         # Use GLib.idle_add to schedule the Update signal
-        GLib.idle_add(lambda: self.Update("application://typhoon.desktop", {}))
+        GLib.idle_add(lambda: self.Update("application://io.github.archisman_panigrahi.typhoon.desktop", {}))
 
     @dbus.service.signal(dbus_interface="com.canonical.Unity.LauncherEntry", signature='sa{sv}')
     def Update(self, app_uri, properties):

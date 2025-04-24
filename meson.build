@@ -25,7 +25,7 @@ configure_file(
 )
 
 # Install the desktop file
-install_data('typhoon.desktop', install_dir: join_paths(get_option('prefix'), 'share', 'applications'))
+install_data('io.github.archisman_panigrahi.typhoon.desktop', install_dir: join_paths(get_option('prefix'), 'share', 'applications'))
 
 # Install the icon to the hicolor directory
-install_data('typhoon/typhoon.svg', install_dir: join_paths(get_option('prefix'), 'share', 'icons/hicolor/scalable/apps'))
+install_data('typhoon/io.github.archisman_panigrahi.typhoon.svg', install_dir: join_paths(get_option('prefix'), 'share', 'icons/hicolor/scalable/apps'))

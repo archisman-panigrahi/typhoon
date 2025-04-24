@@ -45,8 +45,8 @@ always will be free.
 %doc README.md
 %{_bindir}/typhoon
 %{_datadir}/typhoon/
-%{_datadir}/applications/typhoon.desktop
-%{_datadir}/icons/hicolor/scalable/apps/typhoon.svg
+%{_datadir}/applications/io.github.archisman_panigrahi.typhoon.desktop
+%{_datadir}/icons/hicolor/scalable/apps/io.github.archisman_panigrahi.typhoon.svg
 
 %changelog
 * Tue Apr 15 2025 Archisman Panigrahi <apandada1@gmail.com> - 1.0.0-1
