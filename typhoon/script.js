@@ -224,6 +224,7 @@ function render(cityName) {
         // Show Icon
         $('.border .sync, .border .settings').css("opacity", "0.8");
         $('#actualWeather').fadeIn(500);
+        $("#humidityIcon").css("opacity", "1");
         $("#locationModal").fadeOut(500);
         setTimeout(function () { $('.border .sync').removeClass('busy'); }, 1000);
 
