@@ -445,7 +445,7 @@ class TyphoonWindow(Gtk.Window):
                     self.launcher_service = Service()
                     self.launcher_thread = threading.Thread(target=self.launcher_service.run, daemon=True)
                     self.launcher_thread.start()
-                self.launcher_service.Update("application://typhoon.desktop", {"count": dbus.Int64(count)})
+                self.launcher_service.Update("application://io.github.archisman_panigrahi.typhoon.desktop", {"count": dbus.Int64(count)})
             except ValueError:
                 pass
 
