@@ -37,8 +37,9 @@
             ],
             "sources": [
                 {
-                    "type": "dir",
-                    "path": "."
+                    "type": "git",
+                    "url": "https://github.com/archisman-panigrahi/typhoon.git",
+                    "branch": "master"
                 }
             ]
         }

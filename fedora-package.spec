@@ -13,9 +13,9 @@ BuildRequires:  python3-setuptools
 BuildRequires:  glib2-devel
 BuildRequires:  gtk3-devel
 BuildRequires:  webkit2gtk3-devel
-BuildRequires:  ImageMagick
 BuildRequires:  dbus-devel
 BuildRequires:  python3-dbus
+BuildRequires:  desktop-file-utils
 
 Requires:       glib2
 Requires:       gtk3
@@ -47,4 +47,7 @@ always will be free.
 %{_datadir}/typhoon/
 %{_datadir}/applications/io.github.archisman_panigrahi.typhoon.desktop
 %{_datadir}/icons/hicolor/scalable/apps/io.github.archisman_panigrahi.typhoon.svg
+
+%changelog
+# Changelog entries go here
 

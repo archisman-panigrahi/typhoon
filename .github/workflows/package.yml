@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential debhelper meson python3-setuptools dh-make
+          sudo apt-get install -y build-essential debhelper meson python3-setuptools dh-make desktop-file-utils
 
       - name: Build .deb package
         run: |
@@ -63,7 +63,7 @@ jobs:
           # Run the build inside a Fedora container
           podman run --rm -v ~/rpmbuild:/root/rpmbuild:Z -w /root/rpmbuild \
             registry.fedoraproject.org/fedora:latest \
-            bash -c "dnf install -y rpm-build redhat-rpm-config meson python3-setuptools glib2-devel gtk3-devel webkit2gtk3-devel ImageMagick dbus-devel python3-dbus && rpmbuild -ba SPECS/fedora-package.spec"
+            bash -c "dnf install -y rpm-build redhat-rpm-config meson python3-setuptools glib2-devel gtk3-devel webkit2gtk3-devel dbus-devel python3-dbus desktop-file-utils && rpmbuild -ba SPECS/fedora-package.spec"
 
       - name: Copy RPM to host
         run: |
