@@ -96,6 +96,9 @@ class TyphoonWindow(Gtk.Window):
         self.overlay = Gtk.Overlay()
         self.add(self.overlay)
 
+        self.set_type_hint(Gdk.WindowTypeHint.DIALOG)
+        self.connect("window-state-event", self._on_window_state_event)
+
     def _set_window_icon(self):
         """Sets the window icon if available."""
         icon_theme = Gtk.IconTheme.get_default()
@@ -489,6 +492,12 @@ class TyphoonWindow(Gtk.Window):
             return True  # Prevent default right-click behavior
         if self.drag_enabled and event.button in [1, 2]:  # Left or middle button
             self.begin_move_drag(event.button, event.x_root, event.y_root, event.time)
+
+    def _on_window_state_event(self, widget, event):
+        # Prevent maximizing only
+        if event.new_window_state & Gdk.WindowState.MAXIMIZED:
+            self.unmaximize()
+        return False
 
 
 class Service(dbus.service.Object):
