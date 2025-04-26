@@ -8,11 +8,9 @@
     "finish-args" : [
         "--share=network",
         "--share=ipc",
-        "--socket=x11",
+        "--socket=fallback-x11",
         "--socket=wayland",
-        "--filesystem=xdg-config/io.github.archisman_panigrahi.typhoon:create",
         "--device=all",
-        "--own-name=io.github.archisman_panigrahi.typhoon",
         "--talk-name=org.freedesktop.DBus"
     ],
     "build-extensions": [
