@@ -2,11 +2,11 @@
 <component type="desktop">
   <id>io.github.archisman_panigrahi.typhoon</id>
   <name>Typhoon</name>
-  <summary>Simple weather application, powered by Open-Meteo and OpenStreetMap</summary>
+  <summary>Stylish weather application</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <description>
     <p>
-      Typhoon is a beautiful weather application that provides real-time weather updates and forecasts. It is based on Stormcloud.
+      Typhoon is a beautiful weather application powered by Open-Meteo and OpenStreetMap that provides real-time weather updates and forecasts. It is based on Stormcloud.
     </p>
   </description>
   <url type="homepage">https://archisman-panigrahi.github.io/typhoon</url>
@@ -16,11 +16,19 @@
   </developer>
   <project_license>GPL-3.0-or-later</project_license>
   <launchable type="desktop-id">io.github.archisman_panigrahi.typhoon.desktop</launchable>
+  <categories>
+    <category>Utility</category>
+    <category>Network</category>
+  </categories>
   <screenshots>
     <screenshot type="default">
       <image>https://archisman-panigrahi.github.io/typhoon/assets/img/typhoon.png</image>
     </screenshot>
   </screenshots>
+  <branding>
+    <color type="primary" scheme_preference="light">#ffeeaa</color>
+    <color type="primary" scheme_preference="dark">#17638e</color>
+  </branding>
   <releases>
     <release version="0.9.85" date="2025-04-23">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v0.9.85</url>
