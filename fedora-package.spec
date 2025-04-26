@@ -47,7 +47,9 @@ always will be free.
 %{_datadir}/typhoon/
 %{_datadir}/applications/io.github.archisman_panigrahi.typhoon.desktop
 %{_datadir}/icons/hicolor/scalable/apps/io.github.archisman_panigrahi.typhoon.svg
+%{_datadir}/metainfo/io.github.archisman_panigrahi.typhoon.metainfo.xml
 
 %changelog
-# Changelog entries go here
+* Sat Apr 26 2025 Archisman Panigrahi <apandada1@gmail.com> - 0.9.85-1
+- Initial package
 
