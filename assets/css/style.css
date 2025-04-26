@@ -58,13 +58,13 @@ a:not([class*="btn"]):hover {
     background-color: #dd4814;
 }
 .btn-rpm {
+    background-color: #135fc2;
+}
+.btn-flatpak {
     background-color: #232225;
 }
-.btn-windows {
-    background-color: #56c5ff;
-}
 .btn-source {
-    background-color: #bada55;
+    background-color: #3dd816;
 }
 .btn-site {
     background-color: #f3b200;
@@ -116,7 +116,7 @@ p img {
     background: #d64937;
 }
 /* Button styles */
-a.btn-ubuntu, a.btn-source, a.btn-windows, a.btn-site, a.btn-rpm {
+a.btn-ubuntu, a.btn-source, a.btn-flatpak, a.btn-site, a.btn-rpm {
     display: inline-block;
     margin: 10px 5px;
     padding: 10px 15px;
@@ -165,7 +165,7 @@ pre code {
         font-size: 1rem;
     }
 
-    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-windows, a.btn-site {
+    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-flatpak, a.btn-site {
         font-size: 0.9rem;
         padding: 8px 12px;
     }
@@ -185,7 +185,7 @@ pre code {
         font-size: 0.9rem;
     }
 
-    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-windows, a.btn-site {
+    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-flatpak, a.btn-site {
         font-size: 0.8rem;
         padding: 6px 10px;
     }
