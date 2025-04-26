@@ -26,7 +26,7 @@ configure_file(
 )
 
 # Validate MetaInfo file
-metainfo_file = '/path/to/io.github.archisman_panigrahi.typhoon.metainfo.xml'
+metainfo_file = 'io.github.archisman_panigrahi.typhoon.metainfo.xml'
 ascli_exe = find_program('appstreamcli', required: false)
 if ascli_exe.found()
   test('validate metainfo file',
