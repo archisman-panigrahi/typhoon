@@ -44,7 +44,7 @@ dfv_exe = find_program('desktop-file-validate', required: false)
 if dfv_exe.found()
   test('validate desktop file',
         dfv_exe,
-        args: [desktop_file]
+        args: [join_paths(meson.source_root(), desktop_file)]
   )
 endif
 
