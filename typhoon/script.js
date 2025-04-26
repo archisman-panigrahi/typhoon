@@ -167,8 +167,9 @@ function render(cityName) {
         const countryName = locationData.display_name.split(',').pop().trim() || "Unknown Country"; // Extract country from display_name
         
         $('#city span').html(`<a href="${mapUrl}">${locationData.name}, ${countryName}</a>`);
-        $("#code").text(weather_code(currentWeather.weathercode, currentWeather.is_day)).attr("class", "w" + currentWeather.weathercode);
-
+        const iconChar = weather_code(currentWeather.weathercode, currentWeather.is_day);
+        const codeClass = "w" + currentWeather.weathercode;
+        $("#code").text(iconChar).attr("class", codeClass + (iconChar === "/" ? " moon-large" : ""));
         // Sets initial temp as Fahrenheit
         let temp = currentWeather.temperature;
 

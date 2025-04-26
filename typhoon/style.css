@@ -131,8 +131,15 @@ p, span, div {
  #code.w0, #code.w31, #code.w32, #code.w34, #code.w33, #code.w36 {
     left: 12px;
 }
-#code.w0, #code.w2 {
+#code.w2 {
     top: 80px;
+}
+#code.w0 {
+    top: 70px;
+}
+#code.w0.moon-large {
+    top: 30px;
+    font-size: 300px;
 }
 #code.w31, #code.w33 {
     font-size: 300px;
