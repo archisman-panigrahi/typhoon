@@ -15,6 +15,11 @@
     <name>Archisman Panigrahi</name>
   </developer>
   <project_license>GPL-3.0-or-later</project_license>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </supports>
   <launchable type="desktop-id">io.github.archisman_panigrahi.typhoon.desktop</launchable>
   <categories>
     <category>Utility</category>
@@ -22,7 +27,24 @@
   </categories>
   <screenshots>
     <screenshot type="default">
-      <image>https://archisman-panigrahi.github.io/typhoon/assets/img/typhoon.png</image>
+      <caption>Main window showing weather forecast</caption>
+      <image>assets/screenshots/typhoon.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Main window showing weather forecast (purple color)</caption>
+      <image>assets/screenshots/typhoon-purple.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Main window showing weather forecast (red color)</caption>
+      <image>assets/screenshots/typhoon-red.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Main window showing weather forecast (green color)</caption>
+      <image>assets/screenshots/typhoon-green.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Settings window</caption>
+      <image>assets/screenshots/typhoon-settings.png</image>
     </screenshot>
   </screenshots>
   <branding>

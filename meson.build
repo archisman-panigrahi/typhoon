@@ -1,6 +1,7 @@
 project('typhoon', meson_version: '>=0.55.0')
 
 py3 = import('python')
+gnome = import('gnome')
 
 # Find Python3 interpreter
 python = py3.find_installation()
@@ -24,8 +25,42 @@ configure_file(
   install_dir: join_paths(get_option('prefix'), 'bin')
 )
 
+# Validate MetaInfo file
+metainfo_file = '/path/to/io.github.archisman_panigrahi.typhoon.metainfo.xml'
+ascli_exe = find_program('appstreamcli', required: false)
+if ascli_exe.found()
+  test('validate metainfo file',
+        ascli_exe,
+        args: ['validate',
+               '--no-net',
+               '--pedantic',
+               metainfo_file]
+  )
+endif
+
+# Validate desktop file
+desktop_file = 'io.github.archisman_panigrahi.typhoon.desktop'
+dfv_exe = find_program('desktop-file-validate', required: false)
+if dfv_exe.found()
+  test('validate desktop file',
+        dfv_exe,
+        args: [desktop_file]
+  )
+endif
+
 # Install the desktop file
 install_data('io.github.archisman_panigrahi.typhoon.desktop', install_dir: join_paths(get_option('prefix'), 'share', 'applications'))
 
 # Install the icon to the hicolor directory
 install_data('typhoon/io.github.archisman_panigrahi.typhoon.svg', install_dir: join_paths(get_option('prefix'), 'share', 'icons/hicolor/scalable/apps'))
+
+# Install the metainfo file
+install_data(
+  'io.github.archisman_panigrahi.typhoon.metainfo.xml',
+  install_dir: join_paths(get_option('datadir'), 'metainfo')
+)
+
+gnome.post_install(
+  gtk_update_icon_cache: true,
+  update_desktop_database: true,
+)
