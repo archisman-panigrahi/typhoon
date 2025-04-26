@@ -45,15 +45,6 @@
             ]
         }
     ],
-    "metadata" : {
-        "name" : "Typhoon",
-        "version" : "0.9.85",
-        "summary" : "Simple weather application, powered by Open-Meteo and OpenStreetMap",
-        "description" : "Typhoon is a weather application that provides real-time weather updates and forecasts. It is based on Stormcloud.",
-        "license" : "GPL3",
-        "homepage" : "https://github.com/archisman-panigrahi/typhoon",
-        "issues" : "https://github.com/archisman-panigrahi/typhoon/issues"
-    },
     "build-options" : {
         "env" : {        }
     }

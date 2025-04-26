@@ -1,7 +1,7 @@
 Name:           typhoon
 Version:        0.9.85
 Release:        1%{?dist}
-Summary:        Quickly check the weather with this beautiful application
+Summary:        Simple weather application, powered by Open-Meteo and OpenStreetMap
 
 License:        MIT
 URL:            https://archisman-panigrahi.github.io/typhoon
@@ -48,6 +48,3 @@ always will be free.
 %{_datadir}/applications/io.github.archisman_panigrahi.typhoon.desktop
 %{_datadir}/icons/hicolor/scalable/apps/io.github.archisman_panigrahi.typhoon.svg
 
-%changelog
-* Tue Apr 15 2025 Archisman Panigrahi <apandada1@gmail.com> - 1.0.0-1
-- Initial package

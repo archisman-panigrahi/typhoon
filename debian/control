@@ -13,9 +13,7 @@ Depends: ${misc:Depends},
  gir1.2-webkit2-4.0 | gir1.2-webkit2-4.1,
  imagemagick,
  dbus, python3-dbus
-Description: Quickly check the weather with this beautiful application
- Typhoon is a free and open source weather application. It is
- continuation of discontinued Stormcloud 1.1, however with some changes.
- It is and always will be free.
- PPA: https://launchpad.net/~apandada1/+archive/typhoon/
+Description: Simple weather application, powered by Open-Meteo and OpenStreetMap
+ Typhoon is a beautiful weather application that provides real-time weather updates and forecasts.
+ It is based on Stormcloud.
 Homepage: https://archisman-panigrahi.github.io/typhoon

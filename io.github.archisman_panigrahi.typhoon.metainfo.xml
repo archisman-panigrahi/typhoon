@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>io.github.archisman_panigrahi.typhoon</id>
+  <name>Typhoon</name>
+  <summary>Simple weather application, powered by Open-Meteo and OpenStreetMap</summary>
+  <description>
+    <p>
+      Typhoon is a beautiful weather application that provides real-time weather updates and forecasts. It is based on Stormcloud.
+    </p>
+  </description>
+  <url type="homepage">https://archisman-panigrahi.github.io/typhoon</url>
+  <url type="bugtracker">https://github.com/archisman-panigrahi/typhoon/issues</url>
+  <developer_name>Archisman Panigrahi</developer_name>
+  <project_license>GPL-3.0-or-later</project_license>
+  
+    <screenshots>
+      <screenshot type="default">
+        <image>https://archisman-panigrahi.github.io/typhoon/assets/img/typhoon.png</image>
+      </screenshot>
+    </screenshots>
+ 
+  <releases>
+    <release version="0.9.85" date="2025-04-23"/>
+        <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v0.9.85</url>
+    </release>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>
