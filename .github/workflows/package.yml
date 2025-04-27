@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential debhelper meson python3-setuptools dh-make desktop-file-utils
+          sudo apt-get install -y build-essential debhelper meson python3-setuptools dh-make desktop-file-utils gtk-update-icon-cache
 
       - name: Build .deb package
         run: |
