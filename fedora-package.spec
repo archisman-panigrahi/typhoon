@@ -1,5 +1,5 @@
 Name:           typhoon
-Version:        0.9.85
+Version:        0.9.86
 Release:        1%{?dist}
 Summary:        Simple weather application, powered by Open-Meteo and OpenStreetMap
 
@@ -50,6 +50,6 @@ always will be free.
 %{_datadir}/metainfo/io.github.archisman_panigrahi.typhoon.metainfo.xml
 
 %changelog
-* Sat Apr 26 2025 Archisman Panigrahi <apandada1@gmail.com> - 0.9.85-1
+* Mon Apr 28 2025 Archisman Panigrahi <apandada1@gmail.com> - 0.9.86-1
 - Initial package
 

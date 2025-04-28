@@ -39,7 +39,7 @@
                 {
                     "type": "git",
                     "url": "https://github.com/archisman-panigrahi/typhoon.git",
-                    "branch": "master"
+                    "tag": "v0.9.86"
                 }
             ]
         }
