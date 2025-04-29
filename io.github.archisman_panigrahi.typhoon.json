@@ -9,14 +9,20 @@
         "--share=network",
         "--share=ipc",
         "--socket=fallback-x11",
-        "--socket=wayland",
-        "--device=all",
-        "--talk-name=org.freedesktop.DBus"
-    ],
-    "build-extensions": [
-        "org.gnome.Platform.Extension.Python3-dbus"
+        "--socket=wayland"
     ],
     "modules" : [
+        {
+            "name": "libportal",
+            "buildsystem": "meson",
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://github.com/flatpak/libportal/releases/download/0.9.1/libportal-0.9.1.tar.xz",
+                    "sha256": "de801ee349ed3c255a9af3c01b1a401fab5b3fc1c35eb2fd7dfb35d4b8194d7f"
+                }
+            ]
+        },
         {
             "name": "dbus-python",
             "buildsystem": "meson",
@@ -31,20 +37,13 @@
         {
             "name": "typhoon",
             "buildsystem": "meson",
-            "config-opts": [
-                "--prefix=/app",
-                "--libdir=lib"
-            ],
             "sources": [
                 {
                     "type": "git",
                     "url": "https://github.com/archisman-panigrahi/typhoon.git",
-                    "tag": "v0.9.86"
+                    "commit": "99d776c66d83b8c9c047fc3aa44725429307bf1a"
                 }
             ]
         }
-    ],
-    "build-options" : {
-        "env" : {        }
-    }
+    ]
 }
