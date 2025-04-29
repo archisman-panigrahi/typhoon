@@ -23,6 +23,9 @@ Requires:       webkit2gtk3
 Requires:       ImageMagick
 Requires:       dbus
 Requires:       python3-dbus
+Requires:       gobject-introspection-typelib 
+Requires:       libxdg-desktop-portal
+
 
 %description
 Typhoon is a free and open source weather application. It is a continuation
