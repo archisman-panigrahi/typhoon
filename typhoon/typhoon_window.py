@@ -12,11 +12,12 @@ from gi.repository import GObject, GLib
 import threading
 
 gi.require_version("Gtk", "3.0")
+gi.require_version("Xdp", "1.0")
 try:
     gi.require_version("WebKit2", "4.1")  # Attempt to use WebKit2 4.1
 except ValueError:
     gi.require_version("WebKit2", "4.0")  # Fallback to WebKit2 4.0
-from gi.repository import Gtk, WebKit2, GdkPixbuf, Gdk
+from gi.repository import Gtk, WebKit2, GdkPixbuf, Gdk, Xdp
 
 try:
     from gi.repository import Unity
@@ -231,7 +232,7 @@ class TyphoonWindow(Gtk.Window):
                         rgb_values = rgb_string[4:-1].split(",")
                         rgb = tuple(map(int, rgb_values))  # Convert to integers
                         hex_color = "{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])  # Convert to hex
-                        print(f"Extracted hex color from xprop: {hex_color}")
+                        print(f"Extracted hex color from xprop: #{hex_color}")
                         self.send_message_to_webview(f"'{hex_color}'")
                     except (IndexError, ValueError) as e:
                         print(f"Error parsing RGB values from xprop: {e}")
@@ -246,15 +247,14 @@ class TyphoonWindow(Gtk.Window):
 
     def _get_accent_color(self):
         logger.info("Getting System Accent Color")
-        session_bus = dbus.SessionBus()
-        settings = session_bus.get_object('org.freedesktop.portal.Desktop','/org/freedesktop/portal/desktop')
-        read_method = settings.get_dbus_method('Read', 'org.freedesktop.portal.Settings')
-        accent_color=read_method('org.freedesktop.appearance', 'accent-color')
+        portal = Xdp.Portal()
+        settings = portal.get_settings()
         hex_color: str
+        accent_color = settings.read_value("org.freedesktop.appearance", "accent-color")
         if accent_color is not None:
             r, g, b = accent_color
             hex_color = "{:02x}{:02x}{:02x}".format(int(r*255), int(g*255), int(b*255))
-            logger.info(f"Accent color found in settings: '{hex_color}'")
+            logger.info(f"Accent color found in settings: '#{hex_color}'")
         else:
             logger.error("Accent color not found in settings")
             logger.warning("Using Purple default color")
