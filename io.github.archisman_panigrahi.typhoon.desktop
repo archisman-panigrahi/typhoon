@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Typhoon
-Comment=A weather app based on Stormcloud
+Comment=A stylish weather app based on Stormcloud
 Exec=typhoon
 Icon=io.github.archisman_panigrahi.typhoon
 Terminal=false
