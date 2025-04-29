@@ -41,7 +41,7 @@
                 {
                     "type": "git",
                     "url": "https://github.com/archisman-panigrahi/typhoon.git",
-                    "commit": "99d776c66d83b8c9c047fc3aa44725429307bf1a"
+                    "branch": "master"
                 }
             ]
         }
