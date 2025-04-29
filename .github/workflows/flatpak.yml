@@ -11,22 +11,26 @@ jobs:
     container:
       image: bilelmoussaoui/flatpak-github-actions:gnome-47
       options: --privileged
+    strategy:
+      matrix:
+        arch: [x86_64, arm]
     steps:
       - uses: actions/checkout@v4
       - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: io.github.archisman_panigrahi.typhoon.flatpak
+          bundle: io.github.archisman_panigrahi.typhoon.${{ matrix.arch }}.flatpak
           manifest-path: io.github.archisman_panigrahi.typhoon.json
-          cache-key: flatpak-builder-${{ github.sha }}
+          cache-key: flatpak-builder-${{ github.sha }}-${{ matrix.arch }}
+          options: --arch=${{ matrix.arch }}
       
       - name: Upload Flatpak as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: flatpak-bundle
-          path: io.github.archisman_panigrahi.typhoon.flatpak
+          name: flatpak-bundle-${{ matrix.arch }}
+          path: io.github.archisman_panigrahi.typhoon.${{ matrix.arch }}.flatpak
 
       - name: Upload to GitHub Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: io.github.archisman_panigrahi.typhoon.flatpak
+          files: io.github.archisman_panigrahi.typhoon.${{ matrix.arch }}.flatpak
