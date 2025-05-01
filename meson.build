@@ -1,4 +1,4 @@
-project('typhoon', meson_version: '>=0.55.0')
+project('typhoon', meson_version: '>=0.59.0')
 
 py3 = import('python')
 gnome = import('gnome')
