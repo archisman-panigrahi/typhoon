@@ -1,4 +1,4 @@
-name: Sync to gh-pages
+name: Sync JS and CSS to gh-pages
 
 on:
   push:
