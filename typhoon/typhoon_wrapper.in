@@ -1,3 +1,5 @@
 #!/bin/bash
-export GDK_BACKEND=x11
+if [ -z "$FLATPAK_ID" ]; then
+    export GDK_BACKEND=x11
+fi
 python3 @script@
