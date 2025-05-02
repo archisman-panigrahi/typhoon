@@ -251,7 +251,7 @@ class TyphoonWindow(Gtk.Window):
         """Configures Unity launcher integration if available."""
         if Unity:
             try:
-                self.launcher = Unity.LauncherEntry.get_for_desktop_id("typhoon.desktop")
+                self.launcher = Unity.LauncherEntry.get_for_desktop_id("io.github.archisman_panigrahi.typhoon.desktop")
                 self.launcher.set_property("count_visible", False)
             except NameError:
                 self.launcher = None
@@ -383,7 +383,7 @@ class TyphoonWindow(Gtk.Window):
                     self.launcher_thread.start()
                 visible = title == "enable_launcher"
                 print(f"{'Enabling' if visible else 'Disabling'} dbus launcher count.")
-                self.launcher_service.Update("application://typhoon.desktop", {"count-visible": visible})
+                self.launcher_service.Update("application://io.github.archisman_panigrahi.typhoon.desktop", {"count-visible": visible})
             except ValueError:
                 pass
 
@@ -403,7 +403,7 @@ class TyphoonWindow(Gtk.Window):
                     self.launcher_service = Service()
                     self.launcher_thread = threading.Thread(target=self.launcher_service.run, daemon=True)
                     self.launcher_thread.start()
-                self.launcher_service.Update("application://typhoon.desktop", {"count": dbus.Int64(count)})
+                self.launcher_service.Update("application://io.github.archisman_panigrahi.typhoon.desktop", {"count": dbus.Int64(count)})
             except ValueError:
                 pass
 
@@ -456,13 +456,13 @@ class Service(dbus.service.Object):
     def __init__(self):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.bus = dbus.SessionBus()
-        self.bus_name = dbus.service.BusName("com.typhoon.typhoon", self.bus)
-        super().__init__(self.bus_name, "/com/typhoon/typhoon")
+        self.bus_name = dbus.service.BusName("io.github.archisman_panigrahi.typhoon", self.bus)
+        super().__init__(self.bus_name, "/io/github/archisman_panigrahi/typhoon")
         self._stopped = False
 
     def run(self):
         # Use GObject.idle_add to schedule the Update signal
-        GObject.idle_add(lambda: self.Update("application://typhoon.desktop", {}))
+        GObject.idle_add(lambda: self.Update("application://io.github.archisman_panigrahi.typhoon.desktop", {}))
 
     @dbus.service.signal(dbus_interface="com.canonical.Unity.LauncherEntry", signature='sa{sv}')
     def Update(self, app_uri, properties):
