@@ -407,7 +407,7 @@ class TyphoonWindow(Gtk.Window):
         try:
             opacity = float(title[1:])
             # Use gtk_widget_set_opacity for Wayland compatibility
-            self.set_opacity(opacity)
+            Gtk.Widget.set_opacity(self, opacity)
         except ValueError:
             pass
 
