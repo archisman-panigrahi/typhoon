@@ -167,8 +167,9 @@ function render(cityName) {
         const countryName = locationData.display_name.split(',').pop().trim() || "Unknown Country"; // Extract country from display_name
         
         $('#city span').html(`<a href="${mapUrl}">${locationData.name}, ${countryName}</a>`);
-        $("#code").text(weather_code(currentWeather.weathercode, currentWeather.is_day)).attr("class", "w" + currentWeather.weathercode);
-
+        const iconChar = weather_code(currentWeather.weathercode, currentWeather.is_day);
+        const codeClass = "w" + currentWeather.weathercode;
+        $("#code").text(iconChar).attr("class", codeClass + (iconChar === "/" ? " moon-large" : ""));
         // Sets initial temp as Fahrenheit
         let temp = currentWeather.temperature;
 
@@ -204,7 +205,10 @@ function render(cityName) {
         $("#windSpeed").text(windSpeed);
         $("#windUnit").text((localStorage.typhoon_speed == "ms") ? "m/s" : (localStorage.typhoon_speed == "kph") ? "km/h" : localStorage.typhoon_speed);
         $("#humidity").html(
-            `<img id="humidityIcon" src="humidity.svg" height="18" style="vertical-align: middle; filter: none; box-shadow: none;"> ${currentWeather.relative_humidity_2m} %`
+            `<div title="Humidity" style="display: inline-block; position: relative; padding: 0px;">
+            <img id="humidityIcon" src="humidity.svg" height="18" style="vertical-align: middle; filter: none; box-shadow: none;"> 
+            ${currentWeather.relative_humidity_2m} %
+            </div>`
         );
 
         // Update "Feels Like" and "Rain Percentage"
@@ -459,12 +463,7 @@ function receiveMessage(message) {
 }
 
 $(document).ready(function() {
-    //Filters Proprietary RSS Tags
-    jQuery.fn.filterNode = function(name){
-        return this.filter(function(){
-            return this.nodeName === name;
-        });
-    };
+    // Set the size
     scaleContent();
 
     //APP START.
@@ -484,11 +483,9 @@ $(document).ready(function() {
 
     // Add event listener for the reset button
     $('#resetButton').click(function () {
-        // if (confirm("Are you sure you want to reset all settings? This will clear all saved preferences.")) {
             localStorage.clear(); // Clear all local storage
             document.title="reset";
             location.reload(); // Reload the page to apply default settings
-        // }
     });
 
     // Attach event listener to the city name input field
@@ -504,7 +501,7 @@ $(document).ready(function() {
                 return;
             }
 
-            // Perform the search if the input is not empty
+            // Perform the search only if the input is not empty
             getWeatherData(cityName, function (data) {
                 if (data) {
                     console.log("Weather data fetched successfully.");
@@ -571,7 +568,7 @@ function init_settings() {
             setInterval(function() {
                 console.log("Updating Data...");
                 $(".border .sync").click();
-            }, 600000);
+            }, 1200000);
         }
     });
 
