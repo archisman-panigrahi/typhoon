@@ -144,5 +144,20 @@
         e.preventDefault();
     });
 </script>
+<script>
+  // Observe changes in #city and set target="_blank" for all links inside it
+  const cityDiv = document.getElementById('city');
+  const setLinksTargetBlank = () => {
+    const links = cityDiv.querySelectorAll('a');
+    links.forEach(link => link.setAttribute('target', '_blank'));
+  };
+
+  // Run once in case content is already there
+  setLinksTargetBlank();
+
+  // Observe future changes
+  const observer = new MutationObserver(setLinksTargetBlank);
+  observer.observe(cityDiv, { childList: true, subtree: true });
+</script>
 </body>
 </html>
