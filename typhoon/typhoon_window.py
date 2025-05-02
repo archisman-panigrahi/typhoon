@@ -406,8 +406,8 @@ class TyphoonWindow(Gtk.Window):
         """Sets the window opacity based on the title."""
         try:
             opacity = float(title[1:])
-            if self.get_window():  # Ensure the window is realized
-                self.get_window().set_opacity(opacity)
+            # Use gtk_widget_set_opacity for Wayland compatibility
+            self.set_opacity(opacity)
         except ValueError:
             pass
 
