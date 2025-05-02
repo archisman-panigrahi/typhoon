@@ -339,9 +339,14 @@ class TyphoonWindow(Gtk.Window):
                 print("Invalid height value in title.")
         elif title == "close":
             self._toggle_unity_launcher("disable_launcher")
-            self._on_destroy()
+            self._on_destroy(self)  # Pass self or None as the widget argument
         elif title == "minimize":
-            self.iconify()
+            display = self.get_display()
+            surface = self.get_surface()
+            if hasattr(surface, "minimize"):
+                surface.minimize()
+            else:
+                print("Minimize not supported on this platform.")
         elif title == "disabledrag":
             self.drag_enabled = False
         elif title == "enabledrag":
@@ -450,8 +455,10 @@ class TyphoonWindow(Gtk.Window):
 class Service(dbus.service.Object):
     def __init__(self):
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        bus_name = dbus.service.BusName("com.typhoon.typhoon", dbus.SessionBus())
-        dbus.service.Object.__init__(self, bus_name, "/com/typhoon/typhoon")
+        self.bus = dbus.SessionBus()
+        self.bus_name = dbus.service.BusName("com.typhoon.typhoon", self.bus)
+        super().__init__(self.bus_name, "/com/typhoon/typhoon")
+        self._stopped = False
 
     def run(self):
         # Use GObject.idle_add to schedule the Update signal
@@ -460,6 +467,17 @@ class Service(dbus.service.Object):
     @dbus.service.signal(dbus_interface="com.canonical.Unity.LauncherEntry", signature='sa{sv}')
     def Update(self, app_uri, properties):
         print(app_uri, properties)
+
+    def stop(self):
+        """Properly unregister the D-Bus object and release the bus name."""
+        if not self._stopped:
+            try:
+                self.remove_from_connection()
+                self.bus_name = None  # Let the BusName object be garbage collected
+                self._stopped = True
+                print("D-Bus service stopped and unregistered.")
+            except Exception as e:
+                print(f"Error stopping D-Bus service: {e}")
 
 
 if __name__ == "__main__":
