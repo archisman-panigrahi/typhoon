@@ -241,7 +241,7 @@ class TyphoonWindow(Gtk.Window):
                     print("No representative colors found in xprop output.")
                     raise Exception("Fallback to gdbus")
             except Exception as e:
-                # Fallback to the gdbus method to get accent color
+                # Fallback to the Xdp method to get accent color
                 print(f"Error running xprop or no colors found: {e}")
                 self._get_accent_color()
 
@@ -451,6 +451,13 @@ class TyphoonWindow(Gtk.Window):
 
     def get_wallpaper_path(self):
         """Retrieves the current wallpaper path based on the desktop environment."""
+        # Detect Flatpak or Snap environment
+        if (
+            os.environ.get("FLATPAK_ID") is not None
+            or os.environ.get("SNAP") is not None
+        ):
+            raise Exception("Flatpak or Snap detected, use xprop method for wallpaper color.")
+
         de = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
 
         if "gnome" in de:
