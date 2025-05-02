@@ -23,7 +23,7 @@ fi
 # 2. Update typhoon/index.html
 if [ -f typhoon/typhoon.html ]; then
     sed -i "s|\(<h1 style=\"text-align: center\">Typhoon \)[0-9.]\+\(</h1>\)|\1$NEW_VERSION\2|" typhoon/typhoon.html
-    echo "Updated typhoon/index.html"
+    echo "Updated typhoon/typhoon.html"
 fi
 
 # 3. Update debian/changelog
