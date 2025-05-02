@@ -1,0 +1,29 @@
+name: Sync to gh-pages
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'typhoon/script.js'
+      - 'typhoon/style.css'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Copy files to gh-pages
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git checkout gh-pages || git checkout --orphan gh-pages
+          mkdir -p webapp
+          cp typhoon/script.js webapp/script.js
+          cp typhoon/style.css webapp/style.css
+          git add webapp/script.js webapp/style.css
+          git commit -m "Update script.js and style.css from master" || echo "No changes to commit"
+          git push origin gh-pages --force

@@ -463,12 +463,7 @@ function receiveMessage(message) {
 }
 
 $(document).ready(function() {
-    //Filters Proprietary RSS Tags
-    jQuery.fn.filterNode = function(name){
-        return this.filter(function(){
-            return this.nodeName === name;
-        });
-    };
+    // Set the size
     scaleContent();
 
     //APP START.
@@ -575,7 +570,7 @@ function init_settings() {
             setInterval(function() {
                 console.log("Updating Data...");
                 $(".border .sync").click();
-            }, 600000);
+            }, 1200000);
         }
     });
 
