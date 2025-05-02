@@ -28,6 +28,9 @@ jobs:
           ref: master
           path: master
 
+      - name: Ensure target directory exists
+        run: mkdir -p gh-pages/webapp
+
       - name: Copy updated files
         run: |
           cp master/typhoon/script.js gh-pages/webapp/script.js
