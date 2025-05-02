@@ -337,6 +337,7 @@ p, span, div {
 }
 #locationModal .loader {
     font-size: 27px;
+    font-family: FreeSans;
     display: inline-block;
     vertical-align: top;
     line-height: 30px;
