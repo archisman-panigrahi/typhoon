@@ -7,6 +7,7 @@ on:
     paths:
       - 'typhoon/script.js'
       - 'typhoon/style.css'
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -29,18 +30,18 @@ jobs:
           path: master
 
       - name: Ensure target directory exists
-        run: mkdir -p gh-pages/webapp
+        run: mkdir -p gh-pages/web-app
 
       - name: Copy updated files
         run: |
-          cp master/typhoon/script.js gh-pages/webapp/script.js
-          cp master/typhoon/style.css gh-pages/webapp/style.css
+          cp master/typhoon/script.js gh-pages/web-app/script.js
+          cp master/typhoon/style.css gh-pages/web-app/style.css
 
       - name: Commit and push changes
         run: |
           cd gh-pages
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          git add webapp/script.js webapp/style.css
+          git add web-app/script.js web-app/style.css
           git commit -m "Update script.js and style.css from master" || echo "No changes to commit"
           git push origin gh-pages
