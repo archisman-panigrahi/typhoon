@@ -205,7 +205,10 @@ function render(cityName) {
         $("#windSpeed").text(windSpeed);
         $("#windUnit").text((localStorage.typhoon_speed == "ms") ? "m/s" : (localStorage.typhoon_speed == "kph") ? "km/h" : localStorage.typhoon_speed);
         $("#humidity").html(
-            `<img id="humidityIcon" src="humidity.svg" height="18" style="vertical-align: middle; filter: none; box-shadow: none;"> ${currentWeather.relative_humidity_2m} %`
+            `<div title="Humidity" style="display: inline-block; position: relative; padding: 0px;">
+            <img id="humidityIcon" src="humidity.svg" height="18" style="vertical-align: middle; filter: none; box-shadow: none;"> 
+            ${currentWeather.relative_humidity_2m} %
+            </div>`
         );
 
         // Update "Feels Like" and "Rain Percentage"
