@@ -16,14 +16,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Copy files to gh-pages
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v2
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Checkout master branch
+        uses: actions/checkout@v2
+        with:
+          ref: master
+          path: master
+
+      - name: Copy updated files
         run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-          git checkout gh-pages || git checkout --orphan gh-pages
-          mkdir -p webapp
-          cp typhoon/script.js webapp/script.js
-          cp typhoon/style.css webapp/style.css
+          cp master/typhoon/script.js gh-pages/webapp/script.js
+          cp master/typhoon/style.css gh-pages/webapp/style.css
+
+      - name: Commit and push changes
+        run: |
+          cd gh-pages
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
           git add webapp/script.js webapp/style.css
           git commit -m "Update script.js and style.css from master" || echo "No changes to commit"
-          git push origin gh-pages --force
+          git push origin gh-pages
