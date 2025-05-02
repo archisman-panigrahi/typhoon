@@ -501,7 +501,7 @@ $(document).ready(function() {
                 return;
             }
 
-            // Perform the search if the input is not empty
+            // Perform the search only if the input is not empty
             getWeatherData(cityName, function (data) {
                 if (data) {
                     console.log("Weather data fetched successfully.");
