@@ -483,11 +483,9 @@ $(document).ready(function() {
 
     // Add event listener for the reset button
     $('#resetButton').click(function () {
-        // if (confirm("Are you sure you want to reset all settings? This will clear all saved preferences.")) {
             localStorage.clear(); // Clear all local storage
             document.title="reset";
             location.reload(); // Reload the page to apply default settings
-        // }
     });
 
     // Attach event listener to the city name input field
