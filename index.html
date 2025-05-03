@@ -38,6 +38,12 @@
             if (!response.ok) throw new Error('Failed to fetch release info');
             const release = await response.json();
 
+            // Update RPM link
+            const latestFlatpakUrl = release.assets.find(asset => asset.name.endsWith('.rpm'))?.browser_download_url;
+            if (latestFlatpakUrl) {
+              $flatpakButton.attr('href', latestFlatpakUrl);
+            }
+
             // Update .deb links
             const latestDebUrl = release.assets.find(asset => asset.name.endsWith('.deb'))?.browser_download_url;
             if (latestDebUrl) {
@@ -94,14 +100,16 @@ sudo apt install typhoon</code></pre>
       </div>
       
       <div id="other-gnu-linux-instructions" class="instructions" style="display: none;">
-        <a href='https://flathub.org/apps/io.github.archisman_panigrahi.typhoon'>
-          <img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
-        </a>
-        <br>
-        <a href="https://repology.org/project/typhoon/versions">
-          <img src="https://repology.org/badge/vertical-allrepos/typhoon.svg" alt="Packaging status" align="center">
-        </a>
-        <h2>Installation Instructions for GNU/Linux</h2>
+        <div style="text-align: center;">
+          <a href='https://flathub.org/apps/io.github.archisman_panigrahi.typhoon'>
+            <img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
+          </a>
+          <br>
+          <a href="https://repology.org/project/typhoon/versions">
+            <img src="https://repology.org/badge/vertical-allrepos/typhoon.svg" alt="Packaging status">
+          </a>
+          <h2>Installation Instructions for GNU/Linux</h2>
+        </div>
         <ul>
           <li>
             <strong>Arch Linux:</strong> Install from the <a href="https://aur.archlinux.org/packages/typhoon" target="_blank">AUR</a> using your favorite AUR helper:
