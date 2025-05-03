@@ -38,12 +38,6 @@
             if (!response.ok) throw new Error('Failed to fetch release info');
             const release = await response.json();
 
-            // Update Flatpak link
-            const latestFlatpakUrl = release.assets.find(asset => asset.name.endsWith('.rpm'))?.browser_download_url;
-            if (latestFlatpakUrl) {
-              $flatpakButton.attr('href', latestFlatpakUrl);
-            }
-
             // Update .deb links
             const latestDebUrl = release.assets.find(asset => asset.name.endsWith('.deb'))?.browser_download_url;
             if (latestDebUrl) {
@@ -81,7 +75,7 @@
       <div class="buttons">
         <a class="btn-ubuntu" data-section="ubuntu-instructions">Ubuntu/Mint (PPA/DEB)</a>
         <a class="btn-rpm" href="">Fedora (RPM)</a>
-        <a class="btn-flatpak" href="https://github.com/archisman-panigrahi/typhoon/releases">Flatpak</a>
+        <a class="btn-flatpak" href="https://flathub.org/apps/io.github.archisman_panigrahi.typhoon">Flathub</a>
         <a class="btn-ubuntu" style="background-color: #411e86;" data-section="other-gnu-linux-instructions">Other GNU/Linux</a>
         <a class="btn-site" href="webapp.html">Webapp</a>
         <a class="btn-source" href="https://github.com/archisman-panigrahi/typhoon" target="_blank">Source Code</a>
@@ -100,6 +94,10 @@ sudo apt install typhoon</code></pre>
       </div>
       
       <div id="other-gnu-linux-instructions" class="instructions" style="display: none;">
+        <a href='https://flathub.org/apps/io.github.archisman_panigrahi.typhoon'>
+          <img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
+        </a>
+        <br>
         <a href="https://repology.org/project/typhoon/versions">
           <img src="https://repology.org/badge/vertical-allrepos/typhoon.svg" alt="Packaging status" align="center">
         </a>
@@ -110,10 +108,13 @@ sudo apt install typhoon</code></pre>
             <pre><code>yay -S typhoon</code></pre>
           </li>
           <li>
-            <strong>Debian/Chrome OS:</strong> <a id="deb-text-link" href="https://github.com/archisman-panigrahi/typhoon/releases" target="_blank">Download the latest .deb file</a> from GitHub releases.
+            <strong>Debian:</strong> <a id="deb-text-link" href="https://github.com/archisman-panigrahi/typhoon/releases" target="_blank">Download the latest .deb file</a> from GitHub releases.
           </li>
           <li>
-            <strong>Other Distributions:</strong> Download the source code from <a href="https://github.com/archisman-panigrahi/typhoon" target="_blank">GitHub</a> and build it manually:
+            <strong>Chrome OS:</strong> Use <a href="https://flathub.org/apps/io.github.archisman_panigrahi.typhoon" target="_blank">Flatpak</a>.
+          </li>
+          <li>
+            <strong>Other Distributions:</strong> Either use the Flatpak, or download the source code from <a href="https://github.com/archisman-panigrahi/typhoon" target="_blank">GitHub</a> and build it manually:
             <pre><code>git clone https://github.com/archisman-panigrahi/typhoon.git
 
 cd typhoon

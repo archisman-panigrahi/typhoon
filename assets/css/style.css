@@ -21,6 +21,10 @@ img {
 img:hover {
     opacity: 0.9;
 }
+.instructions {
+    text-align: left;
+    margin-left: 0;
+}
 .content {
     position: relative;
     max-width: 96%;
