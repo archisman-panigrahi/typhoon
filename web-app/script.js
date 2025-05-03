@@ -12,7 +12,7 @@ function getWeatherData(cityName, callback) {
 
             $.get(weatherUrl, function (weatherData) {
                 console.log("API Response (Current Weather):", weatherData); // Log the API response for debugging
-                console.log("Rain Probability Data:", weatherData.hourly.precipitation_probability); // Log rain probability data
+                console.log("Total Rain Probability Data:", weatherData.hourly.precipitation_probability); // Log rain probability data
 
                 if (weatherData && weatherData.current_weather && weatherData.hourly) {
                     const currentWeather = weatherData.current_weather;
@@ -27,19 +27,20 @@ function getWeatherData(cityName, callback) {
                     console.log("Time Index:", timeIndex);
 
                     if (timeIndex !== -1) {
-                        // Get the rain probabilities for the previous 2 hours and the next 5 hours
+                        // Get the rain probabilities for the previous 2 hours, current hour, and the next 5 hours
                         const previousHours = timeIndex === 0 
                             ? [weatherData.hourly.precipitation_probability[timeIndex]] 
                             : weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 2), timeIndex);
+                        const currentHour = [weatherData.hourly.precipitation_probability[timeIndex]];
                         const nextHours = weatherData.hourly.precipitation_probability.slice(timeIndex + 1, timeIndex + 6);
 
-                        // Combine the previous and next hours into a single array
-                        const combinedHours = [...previousHours, ...nextHours];
+                        // Combine the previous, current, and next hours into a single array
+                        const combinedHours = [...previousHours, ...currentHour, ...nextHours];
 
                         // Find the maximum rain probability
                         const rainPercentage = combinedHours.length > 0 ? Math.max(...combinedHours) : 0;
-
-                        console.log("Maximum Rain Probability:", rainPercentage);
+                        console.log("Current Rain Probability Data:", combinedHours); // Log combined rain probability data
+                        // console.log("Maximum Rain Probability:", rainPercentage);
 
                         // Add the rain percentage to the current weather object
                         currentWeather.rain_percentage = rainPercentage;
@@ -51,19 +52,6 @@ function getWeatherData(cityName, callback) {
                         console.log("Current Humidity:", currentWeather.relative_humidity_2m);
                         console.log("Feels Like Temperature:", currentWeather.feels_like);
 
-                        // Add the rain percentage to the current weather object
-                        const nextHoursSum = nextHours.reduce((sum, value) => sum + value, 0);
-                        const nextHoursAverage = nextHours.length > 0 ? nextHoursSum / nextHours.length : 0;
-
-                        // Calculate the average rain percentage for the last 2 hours
-                        const lastHours = weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 2), timeIndex);
-                        const lastHoursSum = lastHours.reduce((sum, value) => sum + value, 0);
-                        const lastHoursAverage = lastHours.length > 0 ? lastHoursSum / lastHours.length : 0;
-
-
-                        // Add these averages to the current weather object for further use
-                        currentWeather.average_rain_next_5_hours = nextHoursAverage;
-                        currentWeather.average_rain_last_2_hours = lastHoursAverage;
                     } else {
                         console.error("No matching time found in hourly data.");
                     }
@@ -211,7 +199,7 @@ function render(cityName) {
             </div>`
         );
 
-        // Update "Feels Like" and "Rain Percentage"
+        // Update "Feels Like" and "Rain Propability"
         const feelsLike = localStorage.typhoon_measurement === "c"
             ? Math.round((currentWeather.feels_like - 32) * 5 / 9) + "°C"
             : localStorage.typhoon_measurement === "k"
