@@ -236,10 +236,10 @@ class TyphoonWindow(Gtk.Window):
                         self.send_message_to_webview(f"'{hex_color}'")
                     except (IndexError, ValueError) as e:
                         print(f"Error parsing RGB values from xprop: {e}")
-                        raise Exception("Fallback to gdbus")
+                        raise Exception("Fallback to Xdp")
                 else:
                     print("No representative colors found in xprop output.")
-                    raise Exception("Fallback to gdbus")
+                    raise Exception("Fallback to Xdp")
             except Exception as e:
                 # Fallback to the Xdp method to get accent color
                 print(f"Error running xprop or no colors found: {e}")
