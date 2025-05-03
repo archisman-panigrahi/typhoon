@@ -13,6 +13,13 @@ Based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by [Jono Coope
 Thanks to [Adam Whitcroft](https://adamwhitcroft.com/) for [Climacons](https://web.archive.org/web/20160531215708/http://adamwhitcroft.com/climacons/).
 
 ## Installation
+Typhoon is available on [Flathub](https://flathub.org).
+
+<a href='https://flathub.org/apps/io.github.archisman_panigrahi.typhoon'>
+    <img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
+  </a>
+
+
 
 On Ubuntu you can use the official [PPA](https://launchpad.net/~apandada1/+archive/ubuntu/typhoon).
 <a href="https://repology.org/project/typhoon/versions">
