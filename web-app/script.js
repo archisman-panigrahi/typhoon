@@ -207,7 +207,11 @@ function render(cityName) {
             : Math.round(currentWeather.feels_like) + "°F";
 
         $("#feelsLike").text(`Feels Like: ${feelsLike}`);
-        $("#rainPercentage").html(`<span style="font-family: 'ClimaconsRegular'; font-size: 1.2em; vertical-align: top;">{</span>${currentWeather.rain_percentage}%`);        // Show the additional-info div when weather data is available
+        const shouldShake = currentWeather.rain_percentage > 35;
+        $("#rainPercentage").html(
+            `<span id="umbrellaIcon" style="font-family: 'ClimaconsRegular'; font-size: 1.2em; vertical-align: top;${shouldShake ? '' : ''}"${shouldShake ? ' class="shake-umbrella"' : ''}>{</span>${currentWeather.rain_percentage}%`
+        );
+        // Show the additional-info div when weather data is available
         $('.additional-info').removeClass('hidden');
 
         // Background Color

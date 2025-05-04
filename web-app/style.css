@@ -496,3 +496,62 @@ input[type="range"]::-webkit-slider-thumb:active {
 .hidden {
     display: none;
 }
+@keyframes shake-umbrella {
+  0% { transform: rotate(0deg); }
+  2% { transform: rotate(-30deg); }
+  4% { transform: rotate(30deg); }
+  6% { transform: rotate(-28deg); }
+  8% { transform: rotate(28deg); }
+  10% { transform: rotate(-25deg); }
+  12% { transform: rotate(25deg); }
+  14% { transform: rotate(-22deg); }
+  16% { transform: rotate(22deg); }
+  18% { transform: rotate(-18deg); }
+  20% { transform: rotate(18deg); }
+  22% { transform: rotate(-15deg); }
+  24% { transform: rotate(15deg); }
+  26% { transform: rotate(-12deg); }
+  28% { transform: rotate(12deg); }
+  30% { transform: rotate(-9deg); }
+  32% { transform: rotate(9deg); }
+  34% { transform: rotate(-6deg); }
+  36% { transform: rotate(6deg); }
+  38% { transform: rotate(-3deg); }
+  40% { transform: rotate(3deg); }
+  42% { transform: rotate(-1deg); }
+  44% { transform: rotate(1deg); }
+  46% { transform: rotate(-0.5deg); }
+  48% { transform: rotate(0.5deg); }
+  50% { transform: rotate(0deg); }
+  52% { transform: rotate(-30deg); }
+  54% { transform: rotate(30deg); }
+  56% { transform: rotate(-28deg); }
+  58% { transform: rotate(28deg); }
+  60% { transform: rotate(-25deg); }
+  62% { transform: rotate(25deg); }
+  64% { transform: rotate(-22deg); }
+  66% { transform: rotate(22deg); }
+  68% { transform: rotate(-18deg); }
+  70% { transform: rotate(18deg); }
+  72% { transform: rotate(-15deg); }
+  74% { transform: rotate(15deg); }
+  76% { transform: rotate(-12deg); }
+  78% { transform: rotate(12deg); }
+  80% { transform: rotate(-9deg); }
+  82% { transform: rotate(9deg); }
+  84% { transform: rotate(-6deg); }
+  86% { transform: rotate(6deg); }
+  88% { transform: rotate(-3deg); }
+  90% { transform: rotate(3deg); }
+  92% { transform: rotate(-1deg); }
+  94% { transform: rotate(1deg); }
+  96% { transform: rotate(-0.5deg); }
+  98% { transform: rotate(0.5deg); }
+  100% { transform: rotate(0deg); }
+}
+.shake-umbrella {
+  animation: shake-umbrella 8s;
+  animation-iteration-count: 1;
+  display: inline-block;
+  will-change: transform;
+}
