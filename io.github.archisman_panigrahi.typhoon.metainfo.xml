@@ -6,8 +6,19 @@
   <metadata_license>CC0-1.0</metadata_license>
   <description>
     <p>
-      Typhoon is a beautiful weather application powered by Open-Meteo and OpenStreetMap that provides real-time weather updates and forecasts. It is based on Stormcloud.
+      Typhoon is a beautiful weather application that provides real-time weather updates and forecasts in a highly configurable and colorful widget inspired by the Metro interface in Windows 8.
     </p>
+    <p>
+      Originally based on Stormcloud by Jono Cooper, Typhoon is powered by Open-Meteo and OpenStreetMap APIs.
+    </p>
+    <p> Features: </p>
+    <ul>
+      <li>Shows real-time weather updates and weather forecast upto four days</li>
+      <li>Customizable units of measurement</li>
+      <li>Configurable opacity of and color of the widget</li>
+      <li>Powered by Open-Meteo and OpenStreetMap APIs</li>
+      <li>Supports multiple locations via multiple windows</li>
+    </ul>
   </description>
   <url type="homepage">https://archisman-panigrahi.github.io/typhoon</url>
   <url type="bugtracker">https://github.com/archisman-panigrahi/typhoon/issues</url>
@@ -52,6 +63,15 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="0.9.90" date="2025-05-03">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v0.9.90</url>
+      <description>
+        <ul>
+          <li>fix bug in rain probability code</li>
+          <li>better contrast in the icon</li>
+        </ul>
+      </description>
+  </release>
   <release version="0.9.89" date="2025-05-02">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v0.9.89</url>
       <description>

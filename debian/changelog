@@ -1,3 +1,9 @@
+typhoon (0.9.90) noble; urgency=medium
+
+  * fix bug in rain probability code and better contrast in the icon
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sat, 03 May 2025 19:52:03 -0400
+
 typhoon (0.9.89) noble; urgency=medium
 
   * fix wayland flatpak
