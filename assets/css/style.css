@@ -21,6 +21,12 @@ img {
 img:hover {
     opacity: 0.9;
 }
+.instructions img {
+    opacity: 1;
+}
+.instructions img:hover {
+    opacity: 1;
+}
 .instructions {
     text-align: left;
     margin-left: 0;
