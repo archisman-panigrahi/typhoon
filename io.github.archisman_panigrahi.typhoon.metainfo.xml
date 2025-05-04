@@ -15,6 +15,7 @@
     <ul>
       <li>Shows real-time weather updates and weather forecast upto four days</li>
       <li>Customizable units of measurement</li>
+      <li>Shows the current temperature as launcher count</li>
       <li>Configurable opacity of and color of the widget</li>
       <li>Wallpaper/accent color based chameleonic background color</li>
       <li>Temperature based background color</li>
