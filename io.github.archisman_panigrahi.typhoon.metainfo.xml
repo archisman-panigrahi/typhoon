@@ -68,6 +68,7 @@
       <description>
         <ul>
           <li>fix bug in rain probability code</li>
+          <li>shake icon for rain probability greater than 35 percent</li>
           <li>better contrast in the icon</li>
         </ul>
       </description>
