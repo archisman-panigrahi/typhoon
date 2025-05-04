@@ -16,6 +16,7 @@
       <li>Shows real-time weather updates and weather forecast upto four days</li>
       <li>Customizable units of measurement</li>
       <li>Configurable opacity of and color of the widget</li>
+      <li>Supports wallpaper/accent color based chameleonic background color</li>
       <li>Powered by Open-Meteo and OpenStreetMap APIs</li>
       <li>Supports multiple locations via multiple windows</li>
     </ul>
