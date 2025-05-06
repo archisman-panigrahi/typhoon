@@ -15,13 +15,17 @@
     <ul>
       <li>Shows real-time weather updates and weather forecast upto four days</li>
       <li>Customizable units of measurement</li>
+      <li>Shows the current temperature as launcher count</li>
       <li>Configurable opacity of and color of the widget</li>
+      <li>Wallpaper/accent color based chameleonic background color</li>
+      <li>Temperature based background color</li>
       <li>Powered by Open-Meteo and OpenStreetMap APIs</li>
       <li>Supports multiple locations via multiple windows</li>
     </ul>
   </description>
   <url type="homepage">https://archisman-panigrahi.github.io/typhoon</url>
   <url type="bugtracker">https://github.com/archisman-panigrahi/typhoon/issues</url>
+  <url type="contribute">https://github.com/archisman-panigrahi/typhoon</url>
   <developer id="io.github.archisman-panigrahi">
     <name>Archisman Panigrahi</name>
   </developer>
