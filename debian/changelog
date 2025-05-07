@@ -1,3 +1,9 @@
+typhoon (0.9.91) noble; urgency=medium
+
+  * better contrast in app icon and fixed alignment for thunderbolt
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Tue, 06 May 2025 20:15:08 -0400
+
 typhoon (0.9.90) noble; urgency=medium
 
   * fix bug in rain probability code

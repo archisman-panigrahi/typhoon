@@ -67,6 +67,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="0.9.91" date="2025-05-06">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v0.9.91</url>
+      <description>
+        <ul>
+          <li>better contrast in app icon and fixed alignment for thunderbolt</li>
+        </ul>
+      </description>
+  </release>
   <release version="0.9.90" date="2025-05-03">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v0.9.90</url>
       <description>
