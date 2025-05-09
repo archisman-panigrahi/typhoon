@@ -1,3 +1,9 @@
+typhoon (0.9.92) noble; urgency=medium
+
+  * fix weekly forecast icon
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Fri, 09 May 2025 00:25:53 -0400
+
 typhoon (0.9.91) noble; urgency=medium
 
   * better contrast in app icon and fixed alignment for thunderbolt

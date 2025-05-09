@@ -67,6 +67,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="0.9.92" date="2025-05-09">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v0.9.92</url>
+      <description>
+        <ul>
+          <li>fix weekly forecast icon</li>
+        </ul>
+      </description>
+  </release>
   <release version="0.9.91" date="2025-05-06">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v0.9.91</url>
       <description>
