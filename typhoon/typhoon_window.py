@@ -467,7 +467,7 @@ class TyphoonWindow(Gtk.Window):
             command = "gsettings get org.cinnamon.desktop.background picture-uri"
             wallpaper = subprocess.check_output(command, shell=True).decode().strip().strip("'").split('file://')[-1]
         elif "mate" in de:
-            command = "gsettings get org.mate.desktop.background picture-uri"
+            command = "gsettings get org.mate.background picture-filename"
             wallpaper = subprocess.check_output(command, shell=True).decode().strip().strip("'").split('file://')[-1]
         # elif "xfce" in de:
         #     command = "xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path"
