@@ -3,6 +3,7 @@ name: Build and Upload Packages
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   build-deb:
@@ -22,6 +23,12 @@ jobs:
         run: |
           DPKG_DEB_COMPRESSOR_TYPE=xz dpkg-buildpackage -us -uc -nc
           mv ../*.deb .
+
+      - name: Upload .deb as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-package
+          path: "*.deb"
 
       - name: Upload .deb to GitHub Release (only for releases)
         if: github.event_name == 'release'
@@ -62,6 +69,12 @@ jobs:
         run: |
           mkdir -p artifacts
           cp ~/rpmbuild/RPMS/*/*.rpm artifacts/
+
+      - name: Upload .rpm as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpm-package
+          path: "artifacts/*.rpm"
 
       - name: Upload .rpm to GitHub Release (only for releases)
         if: github.event_name == 'release'
