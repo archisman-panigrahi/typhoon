@@ -1,3 +1,9 @@
+typhoon (0.9.93) noble; urgency=medium
+
+  * fix chameleonic background on MATE desktop and fix alignment for fog icon
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sun, 11 May 2025 02:16:37 -0400
+
 typhoon (0.9.92) noble; urgency=medium
 
   * fix weekly forecast icon
