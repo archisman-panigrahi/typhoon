@@ -24,6 +24,7 @@ Requires:       ImageMagick
 Requires:       dbus
 Requires:       python3-dbus
 Requires:       libportal
+Recommends:     python3-cairosvg
 
 %description
 Typhoon is a free and open source weather application. It is a continuation
