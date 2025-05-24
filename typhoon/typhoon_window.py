@@ -10,6 +10,11 @@ import dbus.mainloop.glib
 import logging
 from gi.repository import GObject, GLib
 import threading
+import io
+try:
+    import cairosvg
+except ImportError:
+    cairosvg = None
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Xdp", "1.0")
@@ -185,17 +190,11 @@ class TyphoonWindow(Gtk.Window):
         if load_event == WebKit2.LoadEvent.FINISHED:
             # Try to get the dominant color from the wallpaper
             try:
-                # Get the wallpaper path
                 wallpaper_path = self.get_wallpaper_path()
-
-                # Use ImageMagick's `convert` command to get the dominant color
-                command = f'convert "{wallpaper_path}" -resize 1x1 txt:- | awk \'NR==2 {{print $3}}\''
-                dominant_color = subprocess.check_output(command, shell=True, text=True).strip()
-
-                # Validate the color format
-                if dominant_color.startswith("#"):
-                    print(f"Extracted hex color from wallpaper: {dominant_color}")  # Debugging: Print the hex color
-                    self.send_message_to_webview(f"'{dominant_color[1:]}'")  # Remove the '#' for the WebView
+                dominant_color = self._extract_dominant_color(wallpaper_path)
+                if dominant_color and dominant_color.startswith("#"):
+                    print(f"Extracted hex color from wallpaper: {dominant_color}")
+                    self.send_message_to_webview(f"'{dominant_color[1:]}'")
                     return
                 else:
                     raise ValueError("Invalid color format from wallpaper method")
@@ -244,6 +243,35 @@ class TyphoonWindow(Gtk.Window):
                 # Fallback to the Xdp method to get accent color
                 print(f"Error running xprop or no colors found: {e}")
                 self._get_accent_color()
+
+    def _extract_dominant_color(self, wallpaper_path):
+        if wallpaper_path.lower().endswith('.svg') and cairosvg:
+            # Convert SVG to a tiny PNG in memory
+            png_bytes = cairosvg.svg2png(url=wallpaper_path, output_width=16, output_height=16)
+            # Load PNG from bytes using GdkPixbuf
+            loader = GdkPixbuf.PixbufLoader.new_with_type('png')
+            loader.write(png_bytes)
+            loader.close()
+            pixbuf = loader.get_pixbuf()
+            # Get pixel data and average color
+            pixels = pixbuf.get_pixels()
+            n_channels = pixbuf.get_n_channels()
+            width, height = pixbuf.get_width(), pixbuf.get_height()
+            r = g = b = count = 0
+            for y in range(height):
+                for x in range(width):
+                    i = (y * width + x) * n_channels
+                    r += pixels[i]
+                    g += pixels[i+1]
+                    b += pixels[i+2]
+                    count += 1
+            avg = (r // count, g // count, b // count)
+            return "#{:02x}{:02x}{:02x}".format(*avg)
+        else:
+            # Use ImageMagick for non-SVG
+            command = f'convert "{wallpaper_path}" -resize 1x1 txt:- | awk \'NR==2 {{print $3}}\''
+            dominant_color = subprocess.check_output(command, shell=True, text=True).strip()
+            return dominant_color if dominant_color.startswith("#") else None
 
     def _get_accent_color(self):
         logger.info("Getting System Accent Color")
@@ -469,9 +497,22 @@ class TyphoonWindow(Gtk.Window):
         elif "mate" in de:
             command = "gsettings get org.mate.background picture-filename"
             wallpaper = subprocess.check_output(command, shell=True).decode().strip().strip("'").split('file://')[-1]
-        # elif "xfce" in de:
-        #     command = "xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path"
-        #     wallpaper = subprocess.check_output(command, shell=True).decode().strip()
+        elif "xfce" in de:
+            # Use xrandr to get the primary monitor name
+            xrandr_output = subprocess.check_output("xrandr --current | grep -w connected", shell=True, text=True)
+            primary_monitor = None
+            for line in xrandr_output.splitlines():
+                if "primary" in line:
+                    primary_monitor = line.split()[0]
+                    break
+            if not primary_monitor:
+                # Fallback to the first monitor if no primary is set
+                primary_monitor = xrandr_output.splitlines()[0].split()[0]
+            # Query xfconf for the wallpaper of the primary monitor, workspace 0
+            key = f"/backdrop/screen0/monitor{primary_monitor}/workspace0/last-image"
+            wallpaper = subprocess.check_output(
+                f'xfconf-query -c xfce4-desktop -p "{key}"', shell=True, text=True
+            ).strip()
         elif "kde" in de:
             config_file = os.path.expanduser("~/.config/plasma-org.kde.plasma.desktop-appletsrc")
             with open(config_file, "r") as file:
@@ -502,7 +543,7 @@ class TyphoonWindow(Gtk.Window):
 
     def _on_window_state_event(self, widget, event):
         # Prevent maximizing only
-        if event.new_window_state & Gdk.WindowState.MAXIMIZED:
+        if (event.new_window_state & Gdk.WindowState.MAXIMIZED):
             self.unmaximize()
         return False
 
