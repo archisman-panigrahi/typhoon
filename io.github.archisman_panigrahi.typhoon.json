@@ -10,7 +10,8 @@
         "--share=ipc",
         "--socket=fallback-x11",
         "--socket=wayland",
-        "--device=dri"
+        "--device=dri",
+        "--env=__NV_DISABLE_EXPLICIT_SYNC=1"
     ],
     "modules" : [
         {
