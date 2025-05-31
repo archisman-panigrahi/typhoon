@@ -1,3 +1,9 @@
+typhoon (0.9.95) noble; urgency=medium
+
+  * workaround for nvidia bug
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sat, 31 May 2025 11:27:23 -0400
+
 typhoon (0.9.94) noble; urgency=medium
 
   * chameleonic background in xfce and cairosvg for svg background
