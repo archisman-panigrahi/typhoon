@@ -2,4 +2,5 @@
 if [ -z "$FLATPAK_ID" ]; then
     export GDK_BACKEND=x11
 fi
+export __NV_DISABLE_EXPLICIT_SYNC=1
 python3 @script@
