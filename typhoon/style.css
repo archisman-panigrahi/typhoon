@@ -464,8 +464,8 @@ input[type="range"]::-webkit-slider-thumb:active {
 }
 .credits li {
     color: #fff;
-    padding-left: 1.2em;         /* Space for the bullet */
-    text-indent: -1.2em;         Pull first line back to align bullet
+    padding-left: 1.2em;
+    text-indent: -1.2em;
 }
 /* Ensure the loader uses a sans-serif font */
 .loader {
