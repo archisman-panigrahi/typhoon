@@ -514,6 +514,8 @@ $(document).ready(function() {
             $("#locationModal input").val(locationString);
             // Show loading indicator
             $("#locationModal .loader").attr("class", "loading loader").html("|");
+            // Set opacity slider to localStorage value
+            $('input[type=range]').val(localStorage.app_opacity);
             // Fetch weather data for the guessed location
             getWeatherData(locationString, function(data) {
                 if (data) {
