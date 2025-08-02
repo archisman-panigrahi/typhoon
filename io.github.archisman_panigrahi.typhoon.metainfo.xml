@@ -13,14 +13,15 @@
     </p>
     <p> Features: </p>
     <ul>
-      <li>Shows real-time weather updates and weather forecast upto four days</li>
+      <li>Real-time weather updates and forecasts for up to four days</li>
       <li>Customizable units of measurement</li>
-      <li>Shows the current temperature as launcher count</li>
-      <li>Configurable opacity of and color of the widget</li>
-      <li>Wallpaper/accent color based chameleonic background color</li>
+      <li>Displays current temperature as launcher count</li>
+      <li>Displays rain warning</li>
+      <li>Configurable widget opacity and color</li>
+      <li>Chameleonic background color based on wallpaper or accent color</li>
       <li>Temperature based background color</li>
       <li>Powered by Open-Meteo, OpenStreetMap and ipapi</li>
-      <li>Supports IP address based location detection</li>
+      <li>Supports IP address-based location detection</li>
       <li>Supports multiple locations via multiple windows</li>
     </ul>
   </description>
