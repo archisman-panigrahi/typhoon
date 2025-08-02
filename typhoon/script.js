@@ -507,6 +507,23 @@ $(document).ready(function() {
             });
         }
     });
+
+    // Guess Location button handler
+    $('#guessLocationBtn').click(function() {
+        guessLocation(function(locationString) {
+            $("#locationModal input").val(locationString);
+            // Show loading indicator
+            $("#locationModal .loader").attr("class", "loading loader").html("|");
+            // Fetch weather data for the guessed location
+            getWeatherData(locationString, function(data) {
+                if (data) {
+                    $("#locationModal .loader").attr("class", "tick loader").html("&#10003;").attr("data-city", locationString);
+                } else {
+                    $("#locationModal .loader").attr("class", "loader").html("&#10005;");
+                }
+            });
+        });
+    });
 });
 
 function init_settings() {
@@ -635,6 +652,20 @@ function init_settings() {
     })
 
 }
+
+function guessLocation(callback) {
+    $.get("https://ipapi.co/json/", function(data) {
+        if (data && data.city && data.region && data.country) {
+            const locationString = `${data.city}, ${data.region}, ${data.country}`;
+            callback(locationString);
+        } else {
+            showError("Could not guess your location.");
+        }
+    }).fail(function() {
+        showError("Could not guess your location.");
+    });
+}
+
 function show_settings(amount) {
 
     if (amount == 'all') {
