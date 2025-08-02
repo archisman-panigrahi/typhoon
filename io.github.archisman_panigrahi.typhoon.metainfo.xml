@@ -9,7 +9,7 @@
       Typhoon is a beautiful weather application that provides real-time weather updates and forecasts in a highly configurable and colorful widget inspired by the Metro interface in Windows 8.
     </p>
     <p>
-      Originally based on Stormcloud by Jono Cooper, Typhoon is powered by Open-Meteo and OpenStreetMap APIs.
+      Originally based on Stormcloud by Jono Cooper, Typhoon is powered by Open-Meteo, OpenStreetMap and ipapi.
     </p>
     <p> Features: </p>
     <ul>
@@ -19,7 +19,8 @@
       <li>Configurable opacity of and color of the widget</li>
       <li>Wallpaper/accent color based chameleonic background color</li>
       <li>Temperature based background color</li>
-      <li>Powered by Open-Meteo and OpenStreetMap APIs</li>
+      <li>Powered by Open-Meteo, OpenStreetMap and ipapi</li>
+      <li>Supports IP address based location detection</li>
       <li>Supports multiple locations via multiple windows</li>
     </ul>
   </description>

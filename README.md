@@ -2,11 +2,26 @@
 
 # <img src="typhoon/io.github.archisman_panigrahi.typhoon.svg" align="left" width="100" height="100">  <br> Typhoon
 
-> Simple weather application, powered by [Open-Meteo](https://open-meteo.com/) and [OpenStreetMap](https://www.openstreetmap.org/).
+> Stylish weather application, powered by [Open-Meteo](https://open-meteo.com/), [OpenStreetMap](https://www.openstreetmap.org/) and [ipapi](https://ipapi.co/).
 
 <img src="https://archisman-panigrahi.github.io/typhoon/assets/img/typhoon.png" align="center">
 
-Based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by [Jono Cooper](https://twitter.com/consindo).
+
+Typhoon is a beautiful weather application that provides real-time weather updates and forecasts in a highly configurable and colorful widget inspired by the Metro interface in Windows 8.
+
+Originally based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by [Jono Cooper](https://twitter.com/consindo), Typhoon is powered by Open-Meteo, OpenStreetMap and ipapi.
+
+### Features
+
+- Real-time weather updates and forecasts for up to four days
+- Customizable units of measurement
+- Displays current temperature as launcher count
+- Configurable widget opacity and color
+- Chameleonic background color based on wallpaper or accent color
+- Temperature-based background color
+- Powered by Open-Meteo, OpenStreetMap and ipapi
+- Supports IP address-based location detection
+- Multiple locations supported via multiple windows
 
 ## Climacons
 
