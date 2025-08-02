@@ -67,6 +67,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="0.9.99" date="2025-08-02">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v0.9.99</url>
+      <description>
+        <ul>
+          <li>add guess location function</li>
+        </ul>
+      </description>
+  </release>
   <release version="0.9.95" date="2025-05-31">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v0.9.95</url>
       <description>

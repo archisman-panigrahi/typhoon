@@ -1,5 +1,5 @@
 Name:           typhoon
-Version:        0.9.95
+Version:        0.9.99
 Release:        1%{?dist}
 Summary:        Simple weather application, powered by Open-Meteo and OpenStreetMap
 

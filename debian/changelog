@@ -1,3 +1,9 @@
+typhoon (0.9.99) noble; urgency=medium
+
+  * add guess location function
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sat, 02 Aug 2025 01:55:16 -0400
+
 typhoon (0.9.95) noble; urgency=medium
 
   * workaround for nvidia bug
