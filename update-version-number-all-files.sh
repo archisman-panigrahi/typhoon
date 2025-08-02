@@ -20,9 +20,9 @@ if [ -f fedora-package.spec ]; then
     echo "Updated fedora-package.spec"
 fi
 
-# 2. Update typhoon/index.html
+# 2. Update typhoon/typhoon.html
 if [ -f typhoon/typhoon.html ]; then
-    sed -i "s|\(<h1 style=\"text-align: center\">Typhoon \)[0-9.]\+\(</h1>\)|\1$NEW_VERSION\2|" typhoon/typhoon.html
+    sed -i "s|\(<h1 style=\"text-align: center\"><a href=\"https://archisman-panigrahi.github.io/typhoon\">Typhoon</a> \)[0-9.]\+\(</h1>\)|\1$NEW_VERSION\2|" typhoon/typhoon.html
     echo "Updated typhoon/typhoon.html"
 fi
 

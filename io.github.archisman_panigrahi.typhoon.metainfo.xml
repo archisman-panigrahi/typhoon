@@ -67,6 +67,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.0" date="2025-08-02">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.0</url>
+      <description>
+        <ul>
+          <li>Fix opacity slider after btn click</li>
+        </ul>
+      </description>
+  </release>
   <release version="0.9.99" date="2025-08-02">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v0.9.99</url>
       <description>
