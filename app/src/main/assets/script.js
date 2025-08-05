@@ -728,16 +728,17 @@ $(window).on('resize', function () {
 function scaleContent() {
     const originalWidth = 300;
     const originalHeight = 500;
+    const modalWidth = 250;
+    const modalHeight = 400; // Approximate height, adjust as needed
+
     const windowWidth = $(window).width();
     const windowHeight = $(window).height();
     const isPortrait = windowHeight > windowWidth;
 
     let scaleFactor;
     if (isPortrait) {
-        // Portrait: scale to fit height or width, whichever is smaller
         scaleFactor = Math.min(windowWidth / originalWidth, windowHeight / originalHeight);
     } else {
-        // Landscape: keep your existing logic or adjust as needed
         scaleFactor = Math.min(windowWidth / originalWidth, windowHeight / originalHeight);
     }
 
@@ -747,5 +748,33 @@ function scaleContent() {
         width: `${originalWidth}px`,
         height: `${originalHeight}px`,
         margin: '0 auto'
+    });
+
+    // Scale and center #locationModal
+    $('#locationModal').css({
+        transform: `scale(${scaleFactor})`,
+        transformOrigin: 'center center',
+        width: `${modalWidth}px`,
+        // Optional: set height if you want to fix it
+        // height: `${modalHeight}px`,
+        left: '50%',
+        top: '50%',
+        marginLeft: `-${(modalWidth * scaleFactor) / 2}px`,
+        marginTop: `-${(modalHeight * scaleFactor) / 2}px`,
+        position: 'fixed',
+        zIndex: 10
+    });
+
+    // Scale and center #errorMessage similarly
+    $('#errorMessage').css({
+        transform: `scale(${scaleFactor})`,
+        transformOrigin: 'center center',
+        width: `${modalWidth}px`,
+        left: '50%',
+        top: '50%',
+        marginLeft: `-${(modalWidth * scaleFactor) / 2}px`,
+        marginTop: `-${(modalHeight * scaleFactor) / 2}px`,
+        position: 'fixed',
+        zIndex: 10
     });
 }

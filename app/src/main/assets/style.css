@@ -250,9 +250,7 @@ p, span, div {
  #locationModal {
     display: none;
     background: #444;
-    position: absolute;
     width: 250px;
-    top: 60px;
     padding: 25px;
     padding-bottom: 5px;
     -webkit-transform-origin: 0 0;
@@ -260,9 +258,7 @@ p, span, div {
 #errorMessage {
     display: none;
     background: #444;
-    position: absolute;
     width: 250px;
-    top: 60px;
     padding: 25px;
     -webkit-transform-origin: 0 0;
 }
@@ -617,4 +613,8 @@ input[type="range"]::-webkit-slider-thumb:active {
     margin: 0 auto;
     /* Remove absolute positioning for scaling */
   }
+}
+
+#locationModal, #errorMessage {
+    margin-top: 120px; /* Adjust as needed to clear the top bar */
 }
