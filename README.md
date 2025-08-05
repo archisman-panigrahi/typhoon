@@ -1,6 +1,6 @@
 
 
-# <img src="typhoon/io.github.archisman_panigrahi.typhoon.svg" align="left" width="100" height="100">  <br> Typhoon
+# <img src="https://raw.githubusercontent.com/archisman-panigrahi/typhoon/refs/heads/master/typhoon/io.github.archisman_panigrahi.typhoon.svg" align="left" width="100" height="100">  <br> Typhoon
 
 > Stylish weather application, powered by [Open-Meteo](https://open-meteo.com/), [OpenStreetMap](https://www.openstreetmap.org/) and [ipapi](https://ipapi.co/).
 
