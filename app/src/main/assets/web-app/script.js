@@ -176,12 +176,15 @@ function render(cityName) {
         if (localStorage.typhoon_measurement == "c") {
             temp = Math.round((temp - 32) * 5 / 9); // Convert to Celsius
             $("#temperature").text(temp + " °C");
+            $("#temperature").css("font-size", ""); // Reset font size
         } else if (localStorage.typhoon_measurement == "k") {
             temp = Math.round((temp - 32) * 5 / 9 + 273.15); // Convert to Kelvin
             $("#temperature").text(temp + " K");
+            $("#temperature").css("font-size", "0.85em"); // Decrease font size for Kelvin
         } else {
             temp = Math.round(temp); // Round to the nearest integer for Fahrenheit
             $("#temperature").text(temp + " °F");
+            $("#temperature").css("font-size", ""); // Reset font size
         }
         document.title = temp;
 

@@ -325,8 +325,8 @@ p, span, div {
     font-family:"Ubuntu Condensed";
     font-size: 18px;
     line-height: 36px;
-    height: 37px;
-    padding: 0px 14px 0px;
+    height: 36px;
+    padding: 0 12px 5px 14px;
     vertical-align: top;
 }
 #locationModal .launcher {
@@ -576,4 +576,16 @@ input[type="range"]::-webkit-slider-thumb:active {
 .button-row .btn {
   display: block;      /* Fixes Android WebView flex bug */
   margin-top: 0;       /* Remove top margin from buttons */
+}
+
+/* Make all text inside .credits 80% of normal size */
+.credits {
+    font-size: 80% !important;
+}
+
+/* Override larger font sizes for headings inside .credits */
+.credits h3,
+.credits p,
+.credits li {
+    font-size: 1em !important;
 }
