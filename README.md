@@ -9,7 +9,7 @@
 
 Typhoon is a beautiful weather application that provides real-time weather updates and forecasts in a highly configurable and colorful widget inspired by the Metro interface in Windows 8.
 
-Originally based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by [Jono Cooper](https://twitter.com/consindo), Typhoon is powered by Open-Meteo, OpenStreetMap and ipapi.
+Originally based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by [Jono Cooper](http://github.com/consindo), Typhoon is powered by Open-Meteo, OpenStreetMap and ipapi.
 
 ### Features
 
