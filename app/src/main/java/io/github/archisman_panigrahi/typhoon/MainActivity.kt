@@ -1,12 +1,10 @@
 package io.github.archisman_panigrahi.typhoon
 
-
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.webkit.WebChromeClient
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 
@@ -29,7 +27,19 @@ class MainActivity : AppCompatActivity() {
             setSupportMultipleWindows(true)
         }
 
-        webView.webViewClient = object : WebViewClient() {}
+        webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest): Boolean {
+                val url = request.url.toString()
+                return if (url.startsWith("file:///android_asset/")) {
+                    false
+                } else {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    startActivity(intent)
+                    true
+                }
+            }
+        }
+
         webView.webChromeClient = WebChromeClient()
 
         // Load the bundled page
