@@ -255,7 +255,7 @@ function renderWeeklyForecast(weeklyData) {
         if (unit === "k") {
             tempElement.css("font-size", "0.85em"); // Smaller font size for Kelvin
         } else {
-            tempElement.css("font-size", "1em"); // Default font size for other units
+            tempElement.css("font-size", "0.9em"); // Default font size for other units
         }
 
         // Update the DOM with the converted temperatures and Climacons icon
@@ -371,14 +371,11 @@ function background(temp) {
     if (localStorage.typhoon_color == "gradient") {
         var percentage = Math.round((temp - 45) *  2.2)
         $("#container").css("background", blend(percentage))
-        $("#appWrapper").css("background", blend(percentage))
     } else if (localStorage.typhoon_color == "chameleonic") {
         $("#container").css("background", '#' + localStorage.typhoon_special_color)
-        $("#appWrapper").css("background", '#' + localStorage.typhoon_special_color)
         $('.color span[data-color=chameleonic]').css("background", '#' + localStorage.typhoon_special_color)
     } else {
         $("#container").css("background", "#" + localStorage.typhoon_color)
-        $("#appWrapper").css("background", "#" + localStorage.typhoon_color)
     }
 }
 
@@ -726,55 +723,22 @@ $(window).on('resize', function () {
 });
 
 function scaleContent() {
-    const originalWidth = 300;
-    const originalHeight = 500;
-    const modalWidth = 250;
-    const modalHeight = 400; // Approximate height, adjust as needed
+    const originalWidth = 300; // Original width
+    const originalHeight = 500; // Original height
+    const aspectRatio = originalWidth / originalHeight;
 
+    // Get the current window size
     const windowWidth = $(window).width();
     const windowHeight = $(window).height();
-    const isPortrait = windowHeight > windowWidth;
 
-    let scaleFactor;
-    if (isPortrait) {
-        scaleFactor = Math.min(windowWidth / originalWidth, windowHeight / originalHeight);
-    } else {
-        scaleFactor = Math.min(windowWidth / originalWidth, windowHeight / originalHeight);
-    }
+    // Calculate the scale factor while maintaining the aspect ratio
+    const scaleFactor = Math.min(windowWidth / originalWidth, windowHeight / originalHeight);
 
-    $('#container').css({
+    // Apply the scale to the app wrapper
+    $('#appWrapper').css({
         transform: `scale(${scaleFactor})`,
-        transformOrigin: 'center center',
-        width: `${originalWidth}px`,
-        height: `${originalHeight}px`,
-        margin: '0 auto'
-    });
-
-    // Scale and center #locationModal
-    $('#locationModal').css({
-        transform: `scale(${scaleFactor})`,
-        transformOrigin: 'center center',
-        width: `${modalWidth}px`,
-        // Optional: set height if you want to fix it
-        // height: `${modalHeight}px`,
-        left: '50%',
-        top: '50%',
-        marginLeft: `-${(modalWidth * scaleFactor) / 2}px`,
-        marginTop: `-${(modalHeight * scaleFactor) / 2}px`,
-        position: 'fixed',
-        zIndex: 10
-    });
-
-    // Scale and center #errorMessage similarly
-    $('#errorMessage').css({
-        transform: `scale(${scaleFactor})`,
-        transformOrigin: 'center center',
-        width: `${modalWidth}px`,
-        left: '50%',
-        top: '50%',
-        marginLeft: `-${(modalWidth * scaleFactor) / 2}px`,
-        marginTop: `-${(modalHeight * scaleFactor) / 2}px`,
-        position: 'fixed',
-        zIndex: 10
+        transformOrigin: 'top left', // Scale from the top-left corner
+        width: `${originalWidth}px`, // Maintain original width
+        height: `${originalHeight}px`, // Maintain original height
     });
 }

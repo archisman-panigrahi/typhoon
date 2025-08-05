@@ -16,8 +16,8 @@ body {
     margin: 0;
     padding: 0;
     font-family:"Ubuntu Condensed";
-    /* overflow-y:hidden; */
-    /* overflow-x:hidden; */
+    overflow-y:hidden;
+    overflow-x:hidden;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -109,9 +109,9 @@ p, span, div {
 #container {
     height: 500px;
     width: 300px;
-    position: absolute;
+    position: relative;
     background: #575591;
-    /* overflow: hidden; */
+    overflow: hidden;
     -webkit-transition: 500ms background ease;
     -webkit-transform-origin: 0 0;
 }
@@ -250,7 +250,9 @@ p, span, div {
  #locationModal {
     display: none;
     background: #444;
+    position: absolute;
     width: 250px;
+    top: 60px;
     padding: 25px;
     padding-bottom: 5px;
     -webkit-transform-origin: 0 0;
@@ -258,7 +260,9 @@ p, span, div {
 #errorMessage {
     display: none;
     background: #444;
+    position: absolute;
     width: 250px;
+    top: 60px;
     padding: 25px;
     -webkit-transform-origin: 0 0;
 }
@@ -392,7 +396,7 @@ span[data-color="chameleonic"] {
     height: 16px;
     /* border-radius: 50%; */
     border: 2px solid #333;
-    /* overflow: hidden; Ensures the icon fits within the circle */
+    overflow: hidden; /* Ensures the icon fits within the circle */
 }
 /* Credits Button */
  .btn {
@@ -557,64 +561,19 @@ input[type="range"]::-webkit-slider-thumb:active {
   display: inline-block;
   will-change: transform;
 }
-/* Portrait orientation: fill screen, center app, background matches #container */
-@media (orientation: portrait) {
-  html, body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    background: #575591; /* Same as #container */
-    /* overflow: hidden; */
-  }
-  #appWrapper {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #575591;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 0;
-  }
-  #container {
-    position: relative;
-    left: 0; top: 0;
-    margin: 0 auto;
-    /* Remove absolute positioning for scaling */
-  }
+.input-row {
+  display: inline-flex;
+  align-items: center;
 }
-
-/* Landscape orientation: fill screen, center app, background matches #container */
-@media (orientation: landscape) {
-  html, body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    background: #575591; /* Same as #container */
-    /* overflow: hidden; */
-  }
-  #appWrapper {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #575591;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 0;
-  }
-  #container {
-    position: relative;
-    left: 0; top: 0;
-    margin: 0 auto;
-    /* Remove absolute positioning for scaling */
-  }
+.button-row {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  margin-top: 10px; /* Move margin from .btn here */
 }
-
-#locationModal, #errorMessage {
-    margin-top: 120px; /* Adjust as needed to clear the top bar */
+.button-row .btn {
+  display: block;      /* Fixes Android WebView flex bug */
+  margin-top: 0;       /* Remove top margin from buttons */
 }
