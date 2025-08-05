@@ -31,6 +31,16 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         background-color: #ffffff; /* Fallback background for iframe */
       }
+
+      /* In landscape, scale iframe-wrapper so height is 95vh and width maintains 3/5 aspect ratio */
+      @media (orientation: landscape) {
+        .iframe-wrapper {
+          height: 95vh;
+          width: calc(95vh * 3 / 5);
+          max-height: 498px;
+          aspect-ratio: 3 / 5;
+        }
+      }
     </style>
     <script>
       // Disable right-click context menu
