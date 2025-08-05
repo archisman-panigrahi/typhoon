@@ -2,14 +2,17 @@ package io.github.archisman_panigrahi.typhoon
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
+    private lateinit var swipeRefresh: SwipeRefreshLayout
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,6 +20,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         webView = findViewById(R.id.webview)
+        swipeRefresh = findViewById(R.id.swipeRefresh)
+
+        // Enable pull to refresh
+        swipeRefresh.setOnRefreshListener {
+            webView.reload()
+        }
 
         with(webView.settings) {
             javaScriptEnabled = true
@@ -31,21 +40,29 @@ class MainActivity : AppCompatActivity() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest): Boolean {
                 val url = request.url.toString()
                 return if (url.startsWith("file:///android_asset/")) {
-                    false
+                    false // Keep internal content inside the WebView
                 } else {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                     startActivity(intent)
-                    true
+                    true // Open external links in browser
                 }
+            }
+
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                swipeRefresh.isRefreshing = true
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                swipeRefresh.isRefreshing = false
             }
         }
 
         webView.webChromeClient = WebChromeClient()
 
-        // Load the bundled page
+        // Load the local HTML file
         webView.loadUrl("file:///android_asset/typhoon.html")
 
-        // Android back button navigates WebView history first
+        // Handle Android back button for WebView history
         onBackPressedDispatcher.addCallback(this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
