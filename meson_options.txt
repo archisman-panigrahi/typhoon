@@ -1,1 +1,0 @@
- option('data_dir', type: 'string', value: 'typhoon', description: 'Directory to install data files')
