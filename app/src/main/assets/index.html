@@ -109,9 +109,22 @@
           position: fixed !important;
           top: 56px !important;
           right: 16px !important;
-          max-height: 60vh;
+          max-width: 180px;
+          font-size: 0.92em;
+          padding: 6px 0;
+          min-width: unset;
+          overflow-y: visible;
+        }
+        .dropdown a, .dropdown p {
+          padding: 8px 14px;
+          font-size: 0.95em;
+        }
+      }
+      /* If content still overflows, fallback to scrolling */
+      @media (orientation: landscape) and (max-height: 350px), (orientation: landscape) and (max-width: 350px) {
+        .dropdown {
+          max-height: 50vh;
           overflow-y: auto;
-          z-index: 2001;
         }
       }
       .credits {
