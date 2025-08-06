@@ -141,7 +141,7 @@ p img {
     background: #d64937;
 }
 /* Button styles */
-a.btn-ubuntu, a.btn-source, a.btn-flatpak, a.btn-site, a.btn-rpm {
+a.btn-ubuntu, a.btn-source, a.btn-flatpak, a.btn-site, a.btn-rpm, a.btn-android {
     display: inline-block;
     margin: 10px 5px;
     padding: 10px 15px;
@@ -190,7 +190,7 @@ pre code {
         font-size: 1rem;
     }
 
-    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-flatpak, a.btn-site {
+    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-flatpak, a.btn-site, a.btn-android {
         font-size: 0.9rem;
         padding: 8px 12px;
     }
@@ -210,7 +210,7 @@ pre code {
         font-size: 0.9rem;
     }
 
-    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-flatpak, a.btn-site {
+    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-flatpak, a.btn-site, a.btn-android {
         font-size: 0.8rem;
         padding: 6px 10px;
     }
