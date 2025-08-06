@@ -79,6 +79,21 @@ a:not([class*="btn"]):hover {
 .btn-site {
     background-color: #f3b200;
 }
+.btn-android {
+  background-color: #3ddc84; /* Android green */
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 4px;
+  font-weight: bold;
+  text-decoration: none;
+  margin: 4px;
+  display: inline-block;
+  transition: background 0.2s;
+}
+.btn-android:hover {
+  background-color: #249e5c;
+}
 h1 {
     margin: 0 0 10px;
     font-size: 2rem;
