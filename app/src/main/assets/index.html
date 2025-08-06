@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="assets/img/typhoon.ico" type="image/x-icon">
     <style>
+      @font-face {
+        font-family:'Ubuntu Condensed';
+        font-style: normal;
+        font-weight: 400;
+        src: local('Ubuntu Condensed'), local('UbuntuCondensed-Regular'), url('web-app/fonts/ubuntu.woff') format('woff');
+      }
       body {
         margin: 0;
         display: flex;
@@ -20,6 +26,64 @@
         max-width: 299px; /* Maintain max width */
         aspect-ratio: 3 / 5; /* Maintain 300x500 aspect ratio */
       }
+      /* Hamburger menu styles */
+      .menu-container {
+        position: fixed;
+        top: 24px;
+        right: 32px;
+        z-index: 1000;
+        user-select: none;
+      }
+      .hamburger {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        cursor: pointer;
+      }
+      .hamburger span {
+        height: 4px;
+        background: #333;
+        margin: 4px 0;
+        border-radius: 2px;
+        transition: 0.3s;
+        display: block;
+      }
+      .dropdown {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 40px;
+        background: linear-gradient(135deg, #232526 0%, #414345 100%);
+        border-radius: 16px;
+        box-shadow: 0 4px 16px #0008;
+        min-width: 180px;
+        padding: 12px 0;
+        border: 1.5px solid #ffe08244;
+      }
+      .menu-container.open .dropdown {
+        display: block;
+      }
+      .dropdown a {
+        display: block;
+        padding: 12px 28px;
+        color: #ffe082;
+        text-decoration: none;
+        font-size: 17px;
+        transition: background 0.2s, color 0.2s;
+        font-family: 'Ubuntu Condensed', Arial, sans-serif;
+      }
+      .dropdown a:hover {
+        background: #2c2c2c;
+        color: #ffd54f;
+      }
+      .dropdown p {
+        color: #fff;
+        padding: 10px 18px 0 18px;
+        font-size: 0.98em;
+        margin: 0;
+      }
       iframe {
         position: absolute;
         top: 0;
@@ -31,7 +95,6 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         background-color: #ffffff; /* Fallback background for iframe */
       }
-
       /* In landscape, scale iframe-wrapper so height is 95vh and width maintains 3/5 aspect ratio */
       @media (orientation: landscape) {
         .iframe-wrapper {
@@ -41,17 +104,238 @@
           aspect-ratio: 3 / 5;
         }
       }
+      @media (orientation: landscape) and (max-height: 500px), (orientation: landscape) and (max-width: 500px) {
+        .dropdown {
+          position: fixed !important;
+          top: 56px !important;
+          right: 16px !important;
+          max-height: 60vh;
+          overflow-y: auto;
+          z-index: 2001;
+        }
+      }
+      .credits {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(40, 40, 40, 0.85);
+        z-index: 2000;
+        overflow-y: auto;
+        animation: fadeIn 0.2s;
+      }
+      .credits.active {
+        display: flex;
+        align-items: flex-start; /* Align to top for scrollability */
+        justify-content: center;
+      }
+      .credits-content {
+        background: linear-gradient(135deg, #232526 0%, #414345 100%);
+        border-radius: 24px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+        padding: 48px 40px 40px 40px;
+        max-width: 480px;
+        width: 92vw;
+        color: #fff;
+        font-family: 'Ubuntu Condensed', Arial, sans-serif;
+        font-size: 1.25em;
+        position: relative;
+        text-align: left;
+        border: 1.5px solid #ffe08244;
+        backdrop-filter: blur(2px);
+        box-sizing: border-box;
+        word-break: break-word;
+        margin: 32px auto; /* Add margin for spacing from top/bottom */
+      }
+      .credits img {
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        position: absolute;
+        top: 24px;
+        left: 24px;
+        -webkit-user-drag: none;
+        filter: drop-shadow(0 2px 6px #0008);
+        transition: transform 0.2s;
+      }
+      .credits img:hover {
+        transform: scale(1.1) rotate(-8deg);
+      }
+      .credits h1, .credits h3 {
+        margin-top: 0.3em;
+        margin-bottom: 0.2em;
+        color: #fff;
+        letter-spacing: 0.03em;
+        text-align: center;
+        font-size: 2em;   /* Make it larger */
+        font-weight: 900; /* Make it extra bold */
+        text-shadow: 0 2px 8px #0006;
+      }
+      .credits h1 a {
+        text-decoration: none;
+      }
+      .credits h3 {
+        font-size: 1.2em;
+        margin-top: 1.2em;
+      }
+      .credits p, .credits li {
+        color: #fff;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+        line-height: 1.7;
+        font-size: 1.1em;
+      }
+      .credits li {
+        padding-left: 1.2em;
+      }
+      .credits a {
+        color: #fff;
+        text-decoration: underline;
+        transition: color 0.2s;
+        font-weight: 500;
+      }
+      .credits a:hover {
+        color: #ffd54f;
+        text-shadow: 0 2px 8px #ffe08244;
+      }
+      .btn {
+        border: 2px solid #222;
+        background: #333;
+        color: white;
+        text-align: center;
+        -webkit-transition: 150ms ease background;
+        font-family: "Ubuntu Condensed";
+        font-size: 17px;
+        padding: 3px 10px;
+        letter-spacing: -1px;
+        margin-top: 10px;
+        display: inline-block;
+        cursor: pointer;
+        -webkit-user-drag: none;
+        outline: none;
+        text-decoration: none;
+        transition: background 150ms ease;
+      }
+      .btn:hover {
+        background: #555;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      /* Responsive styles for small screens */
+      @media (max-width: 600px) {
+        .credits-content {
+          padding: 24px 8px 24px 8px;
+          max-width: 98vw;
+          font-size: 1em;
+          border-radius: 14px;
+        }
+        .credits img {
+          width: 32px;
+          height: 32px;
+          top: 12px;
+          left: 12px;
+        }
+        .credits h1, .credits h3 {
+          font-size: 1.2em;
+          padding-top: 8px;
+        }
+        .credits h3 {
+          font-size: 1em;
+        }
+        .credits p, .credits li {
+          font-size: 0.95em;
+        }
+      }
+      @media (max-width: 600px), (max-height: 600px) {
+        .credits.active {
+          align-items: flex-start; /* Always align to top */
+        }
+        .credits-content {
+          margin: 16px auto; /* Reduce margin for small screens */
+          padding-top: 16px;
+          padding-bottom: 16px;
+        }
+      }
+      .nobr {
+        white-space: nowrap;
+      }
     </style>
     <script>
       // Disable right-click context menu
       document.addEventListener('contextmenu', function (e) {
         e.preventDefault();
       });
+
+      // Hamburger menu toggle
+      document.addEventListener('DOMContentLoaded', function () {
+        const menu = document.querySelector('.menu-container');
+        if (menu) {
+          menu.addEventListener('click', function (e) {
+            e.stopPropagation();
+            menu.classList.toggle('open');
+          });
+          document.addEventListener('click', function () {
+            menu.classList.remove('open');
+          });
+        }
+
+        // Credits overlay logic
+        const creditsLink = document.querySelector('.dropdown a[href*="credits"]');
+        const creditsOverlay = document.querySelector('.credits');
+        const backBtn = document.querySelector('.credits img');
+        if (creditsLink && creditsOverlay && backBtn) {
+          creditsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            creditsOverlay.classList.add('active');
+            menu.classList.remove('open');
+          });
+          backBtn.addEventListener('click', function() {
+            creditsOverlay.classList.remove('active');
+          });
+        }
+      });
     </script>
   </head>
   <body>
+    <div class="menu-container">
+      <div class="hamburger" aria-label="Open menu" tabindex="0">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="dropdown">
+        <a href="https://github.com/archisman-panigrahi/typhoon#credits" target="_blank" class="btn">Credits</a>
+        <a href="https://github.com/archisman-panigrahi/typhoon/issues" class="btn">Support</a>
+        <a href="https://github.com/archisman-panigrahi/typhoon" class="btn">Source Code</a>
+        <a href="https://archisman-panigrahi.github.io/typhoon" class="btn">Homepage</a>
+        <p style="text-align: justify;">
+          Looking for more features? The <a href="https://archisman-panigrahi.github.io/typhoon" class="btn"><span class="nobr">GNU/Linux version</span></a> offers opacity controls and dynamic, wallpaper-based background colors.
+        </p>
+      </div>
+    </div>
     <div class="iframe-wrapper">
       <iframe src="web-app/typhoon.html"></iframe>
+    </div>
+    <!-- Credits overlay (initially hidden) -->
+    <div class="credits">
+      <div class="credits-content">
+        <img src="web-app/back.svg" alt="Back" title="Back">
+        <h1><a href="https://archisman-panigrahi.github.io/typhoon"><strong>Typhoon v1.0</strong></a></h1>
+        <br>
+        <p>Typhoon is a stylish weather application for GNU/Linux, Web and Android. It is and always will be free.<br> 
+        <a href="https://github.com/apandada1/typhoon/" >Source code</a> is released under <a href="http://www.gnu.org/licenses/gpl.html" >GPL-3</a>.</p>
+        <li>Based on <a href="https://github.com/consindo/stormcloud/tree/e7ef8e131466d477075e92337e502c3cac004ee2" >Stormcloud 1.1</a> by <a href="https://github.com/consindo" >Jono Cooper</a>.</li>
+        <li>Currently developed and maintained by <a href="https://github.com/archisman-panigrahi" >Archisman Panigrahi</a> and ChatGPT :)</li>
+        <li>Icons (<a href="https://web.archive.org/web/20160531215708/http://adamwhitcroft.com/climacons/" >Climacons</a>) by <a href="https://adamwhitcroft.com/" >Adam Whitcroft</a>.</li>
+        <li>Powered by <a href="https://open-meteo.com/">Open Meteo</a>, <a href="https://www.openstreetmap.org/">OpenStreetMap</a> and <a href="https://ipapi.co/">ipapi</a>.</li>
+        <h3>Contributors:</h3>
+        <li><a href="https://github.com/zlatanvasovic" >Zlatan Vasović</a></li>
+        <li><a href="https://github.com/soumyaDghosh" >Soumyadeep Ghosh</a></li>
+        <!-- <li>Esteban <a href="https://sites.google.com/site/typhoonweatherapp/help-and-how-to-1/howtomaketyphoonavailableineveryworkspace">(Found the way to make the app visible in every workspace)</a></li> -->
+        <br>
+        <p style="text-align: center">To those whose warmth brings sunshine and calm to every storm and whose light brightens the sky 💖</p>
+      </div>
     </div>
   </body>
 </html>
