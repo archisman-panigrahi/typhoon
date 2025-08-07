@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>HTML with PyQt6</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: #2a2a2a;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    #header {
+      height: 40px;
+      background-color: #444;
+      padding: 10px;
+      font-size: 18px;
+      cursor: move;
+      user-select: none; /* Prevent text selection while dragging */
+      -webkit-user-select: none;
+    }
+
+    #content {
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    📌 Drag here to move window
+    <button id="addressBtn" style="float:right; margin-right:140px; background:#222; color:#fff; border:none; border-radius:4px; padding:4px 10px; cursor:pointer; font-size:16px;">Address</button>
+    <button id="googleBtn" style="float:right; margin-right:70px; background:#4285F4; color:#fff; border:none; border-radius:4px; padding:4px 10px; cursor:pointer; font-size:16px;">Google</button>
+    <button id="closeBtn" style="float:right; margin-right:10px; background:#c00; color:#fff; border:none; border-radius:4px; padding:4px 10px; cursor:pointer; font-size:16px;">✖</button>
+  </div>
+  <div id="content">
+    <p>This is content. Click and drag the header above to move the window.</p>
+    <p>The rest of this area is not draggable - you can select text here normally.</p>
+    <input id="opacitySlider" type="range" min="30" max="100" value="95" style="float:right; margin-right:200px; width:100px;">
+    <label for="opacitySlider" style="float:right; margin-right:180px; color:#fff; font-size:14px;">Opacity</label>
+  </div>
+  <script>
+    let dragHandler = null;
+    new QWebChannel(qt.webChannelTransport, function(channel) {
+      dragHandler = channel.objects.dragHandler;
+    });
+
+    const header = document.getElementById('header');
+    const closeBtn = document.getElementById('closeBtn');
+    const addressBtn = document.getElementById('addressBtn');
+    const googleBtn = document.getElementById('googleBtn');
+$(function() {
+  $('#opacitySlider').on('input', function() {
+    var value = $(this).val();
+    if (dragHandler) {
+      dragHandler.setOpacity(parseInt(value) / 100);
+    }
+  });
+  $('#addressBtn').on('click', function(e) {
+    $.getJSON('https://ipapi.co/json/')
+      .done(function(data) {
+        var address = (data.city || '') + ', ' + (data.region || '') + ', ' + (data.country_name || '');
+        $('#content').html('<p><b>Your Address:</b> ' + address + '</p>');
+      })
+      .fail(function() {
+        $('#content').html('<p><b>Could not fetch address.</b></p>');
+      });
+    e.stopPropagation();
+  });
+
+  let dragging = false;
+  $('#googleBtn').on('click', function(e) {
+    if (dragHandler) {
+      dragHandler.goToGoogle();
+    }
+    e.stopPropagation();
+  });
+
+  $('#header').on('mousedown', function(e) {
+    if (e.target === closeBtn) return;
+    if (dragHandler && e.button === 0) {
+      dragging = true;
+      dragHandler.startDrag(e.screenX, e.screenY);
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('mousemove', function(e) {
+    if (dragHandler && dragging) {
+      dragHandler.dragMove(e.screenX, e.screenY);
+      e.preventDefault();
+    }
+  });
+
+  $(document).on('mouseup', function(e) {
+    if (dragHandler && dragging && e.button === 0) {
+      dragHandler.endDrag();
+      dragging = false;
+      e.preventDefault();
+    }
+  });
+
+  $('#closeBtn').on('click', function(e) {
+    if (dragHandler) {
+      dragHandler.closeWindow();
+    }
+    e.stopPropagation();
+  });
+});
+    let dragging = false;
+    googleBtn.addEventListener('click', function(e) {
+      if (dragHandler) {
+        dragHandler.goToGoogle();
+      }
+      e.stopPropagation();
+    });
+
+    header.addEventListener('mousedown', function(e) {
+      // Prevent drag if clicking the close button
+      if (e.target === closeBtn) return;
+      if (dragHandler && e.button === 0) {
+        dragging = true;
+        dragHandler.startDrag(e.screenX, e.screenY);
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('mousemove', function(e) {
+      if (dragHandler && dragging) {
+        dragHandler.dragMove(e.screenX, e.screenY);
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('mouseup', function(e) {
+      if (dragHandler && dragging && e.button === 0) {
+        dragHandler.endDrag();
+        dragging = false;
+        e.preventDefault();
+      }
+    });
+
+    closeBtn.addEventListener('click', function(e) {
+      if (dragHandler) {
+        dragHandler.closeWindow();
+      }
+      e.stopPropagation();
+    });
+  </script>
+</body>
+</html>
