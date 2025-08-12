@@ -285,6 +285,7 @@ class TyphoonWindow(Gtk.Window):
             logger.info(f"Accent color found in settings: '#{hex_color}'")
         else:
             logger.error("Accent color not found in settings")
+            logger.warning("Note that currently the accent color only works in GNOME and KDE Plasma 6")
             logger.warning("Using Purple default color")
             hex_color = "575591"
         self.send_message_to_webview(f"'{hex_color}'")
