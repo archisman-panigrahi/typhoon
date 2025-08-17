@@ -20,6 +20,7 @@ Originally based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by 
 - Configurable widget opacity and color
 - Chameleonic background color based on wallpaper or accent color
 - Temperature-based background color
+- Supports customizable weather color
 - Powered by Open-Meteo, OpenStreetMap and ipapi
 - Supports IP address-based location detection
 - Multiple locations supported via multiple windows

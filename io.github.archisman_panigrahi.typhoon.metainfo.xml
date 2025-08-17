@@ -20,6 +20,7 @@
       <li>Configurable widget opacity and color</li>
       <li>Chameleonic background color based on wallpaper or accent color</li>
       <li>Temperature based background color</li>
+      <li>Supports customizable weather color</li>
       <li>Powered by Open-Meteo, OpenStreetMap and ipapi</li>
       <li>Supports IP address-based location detection</li>
       <li>Supports multiple locations via multiple windows</li>
