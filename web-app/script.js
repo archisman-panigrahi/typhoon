@@ -374,9 +374,31 @@ function background(temp) {
     } else if (localStorage.typhoon_color == "chameleonic") {
         $("#container").css("background", '#' + localStorage.typhoon_special_color)
         $('.color span[data-color=chameleonic]').css("background", '#' + localStorage.typhoon_special_color)
+    } else if (localStorage.typhoon_color == "custom" && localStorage.typhoon_custom_color) {
+        $("#container").css("background", localStorage.typhoon_custom_color);
     } else {
         $("#container").css("background", "#" + localStorage.typhoon_color)
     }
+// Custom Color Picker logic
+$(function() {
+    const customColorPicker = $('#customColorPicker');
+    if (localStorage.typhoon_custom_color) {
+        customColorPicker.val(localStorage.typhoon_custom_color);
+    }
+    function applyCustomColorInstantly(color) {
+        localStorage.typhoon_color = 'custom';
+        localStorage.typhoon_custom_color = color;
+        $("#container").css("background", color);
+        $('.color span').removeClass('selected');
+        customColorPicker.addClass('selected');
+    }
+    customColorPicker.on('input', function() {
+        applyCustomColorInstantly($(this).val());
+    });
+    customColorPicker.on('change', function() {
+        applyCustomColorInstantly($(this).val());
+    });
+});
 }
 
 // Converts Open-Meteo weather codes to Climacons icons
