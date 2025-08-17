@@ -379,39 +379,37 @@ p, span, div {
 }
 .color span {
     height: 11px;
-    width: 11.5px;
+    width: 11px;
     display: inline-block;
     border: 4px solid rgba(0, 0, 0, 0.4);
     vertical-align: middle;
-}
-#customColorPicker {
-    width: 16px;
-    height: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.4);
-    background: linear-gradient(90deg, #ff0000 0%, #ff9900 16%, #ffff00 33%, #00ff00 50%, #00ffff 66%, #0000ff 83%, #791779 100%);
-    vertical-align: middle;
-    cursor: pointer;
-    outline: none;
-    padding: -1;
-    appearance: none;
-    -webkit-appearance: none;
-    display: inline-block;
-    box-sizing: border-box;
+
 }
 span[data-color=gradient] {
     background: -webkit-linear-gradient(#0081d3, #e44211);
     border: 0;
-    height: 17px;
-    width: 16px;
+    height: 18.5px;
+    width: 16.5px;
     /* border-right: 2px solid #333; */
 }
 span[data-color="chameleonic"] {
     display: inline-block;
     width: 16px;
-    height: 16px;
+    height: 17px;
     /* border-radius: 50%; */
     border: 1px solid #333;
     overflow: hidden; /* Ensures the icon fits within the circle */
+}
+span[data-color=custom] {
+    background: -webkit-linear-gradient(red, yellow, green, purple);
+}
+#customColorBox{
+    display:inline-block;
+    width:16px;
+    height:17px;
+    border:0;
+    border-right:1px solid #333;
+    vertical-align:middle;
 }
 /* Credits Button */
  .btn {
