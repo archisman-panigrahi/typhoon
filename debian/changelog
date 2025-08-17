@@ -1,3 +1,9 @@
+typhoon (1.1) noble; urgency=medium
+
+  * custom colors
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sun, 17 Aug 2025 15:33:39 -0400
+
 typhoon (1.0) noble; urgency=medium
 
   * Fix opacity slider after btn click
