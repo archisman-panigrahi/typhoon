@@ -74,7 +74,7 @@ sudo ninja -C builddir install
 To uninstall, run
 
 ```bash
-sudo meson uninstall -C builddir
+sudo ninja -C builddir uninstall
 ```
 
 ### Running the Application
