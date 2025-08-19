@@ -68,7 +68,7 @@ This project uses the Meson build system for configuration and installation.
 
 ```bash
 meson setup builddir --prefix=/usr
-sudo meson install -C builddir
+sudo ninja -C builddir install
 ```
 
 To uninstall, run
