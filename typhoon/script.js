@@ -564,7 +564,12 @@ function init_settings() {
         } else if ($(this).hasClass("settings")) {
             show_settings("all");
         } else if ($(this).hasClass("sync")) {
-            render(localStorage.typhoon);
+            if (localStorage.typhoon_color === "chameleonic") {
+                location.reload();
+                document.title = "enabledrag"
+            } else {
+                render(localStorage.typhoon);
+            }
         }
     });
 
