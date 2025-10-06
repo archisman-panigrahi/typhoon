@@ -74,6 +74,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.2" date="2025-10-06">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.2</url>
+      <description>
+        <ul>
+          <li>reload on refresh in chameleonic mode to take current background</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.1" date="2025-08-17">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.1</url>
       <description>
