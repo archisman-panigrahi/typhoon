@@ -1,0 +1,28 @@
+name: typhoon
+base: core24
+adopt-info: typhoon
+grade: stable
+confinement: strict
+
+parts:
+  typhoon:
+    plugin: meson
+    source: https://github.com/archisman-panigrahi/typhoon.git
+    source-tag: 'v1.2'
+    source-depth: 1
+    meson-parameters:
+      - --prefix=/snap/typhoon/current/usr
+      - -Dbuildtype=release
+    organize:
+      snap/typhoon/current: .
+    parse-info: [usr/share/metainfo/io.github.archisman_panigrahi.typhoon.metainfo.xml]
+
+apps:
+  typhoon:
+    command: usr/bin/typhoon
+    extensions: [gnome]
+    desktop: usr/share/applications/io.github.archisman_panigrahi.typhoon.desktop
+    plugs:
+      - unity7
+      - network
+      - network-status 
