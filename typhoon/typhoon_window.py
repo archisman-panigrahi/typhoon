@@ -3,7 +3,7 @@
 import os
 import sys
 import gi
-import subprocess  # For opening external links with xdg-open
+import subprocess  # For increased robustness of chameleonic background
 import dbus
 import dbus.service
 import dbus.mainloop.glib
