@@ -30,14 +30,15 @@ Originally based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by 
 Thanks to [Adam Whitcroft](https://adamwhitcroft.com/) for [Climacons](https://web.archive.org/web/20160531215708/http://adamwhitcroft.com/climacons/).
 
 ## Installation
-Typhoon is available on [Flathub](https://flathub.org).
+Typhoon is available on [Flathub](https://flathub.org) and the [Snap Store](https://snapcraft.io/typhoon).
 
 <a href='https://flathub.org/apps/io.github.archisman_panigrahi.typhoon'>
     <img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
   </a>
-
-
-
+<a href="https://snapcraft.io/typhoon">
+    <img alt="Get it from the Snap Store" src=https://snapcraft.io/en/dark/install.svg />
+  </a>
+  
 On Ubuntu you can use the official [PPA](https://launchpad.net/~apandada1/+archive/ubuntu/typhoon).
 <a href="https://repology.org/project/typhoon/versions">
     <img src="https://repology.org/badge/vertical-allrepos/typhoon.svg" alt="Packaging status" align="right">
