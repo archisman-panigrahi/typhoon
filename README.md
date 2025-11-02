@@ -36,7 +36,7 @@ Typhoon is available on [Flathub](https://flathub.org) and the [Snap Store](http
     <img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
   </a>
 <a href="https://snapcraft.io/typhoon">
-    <img alt="Get it from the Snap Store" src=https://snapcraft.io/en/dark/install.svg />
+    <img width='240' alt="Get it from the Snap Store" src=https://snapcraft.io/en/dark/install.svg />
   </a>
   
 On Ubuntu you can use the official [PPA](https://launchpad.net/~apandada1/+archive/ubuntu/typhoon).
