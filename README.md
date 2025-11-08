@@ -50,13 +50,13 @@ yay -S typhoon
 On **Fedora**, you can install the prebuild **.rpm** package on [GitHub releases](https://github.com/archisman-panigrahi/typhoon/releases).
 
 **Distro agnostic** packages: 
-Typhoon is available on [Flathub](https://flathub.org) and the [Snap Store](https://snapcraft.io/typhoon).
+Typhoon is available on [Flathub](https://flathub.org) and the [Snap Store](https://snapcraft.io/typhoon) (thanks to @soumyaDghosh).
 
 <a href='https://flathub.org/apps/io.github.archisman_panigrahi.typhoon'>
     <img height='80' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
   </a>
 <a href="https://snapcraft.io/typhoon">
-    <img height='80' alt="Get it from the Snap Store" src=https://snapcraft.io/en/dark/install.svg />
+    <img height='100' alt="Get it from the Snap Store" src=https://snapcraft.io/en/dark/install.svg />
 </a>
 
 
