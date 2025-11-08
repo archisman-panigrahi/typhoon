@@ -30,16 +30,7 @@ Originally based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by 
 Thanks to [Adam Whitcroft](https://adamwhitcroft.com/) for [Climacons](https://web.archive.org/web/20160531215708/http://adamwhitcroft.com/climacons/).
 
 ## Installation
-Typhoon is available on [Flathub](https://flathub.org) and the [Snap Store](https://snapcraft.io/typhoon).
-
-<a href='https://flathub.org/apps/io.github.archisman_panigrahi.typhoon'>
-    <img width='240' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
-  </a>
-<a href="https://snapcraft.io/typhoon">
-    <img width='240' alt="Get it from the Snap Store" src=https://snapcraft.io/en/dark/install.svg />
-  </a>
-  
-On Ubuntu you can use the official [PPA](https://launchpad.net/~apandada1/+archive/ubuntu/typhoon).
+On **Ubuntu** you can use the official [PPA](https://launchpad.net/~apandada1/+archive/ubuntu/typhoon).
 <a href="https://repology.org/project/typhoon/versions">
     <img src="https://repology.org/badge/vertical-allrepos/typhoon.svg" alt="Packaging status" align="right">
 </a>
@@ -49,14 +40,31 @@ sudo add-apt-repository ppa:apandada1/typhoon
 sudo apt update
 sudo apt install typhoon
 ```
+On **Debian**, you can install the prebuild **.deb** package on [GitHub releases](https://github.com/archisman-panigrahi/typhoon/releases).
 
-It is also available on the [AUR](https://aur.archlinux.org/packages/typhoon),
+For **Arch** based distros Typhoon is available on the [AUR](https://aur.archlinux.org/packages/typhoon),
 ```
 yay -S typhoon
 ```
-You can also find prebuild .deb and .rpm packages on [GitHub releases](https://github.com/archisman-panigrahi/typhoon/releases).
 
-<!-- An experimetnal [flatpak installer](https://github.com/archisman-panigrahi/typhoon/releases) is also available. -->
+On **Fedora**, you can install the prebuild **.rpm** package on [GitHub releases](https://github.com/archisman-panigrahi/typhoon/releases).
+
+**Distro agnostic** packages: 
+Typhoon is available on [Flathub](https://flathub.org) and the [Snap Store](https://snapcraft.io/typhoon).
+
+<a href='https://flathub.org/apps/io.github.archisman_panigrahi.typhoon'>
+    <img height='80' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
+  </a>
+<a href="https://snapcraft.io/typhoon">
+    <img height='80' alt="Get it from the Snap Store" src=https://snapcraft.io/en/dark/install.svg />
+</a>
+
+
+
+*Note that the chameleonic background does not work in the flatpak and snap packages. To use this feature, use the native packages instead.*
+
+
+
 
 ## Build System
 This project uses the Meson build system for configuration and installation.
