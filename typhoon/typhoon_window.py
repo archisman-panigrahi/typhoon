@@ -412,10 +412,10 @@ class TyphoonWindow(Gtk.Window):
                 message = "Weather alert"
             try:
                 try:
-                    Notify.init("Typhoon")
+                    Notify.init("Weather Alert")
                 except Exception:
                     pass
-                n = Notify.Notification.new("Typhoon", message)
+                n = Notify.Notification.new(message, icon="io.github.archisman_panigrahi.typhoon")
                 n.show()
             except Exception as e:
                 print(f"Failed to show notification via Notify: {e}")
