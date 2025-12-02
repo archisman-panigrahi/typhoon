@@ -23,6 +23,7 @@ Requires:       webkit2gtk3
 Requires:       ImageMagick
 Requires:       dbus
 Requires:       python3-dbus
+Requires:       libnotify
 Requires:       libportal
 Recommends:     python3-cairosvg
 

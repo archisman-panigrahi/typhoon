@@ -12,6 +12,7 @@ Depends: ${misc:Depends},
  gir1.2-gtk-3.0,
  gir1.2-webkit2-4.0 | gir1.2-webkit2-4.1,
  gir1.2-xdp-1.0,
+ gir1.2-notify-0.7,
  imagemagick,
  dbus, python3-dbus
 Recommends: python3-cairosvg
