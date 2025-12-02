@@ -22,7 +22,11 @@ try:
     gi.require_version("WebKit2", "4.1")  # Attempt to use WebKit2 4.1
 except ValueError:
     gi.require_version("WebKit2", "4.0")  # Fallback to WebKit2 4.0
-from gi.repository import Gtk, WebKit2, GdkPixbuf, Gdk, Xdp
+try:
+    gi.require_version("Notify", "0.7")
+except Exception:
+    pass
+from gi.repository import Gtk, WebKit2, GdkPixbuf, Gdk, Xdp, Notify
 
 try:
     from gi.repository import Unity
@@ -400,6 +404,22 @@ class TyphoonWindow(Gtk.Window):
         """Handles title changes in the WebView."""
         title = webview.get_title()
         print(f"{title}")  # Debugging: Print the title
+
+        # Handle notifications requested from the webview via document.title
+        if title and title.startswith("notify:"):
+            message = title[len("notify:"):]
+            if not message:
+                message = "Weather alert"
+            try:
+                try:
+                    Notify.init("Typhoon")
+                except Exception:
+                    pass
+                n = Notify.Notification.new("Typhoon", message)
+                n.show()
+            except Exception as e:
+                print(f"Failed to show notification via Notify: {e}")
+            return
 
         if title.startswith("height="):
             try:

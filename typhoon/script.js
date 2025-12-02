@@ -1,4 +1,8 @@
 // Fetch current weather data from Open-Meteo
+// Global refresh interval (ms). Can be overridden via `localStorage.typhoon_refresh_ms`.
+var TYPHOON_REFRESH_MS = parseInt(localStorage.typhoon_refresh_ms || '1200000', 10);
+// Global notifications enabled flag (initialized from localStorage at app start)
+var TYPHOON_NOTIFICATIONS_ENABLED = (localStorage.typhoon_notifications !== 'disabled');
 function getWeatherData(cityName, callback) {
     const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
 
@@ -211,6 +215,54 @@ function render(cityName) {
         $("#rainPercentage").html(
             `<span id="umbrellaIcon" style="font-family: 'ClimaconsRegular'; font-size: 1.2em; vertical-align: top;${shouldShake ? '' : ''}"${shouldShake ? ' class="shake-umbrella"' : ''}>{</span>${currentWeather.rain_percentage}%`
         );
+        // Send a system notification via the host app when heavy precipitation or extreme weather is detected.
+        // Show once immediately on app run (first session render), then respect throttle using localStorage.typhoon_last_notify_time.
+        (function() {
+            try {
+                // Respect notifications toggle (use in-memory flag set on app start)
+                if (!TYPHOON_NOTIFICATIONS_ENABLED) return;
+                const notifyThreshold = parseInt(localStorage.typhoon_notify_threshold || '35', 10); // percent
+                const now = Date.now();
+                const throttleMs = TYPHOON_REFRESH_MS; // throttle notifications to the app refresh interval
+                const lastNotify = parseInt(localStorage.typhoon_last_notify_time || '0', 10);
+                const sessionNotified = sessionStorage.typhoon_notified === '1';
+
+                function sendNotification(msg) {
+                    // update last notify time (persist across runs) and mark session as notified
+                    localStorage.typhoon_last_notify_time = String(now);
+                    sessionStorage.typhoon_notified = '1';
+                    document.title = 'notify:' + msg;
+                }
+
+                // Determine if weathercode indicates snow/thunderstorm/extreme
+                const code = parseInt(currentWeather.weathercode, 10);
+                const isSnow = (code >= 71 && code <= 86) || code === 77;
+                const isThunder = (code >= 95 && code <= 99);
+
+                const rainPct = Number(currentWeather.rain_percentage) || 0;
+                const city = (locationData && (locationData.name || locationData.display_name)) ? (locationData.name || locationData.display_name.split(',')[0]) : 'your area';
+
+                const buildMessage = () => {
+                    if (rainPct >= notifyThreshold) return `Rain likely (${Math.round(rainPct)}%) in ${city} within the next five hours.`;
+                    if (isSnow) return `Snow expected in ${city}. Take care.`;
+                    if (isThunder) return `Thunderstorm warning for ${city}. Stay safe.`;
+                    return null;
+                };
+
+                const message = buildMessage();
+                if (!message) return;
+
+                if (!sessionNotified) {
+                    // First run in this session: show notification immediately
+                    sendNotification(message);
+                } else if (now - lastNotify > throttleMs) {
+                    // Subsequent runs: respect throttle
+                    sendNotification(message);
+                }
+            } catch (e) {
+                console.error('Notification error:', e);
+            }
+        })();
         // Show the additional-info div when weather data is available
         $('.additional-info').removeClass('hidden');
 
@@ -482,6 +534,7 @@ $(document).ready(function() {
     // Set the size
     scaleContent();
 
+
     //APP START.
     init_settings()
     if (!localStorage.typhoon) {
@@ -494,7 +547,7 @@ $(document).ready(function() {
             console.log("Updating Data...")
             document.title = "refreshing data";
             $(".border .sync").click()
-        }, 1200000)
+        }, TYPHOON_REFRESH_MS)
     }
 
     // Add event listener for the reset button
@@ -606,9 +659,9 @@ function init_settings() {
             render(cityName);
             show_settings("noweather");
             setInterval(function() {
-                console.log("Updating Data...");
-                $(".border .sync").click();
-            }, 1200000);
+                    console.log("Updating Data...");
+                    $(".border .sync").click();
+                }, TYPHOON_REFRESH_MS);
         }
     });
 
@@ -646,12 +699,17 @@ function init_settings() {
     })
     
 
-    if (localStorage.typhoon_launcher == "checked") {
-        $('#locationModal .launcher input').attr("checked", "checked")
-        document.title = "enable_launcher"
+    // Launcher switch (existing)
+    localStorage.typhoon_launcher = localStorage.typhoon_launcher || "checked";
+    if (localStorage.typhoon_launcher === "checked") {
+        $('#launcherswitch').prop("checked", true);
+        document.title = "enable_launcher";
+    } else {
+        $('#launcherswitch').prop("checked", false);
+        document.title = "disable_launcher";
     }
-    $('#locationModal .launcher input').click(function() {
-        localStorage.typhoon_launcher = $('#locationModal .launcher input').prop("checked") ? "checked" : "unchecked";
+    $('#launcherswitch').click(function() {
+        localStorage.typhoon_launcher = $('#launcherswitch').prop("checked") ? "checked" : "unchecked";
         if (localStorage.typhoon_launcher === "checked") {
             document.title = "enable_launcher";
         } else {
@@ -659,13 +717,21 @@ function init_settings() {
         }
     });
 
-    if (localStorage.typhoon_launcher === "checked") {
-        $('#locationModal .launcher input').prop("checked", true);
-        document.title = "enable_launcher";
+    // Notifications switch (new)
+    // Read stored preference and apply it on app start
+    if (localStorage.typhoon_notifications === undefined) {
+        localStorage.typhoon_notifications = TYPHOON_NOTIFICATIONS_ENABLED ? 'enabled' : 'disabled';
     } else {
-        $('#locationModal .launcher input').prop("checked", false);
-        document.title = "disable_launcher";
+        // Ensure the in-memory flag matches stored preference
+        TYPHOON_NOTIFICATIONS_ENABLED = (localStorage.typhoon_notifications !== 'disabled');
     }
+    $('#notificationswitch').prop('checked', TYPHOON_NOTIFICATIONS_ENABLED);
+    $('#notificationswitch').click(function() {
+        TYPHOON_NOTIFICATIONS_ENABLED = $('#notificationswitch').prop('checked');
+        localStorage.typhoon_notifications = TYPHOON_NOTIFICATIONS_ENABLED ? 'enabled' : 'disabled';
+    });
+
+    // NOTE: do not overwrite the entire .launcher inputs here (would clobber notifications checkbox)
 
     //Control CSS.
     $("span[data-color]:not([data-color=gradient])").map(function() { $(this).css('background', '#' + $(this).attr("data-color")) })
