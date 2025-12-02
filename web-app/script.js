@@ -31,10 +31,10 @@ function getWeatherData(cityName, callback) {
                     console.log("Time Index:", timeIndex);
 
                     if (timeIndex !== -1) {
-                        // Get the rain probabilities for the previous 2 hours, current hour, and the next 5 hours
+                        // Get the rain probabilities for the previous 1 hours, current hour, and the next 5 hours
                         const previousHours = timeIndex === 0 
                             ? [weatherData.hourly.precipitation_probability[timeIndex]] 
-                            : weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 2), timeIndex);
+                            : weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 1), timeIndex);
                         const currentHour = [weatherData.hourly.precipitation_probability[timeIndex]];
                         const nextHours = weatherData.hourly.precipitation_probability.slice(timeIndex + 1, timeIndex + 6);
 
@@ -243,7 +243,7 @@ function render(cityName) {
                 const city = (locationData && (locationData.name || locationData.display_name)) ? (locationData.name || locationData.display_name.split(',')[0]) : 'your area';
 
                 const buildMessage = () => {
-                    if (rainPct >= notifyThreshold) return `Rain likely (${Math.round(rainPct)}%) in ${city} within the next five hours.`;
+                    if (rainPct >= notifyThreshold) return `Rain expected (${Math.round(rainPct)}%) in ${city}. Take care.`;
                     if (isSnow) return `Snow expected in ${city}. Take care.`;
                     if (isThunder) return `Thunderstorm warning for ${city}. Stay safe.`;
                     return null;
