@@ -1,16 +1,16 @@
 {
     "app-id" : "io.github.archisman_panigrahi.typhoon",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "48",
+    "runtime-version" : "49",
     "sdk" : "org.gnome.Sdk",
-    "sdk-version" : "48",
     "command" : "typhoon",
     "finish-args" : [
         "--share=network",
         "--share=ipc",
         "--socket=fallback-x11",
         "--socket=wayland",
-        "--device=dri"
+        "--device=dri",
+        "--talk-name=org.freedesktop.Notifications"
     ],
     "modules" : [
         {
