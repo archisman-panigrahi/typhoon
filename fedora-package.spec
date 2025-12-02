@@ -12,14 +12,14 @@ BuildRequires:  meson
 BuildRequires:  python3-setuptools
 BuildRequires:  glib2-devel
 BuildRequires:  gtk3-devel
-BuildRequires:  webkit2gtk3-devel
+BuildRequires:  webkit2gtk4.1-devel
 BuildRequires:  dbus-devel
 BuildRequires:  python3-dbus
 BuildRequires:  desktop-file-utils
 
 Requires:       glib2
 Requires:       gtk3
-Requires:       webkit2gtk3
+Requires:       webkit2gtk4.1
 Requires:       ImageMagick
 Requires:       dbus
 Requires:       python3-dbus
