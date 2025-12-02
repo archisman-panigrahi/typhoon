@@ -16,7 +16,8 @@ Originally based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by 
 - Real-time weather updates and forecasts for up to four days
 - Customizable units of measurement
 - Displays current temperature as launcher count
-- Displays rain warning
+- Displays precipitation warning within app
+- Displays system notifications for rain, snow or thunderstorm
 - Configurable widget opacity and color
 - Chameleonic background color based on wallpaper or accent color
 - Temperature-based background color

@@ -16,7 +16,8 @@
       <li>Real-time weather updates and forecasts for up to four days</li>
       <li>Customizable units of measurement</li>
       <li>Displays current temperature as launcher count</li>
-      <li>Displays rain warning</li>
+      <li>Displays precipitation warning within app</li>
+      <li>Displays system notifications for rain, snow or thunderstorm</li>
       <li>Configurable widget opacity and color</li>
       <li>Chameleonic background color based on wallpaper or accent color</li>
       <li>Temperature based background color</li>
@@ -74,6 +75,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.3" date="2025-12-02">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.3</url>
+      <description>
+        <ul>
+          <li>rain, snow and thunderstorm warning</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.2" date="2025-10-06">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.2</url>
       <description>
