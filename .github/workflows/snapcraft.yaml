@@ -57,11 +57,11 @@ jobs:
         if: |
           startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'yes') || github.event_name == 'release'
         env:
-          CHANNEL: ${{ github.event.inputs.channel || 'edge' }}
+          CHANNEL: ${{ github.event.inputs.channel || 'stable' }}
           # Set the store credentials from the repository secret so snapcraft can use them
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_LOGIN }}
         run: |
-          CHANNEL=${CHANNEL:-edge}
+          CHANNEL=${CHANNEL:-stable}
           SNAPFILE=${{ steps.find-snap.outputs.snapfile }}
           if [ -z "$SNAPFILE" ]; then
             echo "No .snap artifact found to publish"; exit 1
