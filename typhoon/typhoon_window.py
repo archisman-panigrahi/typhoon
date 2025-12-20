@@ -173,6 +173,7 @@ class TyphoonWindow(Gtk.Window):
         # Set User-Agent for OpenStreetMap API requests
         settings = self.webview.get_settings()
         settings.set_user_agent('Typhoon Weather App (https://github.com/archisman-panigrahi/typhoon)')
+        # Enable Web Inspector
         # settings.set_enable_developer_extras(True)
 
         self.webview.connect("decide-policy", self._handle_policy_decision)
