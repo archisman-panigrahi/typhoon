@@ -326,7 +326,7 @@ class TyphoonWindow(Gtk.Window):
                             signature="iiibiiay"
                         )
             except Exception as e:
-                print(f"Could not load icon for notification: {e}")
+                logger.warning(f"Could not load icon for notification: {e}")
             
             # Notification parameters:
             # app_name, replaces_id, app_icon, summary, body, actions, hints, expire_timeout
@@ -341,7 +341,7 @@ class TyphoonWindow(Gtk.Window):
                 -1  # expire_timeout (-1 for default)
             )
         except Exception as e:
-            print(f"Failed to send D-Bus notification: {e}")
+            logger.error(f"Failed to send D-Bus notification: {e}")
 
     def _setup_scrolled_window(self):
         """Wraps the WebView in a scrolled window and adds it to the overlay."""
