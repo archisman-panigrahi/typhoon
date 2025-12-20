@@ -22,11 +22,7 @@ try:
     gi.require_version("WebKit2", "4.1")  # Attempt to use WebKit2 4.1
 except ValueError:
     gi.require_version("WebKit2", "4.0")  # Fallback to WebKit2 4.0
-try:
-    gi.require_version("Notify", "0.7")
-except Exception:
-    pass
-from gi.repository import Gtk, WebKit2, GdkPixbuf, Gdk, Xdp, Notify
+from gi.repository import Gtk, WebKit2, GdkPixbuf, Gdk, Xdp
 
 try:
     from gi.repository import Unity
@@ -300,6 +296,53 @@ class TyphoonWindow(Gtk.Window):
         js_code = f"receiveMessage({message});"  # Call the JavaScript function with the message
         self.webview.evaluate_javascript(js_code, len(js_code), None, None, None)
 
+    def _send_dbus_notification(self, message):
+        """Sends a notification via D-Bus asynchronously."""
+        try:
+            bus = dbus.SessionBus()
+            notify_obj = bus.get_object('org.freedesktop.Notifications', '/org/freedesktop/Notifications')
+            notify_interface = dbus.Interface(notify_obj, 'org.freedesktop.Notifications')
+            
+            # Load icon from theme and convert to image-data format
+            hints = {"desktop-entry": dbus.String("io.github.archisman_panigrahi.typhoon")}
+            
+            try:
+                icon_theme = Gtk.IconTheme.get_default()
+                icon_info = icon_theme.lookup_icon("io.github.archisman_panigrahi.typhoon", 64, 0)
+                if icon_info:
+                    pixbuf = icon_info.load_icon()
+                    if pixbuf:
+                        # Convert pixbuf to image-data format for D-Bus
+                        width = pixbuf.get_width()
+                        height = pixbuf.get_height()
+                        rowstride = pixbuf.get_rowstride()
+                        has_alpha = pixbuf.get_has_alpha()
+                        bits_per_sample = pixbuf.get_bits_per_sample()
+                        channels = pixbuf.get_n_channels()
+                        image_data = dbus.ByteArray(pixbuf.get_pixels())
+                        
+                        hints["image-data"] = dbus.Struct(
+                            (width, height, rowstride, has_alpha, bits_per_sample, channels, image_data),
+                            signature="iiibiiay"
+                        )
+            except Exception as e:
+                print(f"Could not load icon for notification: {e}")
+            
+            # Notification parameters:
+            # app_name, replaces_id, app_icon, summary, body, actions, hints, expire_timeout
+            notify_interface.Notify(
+                "Weather Alert",  # app_name
+                0,  # replaces_id (0 means new notification)
+                "io.github.archisman_panigrahi.typhoon",  # app_icon
+                message,  # summary
+                "",  # body
+                [],  # actions
+                hints,  # hints with desktop-entry and image-data
+                -1  # expire_timeout (-1 for default)
+            )
+        except Exception as e:
+            print(f"Failed to send D-Bus notification: {e}")
+
     def _setup_scrolled_window(self):
         """Wraps the WebView in a scrolled window and adds it to the overlay."""
         scrolled_window = Gtk.ScrolledWindow()
@@ -410,15 +453,8 @@ class TyphoonWindow(Gtk.Window):
             message = title[len("notify:"):]
             if not message:
                 message = "Weather alert"
-            try:
-                try:
-                    Notify.init("Weather Alert")
-                except Exception:
-                    pass
-                n = Notify.Notification.new(message, icon="io.github.archisman_panigrahi.typhoon")
-                n.show()
-            except Exception as e:
-                print(f"Failed to show notification via Notify: {e}")
+            # Send notification asynchronously via D-Bus to avoid blocking
+            threading.Thread(target=self._send_dbus_notification, args=(message,), daemon=True).start()
             return
 
         if title.startswith("height="):
