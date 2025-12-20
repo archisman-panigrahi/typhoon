@@ -4,7 +4,7 @@ var TYPHOON_REFRESH_MS = parseInt(localStorage.typhoon_refresh_ms || '1200000', 
 // Global notifications enabled flag (initialized from localStorage at app start)
 var TYPHOON_NOTIFICATIONS_ENABLED = (localStorage.typhoon_notifications !== 'disabled');
 function getWeatherData(cityName, callback) {
-    const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1&email=typhoon-app@github.com`;
+    const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
 
     // First, get the latitude and longitude of the city using OpenStreetMap's Nominatim API
     $.get(geocodingUrl, function (geoData) {
@@ -92,7 +92,7 @@ function getWeatherData(cityName, callback) {
 
 // Fetch weekly forecast data from Open-Meteo
 function getWeeklyForecast(cityName, callback) {
-    const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1&email=typhoon-app@github.com`;
+    const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
 
     // First, get the latitude and longitude of the city using OpenStreetMap's Nominatim API
     $.get(geocodingUrl, function (geoData) {
