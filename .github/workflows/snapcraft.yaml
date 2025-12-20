@@ -17,7 +17,13 @@ on:
 jobs:
   build-and-publish:
     name: 🧪 Build and (optionally) publish
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        variant:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
     steps:
       - name: Checkout
         uses: actions/checkout@v4
