@@ -7,7 +7,13 @@ function getWeatherData(cityName, callback) {
     const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
 
     // First, get the latitude and longitude of the city using OpenStreetMap's Nominatim API
-    $.get(geocodingUrl, function (geoData) {
+    $.ajax({
+        url: geocodingUrl,
+        method: 'GET',
+        headers: {
+            'User-Agent': 'Typhoon Weather App/1.3.1 (https://github.com/archisman-panigrahi/typhoon)'
+        },
+        success: function (geoData) {
         if (geoData && geoData.length > 0) {
             const { lat: latitude, lon: longitude, display_name } = geoData[0];
 
@@ -83,10 +89,12 @@ function getWeatherData(cityName, callback) {
             console.error("Geocoding failed:", geoData);
             $("#locationModal .loader").attr("class", "loader").html("&#10005;");
         }
-    }).fail(function (jqXHR, textStatus, errorThrown) {
-        console.error("Geocoding request failed:", textStatus, errorThrown);
-        console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
-        showError('Network error. Please try again.');
+    },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error("Geocoding request failed:", textStatus, errorThrown);
+            console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
+            showError('Network error. Please try again.');
+        }
     });
 }
 
@@ -95,7 +103,13 @@ function getWeeklyForecast(cityName, callback) {
     const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
 
     // First, get the latitude and longitude of the city using OpenStreetMap's Nominatim API
-    $.get(geocodingUrl, function (geoData) {
+    $.ajax({
+        url: geocodingUrl,
+        method: 'GET',
+        headers: {
+            'User-Agent': 'Typhoon Weather App/1.3.1 (https://github.com/archisman-panigrahi/typhoon)'
+        },
+        success: function (geoData) {
         if (geoData && geoData.length > 0) {
             const { lat: latitude, lon: longitude } = geoData[0];
 
@@ -120,10 +134,12 @@ function getWeeklyForecast(cityName, callback) {
             console.error("Geocoding failed:", geoData);
             showError('City not found. Please enter a valid city name.');
         }
-    }).fail(function (jqXHR, textStatus, errorThrown) {
-        console.error("Geocoding request failed:", textStatus, errorThrown);
-        console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
-        showError('Network error. Please try again.');
+    },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error("Geocoding request failed:", textStatus, errorThrown);
+            console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
+            showError('Network error. Please try again.');
+        }
     });
 }
 
