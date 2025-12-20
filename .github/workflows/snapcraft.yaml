@@ -17,6 +17,7 @@ on:
 jobs:
   build-and-publish:
     name: 🧪 Build and (optionally) publish
+    runs-on: ${{ matrix.variant.runner }}
     strategy:
       matrix:
         variant:
