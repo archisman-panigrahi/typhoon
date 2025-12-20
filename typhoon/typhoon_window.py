@@ -11,6 +11,8 @@ import logging
 from gi.repository import GObject, GLib
 import threading
 import io
+import glob
+import configparser
 try:
     import cairosvg
 except ImportError:
@@ -536,6 +538,22 @@ class TyphoonWindow(Gtk.Window):
             except ValueError:
                 pass
 
+    def _get_primary_monitor(self):
+        """Get the primary monitor name using xrandr, or fallback to first connected monitor."""
+        try:
+            xrandr_output = subprocess.check_output("xrandr --current | grep -w connected", shell=True, text=True)
+            primary_monitor = None
+            for line in xrandr_output.splitlines():
+                if "primary" in line:
+                    primary_monitor = line.split()[0]
+                    break
+            if not primary_monitor:
+                # Fallback to the first monitor if no primary is set
+                primary_monitor = xrandr_output.splitlines()[0].split()[0]
+            return primary_monitor
+        except Exception:
+            return None
+
     def get_wallpaper_path(self):
         """Retrieves the current wallpaper path based on the desktop environment."""
         # Detect Flatpak or Snap environment
@@ -557,16 +575,9 @@ class TyphoonWindow(Gtk.Window):
             command = "gsettings get org.mate.background picture-filename"
             wallpaper = subprocess.check_output(command, shell=True).decode().strip().strip("'").split('file://')[-1]
         elif "xfce" in de:
-            # Use xrandr to get the primary monitor name
-            xrandr_output = subprocess.check_output("xrandr --current | grep -w connected", shell=True, text=True)
-            primary_monitor = None
-            for line in xrandr_output.splitlines():
-                if "primary" in line:
-                    primary_monitor = line.split()[0]
-                    break
+            primary_monitor = self._get_primary_monitor()
             if not primary_monitor:
-                # Fallback to the first monitor if no primary is set
-                primary_monitor = xrandr_output.splitlines()[0].split()[0]
+                raise Exception("Could not detect primary monitor for XFCE")
             # Query xfconf for the wallpaper of the primary monitor, workspace 0
             key = f"/backdrop/screen0/monitor{primary_monitor}/workspace0/last-image"
             wallpaper = subprocess.check_output(
@@ -587,6 +598,31 @@ class TyphoonWindow(Gtk.Window):
                                     wallpaper = os.path.join(wallpaper, file)
                                     break
                         break
+        elif "lxde" in de or "labwc:wlroots" in de:
+            # Raspberry Pi OS (PIXEL desktop) / LXDE using PCManFM
+            config_pattern = os.path.expanduser("~/.config/pcmanfm/*/desktop-items-*.conf")
+            config_files = glob.glob(config_pattern)
+            
+            wallpaper = None
+            primary_monitor = self._get_primary_monitor()
+
+            # Sort config files to prioritize primary monitor
+            if primary_monitor:
+                config_files.sort(key=lambda f: 0 if primary_monitor in f else 1)
+
+            # Iterate through config files (primary first if found)
+            for config_file in config_files:
+                try:
+                    config = configparser.ConfigParser()
+                    config.read(config_file)
+                    if config.has_option('*', 'wallpaper'):
+                        wallpaper = config.get('*', 'wallpaper')
+                        break
+                except Exception:
+                    continue
+            
+            if not wallpaper:
+                raise Exception("Could not find wallpaper in PCManFM config")
         else:
             raise Exception(f"Unsupported desktop environment: {de}")
 
