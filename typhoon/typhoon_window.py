@@ -336,7 +336,7 @@ class TyphoonWindow(Gtk.Window):
                 "io.github.archisman_panigrahi.typhoon",  # app_icon
                 message,  # summary
                 "",  # body
-                [],  # actions
+                dbus.Array([], signature='s'),  # actions (empty array with string signature)
                 hints,  # hints with desktop-entry and image-data
                 -1  # expire_timeout (-1 for default)
             )
