@@ -170,8 +170,10 @@ class TyphoonWindow(Gtk.Window):
         """Sets up the WebKit2 WebView and connects signals."""
         self.webview = WebKit2.WebView()
 
+        # Set User-Agent for OpenStreetMap API requests
+        settings = self.webview.get_settings()
+        settings.set_user_agent('Typhoon Weather App (https://github.com/archisman-panigrahi/typhoon)')
         # Enable Web Inspector
-        # settings = self.webview.get_settings()
         # settings.set_enable_developer_extras(True)
 
         self.webview.connect("decide-policy", self._handle_policy_decision)
