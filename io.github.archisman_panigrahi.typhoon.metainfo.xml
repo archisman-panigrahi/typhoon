@@ -79,6 +79,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.3.2" date="2025-12-20">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.3.2</url>
+      <description>
+        <ul>
+          <li>Fix location search on some OS (e.g. RPiOS) with custom user agent</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.3.1" date="2025-12-20">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.3.1</url>
       <description>
