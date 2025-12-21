@@ -18,14 +18,12 @@ Last-Update: 2025-12-21
  </html>
 --- a/meson.build
 +++ b/meson.build
-@@ -9,7 +9,8 @@
- # Define data directory
- data_dir = join_paths(get_option('prefix'), 'share', 'typhoon')
+@@ -11,7 +11,8 @@
  
--# Install the entire media directory (recursively)
+ # Install the entire media directory (recursively)
 -install_subdir('typhoon', install_dir: data_dir)
-+# Install the typhoon directory but exclude bundled jquery
 +install_subdir('typhoon', install_dir: data_dir,
 +  exclude_files: ['jquery-3.7.1.min.js'])
+ 
  
  # Create a wrapper script in /usr/bin
