@@ -34,7 +34,7 @@ if ascli_exe.found()
         args: ['validate',
                '--no-net',
                '--pedantic',
-               metainfo_file]
+               join_paths(meson.project_source_root(), metainfo_file)]
   )
 endif
 
