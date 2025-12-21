@@ -4,7 +4,13 @@ Upstream-Contact: Archisman Panigrahi <apandada1@gmail.com>
 Source: https://github.com/archisman-panigrahi/typhoon
 
 Files: *
-Copyright: (C) 2014 Archisman Panigrahi <apandada1@gmail.com>
-License: GPL-3
+Copyright: 2025 Archisman Panigrahi
+License: GPL-3+
  The full text of the GPL is distributed in
  /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: io.github.archisman_panigrahi.typhoon.metainfo.xml
+Copyright: 2025 Archisman Panigrahi
+License: CC0-1.0
+ The full text of the CC0-1.0 public domain dedication is available in
+ /usr/share/common-licenses/CC0-1.0 on Debian systems.

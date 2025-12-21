@@ -3,7 +3,7 @@ Section: python
 Priority: extra
 Build-Depends: debhelper-compat (=12), meson, python3-setuptools, dh-make, desktop-file-utils, gtk-update-icon-cache
 Maintainer: Archisman Panigrahi <apandada1@gmail.com>
-Standards-Version: 4.5.0
+Standards-Version: 4.7.2
 
 Package: typhoon
 Architecture: all
