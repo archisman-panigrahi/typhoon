@@ -18,7 +18,7 @@ Last-Update: 2025-12-21
  </html>
 --- a/meson.build
 +++ b/meson.build
-@@ -10,7 +10,8 @@
+@@ -9,7 +9,8 @@
  # Define data directory
  data_dir = join_paths(get_option('prefix'), 'share', 'typhoon')
  
