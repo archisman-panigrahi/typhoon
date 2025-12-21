@@ -18,12 +18,11 @@ Last-Update: 2025-12-21
  </html>
 --- a/meson.build
 +++ b/meson.build
-@@ -11,7 +11,8 @@
+@@ -12,7 +12,8 @@
  
  # Install the entire media directory (recursively)
 -install_subdir('typhoon', install_dir: data_dir)
 +install_subdir('typhoon', install_dir: data_dir,
 +  exclude_files: ['jquery-3.7.1.min.js'])
- 
  
  # Create a wrapper script in /usr/bin
