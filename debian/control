@@ -14,9 +14,10 @@ Depends: ${misc:Depends},
  gir1.2-xdp-1.0,
  imagemagick,
  dbus, python3-dbus,
+ python3:any,
  libjs-jquery
 Recommends: python3-cairosvg
 Description: Stylish weather application, powered by Open-Meteo, OpenStreetMap and ipapi
- Typhoon is a beautiful weather application that provides real-time weather updates and forecasts.
- It is based on Stormcloud.
+ Typhoon is a beautiful weather application that provides real-time
+ weather updates and forecasts. It is based on Stormcloud.
 Homepage: https://archisman-panigrahi.github.io/typhoon
