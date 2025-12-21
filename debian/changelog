@@ -1,3 +1,9 @@
+typhoon (1.3.3) noble; urgency=medium
+
+  * Added Chameleonic background support in LXDE & Pixel Desktop
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sun, 21 Dec 2025 09:55:38 -0500
+
 typhoon (1.3.2) noble; urgency=medium
 
   * Fix location search on some OS (e.g. RPiOS) with custom user agent

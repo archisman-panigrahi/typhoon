@@ -79,6 +79,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.3.3" date="2025-12-21">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.3.3</url>
+      <description>
+        <ul>
+          <li>Added Chameleonic background support in LXDE & Pixel Desktop</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.3.2" date="2025-12-20">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.3.2</url>
       <description>
