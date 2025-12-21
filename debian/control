@@ -1,7 +1,7 @@
 Source: typhoon
 Section: python
 Priority: extra
-Build-Depends: debhelper-compat (=10), meson, python3-setuptools, dh-make, desktop-file-utils, gtk-update-icon-cache
+Build-Depends: debhelper-compat (=12), meson, python3-setuptools, dh-make, desktop-file-utils, gtk-update-icon-cache
 Maintainer: Archisman Panigrahi <apandada1@gmail.com>
 Standards-Version: 4.5.0
 
@@ -13,7 +13,8 @@ Depends: ${misc:Depends},
  gir1.2-webkit2-4.0 | gir1.2-webkit2-4.1,
  gir1.2-xdp-1.0,
  imagemagick,
- dbus, python3-dbus
+ dbus, python3-dbus,
+ libjs-jquery
 Recommends: python3-cairosvg
 Description: Stylish weather application, powered by Open-Meteo, OpenStreetMap and ipapi
  Typhoon is a beautiful weather application that provides real-time weather updates and forecasts.
