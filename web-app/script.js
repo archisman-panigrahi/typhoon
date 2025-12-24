@@ -243,9 +243,9 @@ function render(cityName) {
                 const city = (locationData && (locationData.name || locationData.display_name)) ? (locationData.name || locationData.display_name.split(',')[0]) : 'your area';
 
                 const buildMessage = () => {
-                    if (rainPct >= notifyThreshold) return `Rain expected (${Math.round(rainPct)}% chance) in ${city}. Take care.`;
-                    if (isSnow) return `Snow expected in ${city}. Take care.`;
-                    if (isThunder) return `Thunderstorm warning for ${city}. Stay safe.`;
+                    if (rainPct >= notifyThreshold) return `Rain expected (${Math.round(rainPct)}% chance) in ${city}.`;
+                    if (isSnow) return `Snow expected in ${city}.`;
+                    if (isThunder) return `Thunderstorm warning for ${city}.`;
                     return null;
                 };
 
