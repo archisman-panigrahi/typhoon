@@ -275,6 +275,22 @@ p, span, div {
     font-size: 15px;
     outline: none;
 }
+#locationModal input[type=text]::placeholder {
+    color: #383838;
+    opacity: 1;
+}
+#locationModal input[type=text]::-webkit-input-placeholder {
+    color: #383838;
+    opacity: 1;
+}
+#locationModal input[type=text]:-moz-placeholder {
+    color: #383838;
+    opacity: 1;
+}
+#locationModal input[type=text]::-moz-placeholder {
+    color: #383838;
+    opacity: 1;
+}
 #locationModal input[type=checkbox] {
     border: 2px solid #222;
     -webkit-appearance: none;
