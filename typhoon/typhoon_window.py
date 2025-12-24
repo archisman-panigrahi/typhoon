@@ -339,7 +339,7 @@ class TyphoonWindow(Gtk.Window):
                 0,  # replaces_id (0 means new notification)
                 "io.github.archisman_panigrahi.typhoon",  # app_icon
                 message,  # summary
-                "",  # body
+                "Take care and stay safe.",  # body
                 dbus.Array([], signature='s'),  # actions (empty array with string signature)
                 hints,  # hints with desktop-entry and image-data
                 -1  # expire_timeout (-1 for default)
