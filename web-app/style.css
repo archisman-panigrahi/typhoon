@@ -446,7 +446,7 @@ p, span, div {
     border: 0px solid rgba(0, 0, 0, 0.4);
     background: linear-gradient(90deg, #ff0000 0%, #ff9900 16%, #ffff00 33%, #00ff00 50%, #00ffff 66%, #0000ff 83%, #791779 100%);
     vertical-align: middle;
-    cursor: pointer;
+    cursor: default;
     display: inline-block;
 }
 span[data-color=gradient] {
