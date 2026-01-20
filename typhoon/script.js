@@ -931,12 +931,16 @@ function show_settings(amount) {
         $("#locationModal .credits").hide()
     }
     $('.btn[tag="credits"]').click(function() {
-        $("#locationModal .input, #locationModal .full, .settings, .sync").hide()
+        $("#locationModal .input, #locationModal .full, .settings, .sync, #locationNav").hide()
         $("#locationModal .credits").fadeIn(500)
     })
     $('#locationModal .credits img').click(function() {
         $("#locationModal .credits").fadeOut(350)
-        $("#locationModal .input, #locationModal .full, .settings, .sync").fadeIn(350)
+        if(currentLocations.length===1) {
+            $("#locationModal .input, #locationModal .full, .settings, .sync").fadeIn(350)
+        } else {
+            $("#locationModal .input, #locationModal .full, .settings, .sync, #locationNav").fadeIn(350)
+        }
     })
     //Show the Modal
     $("#locationModal").fadeToggle(350)
