@@ -211,6 +211,7 @@ p, span, div {
     top: 45px;
     width: 100%;
     display: inline-block;
+    z-index: 20;
 }
 #city span a {
     color: #fff;
