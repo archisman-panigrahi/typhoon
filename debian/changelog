@@ -1,3 +1,9 @@
+typhoon (1.4.1) noble; urgency=medium
+
+  * Describe forecasts in tooltip
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Tue, 20 Jan 2026 11:07:51 +0530
+
 typhoon (1.4.0) noble; urgency=medium
 
   * Support multiple locations
