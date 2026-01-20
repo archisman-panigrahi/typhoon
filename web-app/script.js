@@ -3,6 +3,9 @@
 var TYPHOON_REFRESH_MS = parseInt(localStorage.typhoon_refresh_ms || '1200000', 10);
 // Global notifications enabled flag (initialized from localStorage at app start)
 var TYPHOON_NOTIFICATIONS_ENABLED = (localStorage.typhoon_notifications !== 'disabled');
+// Track last manual location navigation to prevent immediate auto-refresh
+var lastManualNavigationTime = 0;
+var NAVIGATION_REFRESH_DELAY = 3000; // Wait 3 seconds after manual navigation before allowing auto-refresh
 function getWeatherData(cityName, callback) {
     const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
 
@@ -147,6 +150,14 @@ function render(cityName) {
     $('.border .sync').addClass('busy');
     $(".border .settings").show();
 
+    // Check if we have cached data for instant display
+    if (weatherCache[cityName]) {
+        const cached = weatherCache[cityName];
+        displayCachedWeather(cached.currentWeather, cached.locationData, cached.weeklyData);
+        $('.border .sync').removeClass('busy');
+    }
+
+    // Fetch fresh data in background
     getWeatherData(cityName, function (currentWeather, locationData) {
         if (!currentWeather || !locationData) {
             console.error("Failed to fetch weather data.");
@@ -154,18 +165,37 @@ function render(cityName) {
             return;
         }
 
-        // Update the city div with a hyperlink
-        const mapUrl = `https://www.openstreetmap.org/?mlat=${locationData.lat}&mlon=${locationData.lon}#map=10/${locationData.lat}/${locationData.lon}`;
-        const countryName = locationData.display_name.split(',').pop().trim() || "Unknown Country"; // Extract country from display_name
-        
-        $('#city span').html(`<a href="${mapUrl}">${locationData.name}, ${countryName}</a>`);
-        const iconChar = weather_code(currentWeather.weathercode, currentWeather.is_day);
-        const codeClass = "w" + currentWeather.weathercode;
-        $("#code").text(iconChar).attr("class", codeClass + (iconChar === "/" ? " moon-large" : ""));
-        // Sets initial temp as Fahrenheit
-        let temp = currentWeather.temperature;
+        // Fetch and render weekly forecast
+        getWeeklyForecast(cityName, function (weeklyData) {
+            // Cache the weather data
+            weatherCache[cityName] = {
+                currentWeather: currentWeather,
+                locationData: locationData,
+                weeklyData: weeklyData,
+                timestamp: Date.now()
+            };
+            saveWeatherCache();
+            
+            // Display the fresh weather data
+            displayCachedWeather(currentWeather, locationData, weeklyData);
+        });
+    });
+}
 
-        if (temp < 32) {
+// Function to display weather data (from cache or fresh)
+function displayCachedWeather(currentWeather, locationData, weeklyData) {
+    // Update the city div with a hyperlink
+    const mapUrl = `https://www.openstreetmap.org/?mlat=${locationData.lat}&mlon=${locationData.lon}#map=10/${locationData.lat}/${locationData.lon}`;
+    const countryName = locationData.display_name.split(',').pop().trim() || "Unknown Country";
+    
+    $('#city span').html(`<a href="${mapUrl}">${locationData.name}, ${countryName}</a>`);
+    const iconChar = weather_code(currentWeather.weathercode, currentWeather.is_day);
+    const codeClass = "w" + currentWeather.weathercode;
+    $("#code").text(iconChar).attr("class", codeClass + (iconChar === "/" ? " moon-large" : ""));
+    // Sets initial temp as Fahrenheit
+    let temp = currentWeather.temperature;
+
+    if (temp < 32) {
             $("#thermometer").text("_");
         } else if (temp < 55) {
             $("#thermometer").text("+");
@@ -187,7 +217,13 @@ function render(cityName) {
             temp = Math.round(temp); // Round to the nearest integer for Fahrenheit
             $("#temperature").text(temp + " °F");
         }
-        document.title = temp;
+        
+        // Only set temperature as title if launcher count is enabled
+        if (localStorage.typhoon_launcher === "checked") {
+            setTimeout(function() {
+                document.title = temp;
+            }, 25); // Delay to allow "enable_launcher" title to be registered first
+        }
 
         let windSpeed = currentWeather.windspeed;
         if (localStorage.typhoon_speed != "mph") {
@@ -267,20 +303,20 @@ function render(cityName) {
         $('.additional-info').removeClass('hidden');
 
         // Background Color
-        background(currentWeather.temperature);
+    // Background Color
+    background(currentWeather.temperature);
 
-        // Show Icon
-        $('.border .sync, .border .settings').css("opacity", "0.8");
-        $('#actualWeather').fadeIn(500);
-        $("#humidityIcon").css("opacity", "1");
-        $("#locationModal").fadeOut(500);
-        setTimeout(function () { $('.border .sync').removeClass('busy'); }, 1000);
+    // Show Icon
+    $('.border .sync, .border .settings, #locationNav .nav-remove, #locationNav .nav-arrow').css("opacity", "0.8");
+    $('#actualWeather').fadeIn(500);
+    $("#humidityIcon").css("opacity", "1");
+    $("#locationModal").fadeOut(500);
+    setTimeout(function () { $('.border .sync').removeClass('busy'); }, 1000);
 
-        // Fetch and render weekly forecast
-        getWeeklyForecast(cityName, function (weeklyData) {
-            renderWeeklyForecast(weeklyData);
-        });
-    });
+    // Render weekly forecast if available
+    if (weeklyData) {
+        renderWeeklyForecast(weeklyData);
+    }
 }
 
 function renderWeeklyForecast(weeklyData) {
@@ -530,30 +566,153 @@ function receiveMessage(message) {
     localStorage.setItem("typhoon_special_color", message);
 }
 
+// Global variables for multiple locations
+var currentLocations = [];
+var currentLocationIndex = 0;
+var weatherCache = {}; // Cache weather data for each location
+
+// Initialize locations from localStorage
+function initLocations() {
+    // Migrate from old single location format
+    if (localStorage.typhoon && !localStorage.typhoon_locations) {
+        currentLocations = [localStorage.typhoon];
+        localStorage.typhoon_locations = JSON.stringify(currentLocations);
+        localStorage.removeItem('typhoon');
+    } else if (localStorage.typhoon_locations) {
+        currentLocations = JSON.parse(localStorage.typhoon_locations);
+    }
+    
+    if (localStorage.typhoon_current_index) {
+        currentLocationIndex = parseInt(localStorage.typhoon_current_index, 10);
+    }
+    
+    // Load weather cache
+    if (localStorage.typhoon_weather_cache) {
+        try {
+            weatherCache = JSON.parse(localStorage.typhoon_weather_cache);
+        } catch (e) {
+            weatherCache = {};
+        }
+    }
+}
+
+// Save locations to localStorage
+function saveLocations() {
+    localStorage.typhoon_locations = JSON.stringify(currentLocations);
+    localStorage.typhoon_current_index = currentLocationIndex;
+}
+
+// Save weather cache to localStorage
+function saveWeatherCache() {
+    localStorage.typhoon_weather_cache = JSON.stringify(weatherCache);
+}
+
+// Navigate to a specific location
+// Display location using only cached data - no network calls
+function displayCachedLocationOnly(cityName) {
+    if (!weatherCache[cityName]) {
+        return; // No cached data available, don't display anything
+    }
+    
+    const cached = weatherCache[cityName];
+    displayCachedWeather(cached.currentWeather, cached.locationData, cached.weeklyData);
+}
+
+function navigateToLocation(index) {
+    if (index >= 0 && index < currentLocations.length) {
+        currentLocationIndex = index;
+        lastManualNavigationTime = Date.now(); // Record time of manual navigation
+        saveLocations();
+        // Only display cached data - NO network calls or API requests
+        displayCachedLocationOnly(currentLocations[currentLocationIndex]);
+        updateLocationNav();
+    }
+}
+
+// Update location navigation UI
+function updateLocationNav() {
+    if (currentLocations.length > 1) {
+        $('#locationNav').show();
+        $('#locationCounter').text(`${currentLocationIndex + 1} of ${currentLocations.length}`);
+    } else {
+        $('#locationNav').hide();
+    }
+}
+
 $(document).ready(function() {
     // Set the size
     scaleContent();
 
+    // Initialize locations
+    initLocations();
 
     //APP START.
     init_settings()
-    if (!localStorage.typhoon) {
+    if (currentLocations.length === 0) {
         show_settings("location")
     } else {
         //Has been run before
-        render(localStorage.typhoon)
+        render(currentLocations[currentLocationIndex])
+        updateLocationNav();
 
         setInterval(function() {
+            // Skip auto-refresh if it's too soon after manual navigation
+            if (Date.now() - lastManualNavigationTime < NAVIGATION_REFRESH_DELAY) {
+                return;
+            }
             console.log("Updating Data...")
             document.title = "refreshing data";
-            $(".border .sync").click()
+            // Refresh the current location directly instead of clicking sync button
+            render(currentLocations[currentLocationIndex])
         }, TYPHOON_REFRESH_MS)
     }
+
+    // Navigation button handlers
+    $('#prevLocation').click(function() {
+        if (currentLocations.length > 0) {
+            // Wrap to last location if on first
+            currentLocationIndex = currentLocationIndex > 0 ? currentLocationIndex - 1 : currentLocations.length - 1;
+            navigateToLocation(currentLocationIndex);
+        }
+    });
+
+    $('#nextLocation').click(function() {
+        if (currentLocations.length > 0) {
+            // Wrap to first location if on last
+            currentLocationIndex = currentLocationIndex < currentLocations.length - 1 ? currentLocationIndex + 1 : 0;
+            navigateToLocation(currentLocationIndex);
+        }
+    });
+
+    // Remove location button handler
+    $('#removeLocation').click(function() {
+        if (currentLocations.length > 0) {
+            // Remove current location
+            currentLocations.splice(currentLocationIndex, 1);
+            
+            // Adjust index if needed
+            if (currentLocationIndex >= currentLocations.length && currentLocationIndex > 0) {
+                currentLocationIndex--;
+            }
+            
+            saveLocations();
+            
+            // If no locations left, show settings
+            if (currentLocations.length === 0) {
+                currentLocationIndex = 0;
+                show_settings("location");
+            } else {
+                // Render the new current location
+                render(currentLocations[currentLocationIndex]);
+                updateLocationNav();
+            }
+        }
+    });
 
     // Add event listener for the reset button
     $('#resetButton').click(function () {
             localStorage.clear(); // Clear all local storage
-            document.title="reset";
+            document.title = "reset";
             location.reload(); // Reload the page to apply default settings
     });
 
@@ -562,50 +721,27 @@ $(document).ready(function() {
 
     locationInput.keyup(function (event) {
         if (event.key === "Enter") {
-            const cityName = locationInput.val().trim(); // Get the trimmed input value
-
-            if (cityName === "") {
-                // If the input is empty, do nothing
-                console.log("City name is empty. No search performed.");
-                return;
+            const cityName = locationInput.val().trim();
+            if (cityName && $("#locationModal .loader").hasClass("tick")) {
+                // Trigger the loader click to add location
+                $("#locationModal .loader").click();
             }
-
-            // Perform the search only if the input is not empty
-            getWeatherData(cityName, function (data) {
-                if (data) {
-                    console.log("Weather data fetched successfully.");
-                    $("#locationModal .loader").attr("class", "tick loader").html("&#10003;").attr("data-city", cityName);
-                } else {
-                    console.log("Failed to fetch weather data.");
-                    $("#locationModal .loader").attr("class", "loader").html("&#10005;");
-                }
-            });
         }
     });
 
     // Guess Location button handler
     $('#guessLocationBtn').click(function() {
         guessLocation(function(locationString) {
-            $("#locationModal input").val(locationString);
-            // Show loading indicator
-            $("#locationModal .loader").attr("class", "loading loader").html("|");
-            // Set opacity slider to localStorage value
-            $('input[type=range]').val(localStorage.app_opacity);
-            // Fetch weather data for the guessed location
-            getWeatherData(locationString, function(data) {
-                if (data) {
-                    $("#locationModal .loader").attr("class", "tick loader").html("&#10003;").attr("data-city", locationString);
-                } else {
-                    $("#locationModal .loader").attr("class", "loader").html("&#10005;");
-                }
-            });
+            locationInput.val(locationString);
+            // Trigger validation
+            locationInput.keyup();
         });
     });
 });
 
 function init_settings() {
     // Prevents Dragging on certain elements
-    $('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img').mouseover(function() {
+    $('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img, #locationNav').mouseover(function() {
         document.title = "disabledrag";
     }).mouseout(function() {
         document.title = "enabledrag";
@@ -621,7 +757,10 @@ function init_settings() {
                 location.reload();
                 document.title = "enabledrag"
             } else {
-                render(localStorage.typhoon);
+                // Show loading state and clear cache to force fresh fetch
+                $('.border .sync').addClass('busy');
+                delete weatherCache[currentLocations[currentLocationIndex]];
+                render(currentLocations[currentLocationIndex]);
             }
         }
     });
@@ -655,6 +794,26 @@ function init_settings() {
     // This can only be run if there is a tick.
     $("#locationModal .loader").click(function() {
         if ($(this).hasClass("tick")) {
+            const cityName = locationInput.val();
+            
+            // Check if location already exists
+            if (!currentLocations.includes(cityName)) {
+                currentLocations.push(cityName);
+                currentLocationIndex = currentLocations.length - 1;
+                saveLocations();
+            } else {
+                // If it exists, navigate to it
+                currentLocationIndex = currentLocations.indexOf(cityName);
+                saveLocations();
+            }
+            
+            render(cityName);
+            updateLocationNav();
+            return; // Exit early to prevent old code from running
+        }
+        
+        // Old code below (won't execute due to return above)
+        if (false && $(this).hasClass("tick")) {
             const cityName = $("#locationModal .loader").attr("data-city");
             localStorage.typhoon = cityName;
             render(cityName);
@@ -671,7 +830,6 @@ function init_settings() {
     localStorage.typhoon_speed = localStorage.typhoon_speed || "kph";
     localStorage.typhoon_color = localStorage.typhoon_color || "gradient";
     localStorage.typhoon_launcher = localStorage.typhoon_launcher || "checked";
-    document.title = "enable_launcher"
 
     $('#locationModal .measurement [data-type=' + localStorage.typhoon_measurement + ']').addClass('selected');
     $('#locationModal .speed [data-type=' + localStorage.typhoon_speed + ']').addClass('selected');
@@ -739,11 +897,12 @@ function init_settings() {
 
     /* Error Message Retry Button */
     $('#errorMessage .btn').click(function() {
-    if (!localStorage.typhoon) {
-        location.reload();
+    if (currentLocations.length === 0) {
+        show_settings("location")
     } else {
-        //Has been run before
-        render(localStorage.typhoon)
+        render(currentLocations[currentLocationIndex])
+        updateLocationNav();
+        $('#errorMessage').fadeOut(350);
     }
     })
 

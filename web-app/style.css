@@ -33,6 +33,7 @@ p, span, div {
     right: -5px;
     display: inline-block;
     opacity: 0;
+    z-index: 20;
     -webkit-transition: 500ms ease opacity;
 }
 @-webkit-keyframes busy-spinning {
@@ -57,6 +58,7 @@ p, span, div {
     right: 21px;
     top: 8px;
     opacity: 0;
+    z-index: 20;
     -webkit-transition: 200ms ease opacity;
 }
 .border .sync:hover, .border .settings:hover {
@@ -163,6 +165,43 @@ p, span, div {
 }
 #code.w95, #code.w96, #code.w99 {
     top: 60px;
+}
+#locationNav {
+    position: absolute;
+    top: -1px;
+    left: 190px;
+    height: 30px;
+    display: none;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+#locationNav .nav-arrow {
+    cursor: pointer;
+    font-size: 32px;
+    /* font-weight: bold; */
+    opacity: 0;
+    transition: opacity 0.2s;
+    user-select: none;
+}
+#locationNav .nav-arrow:hover {
+    opacity: 1;
+}
+#locationNav .nav-remove {
+    cursor: pointer;
+    font-size: 28px;
+    /* font-weight: bold; */
+    opacity: 0;
+    transition: opacity 0.2s;
+    user-select: none;
+    /* color: #ff6b6b; */
+}
+#locationNav .nav-remove:hover {
+    opacity: 1;
+}
+#locationCounter {
+    display: none;
 }
 #city {
     text-align: center;
