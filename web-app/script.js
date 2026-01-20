@@ -629,10 +629,11 @@ function init_settings() {
     // First Run
     var locationInput = $("#locationModal input");
     var typingTimer;
-    var doneTypingInterval = 1500;
+    var doneTypingInterval = 1000;
 
     // On keyup, start the countdown
     locationInput.keyup(function() {
+        clearTimeout(typingTimer); // Clear the previous timer
         typingTimer = setTimeout(doneTyping, doneTypingInterval);
     }).keydown(function() {
         // On keydown, clear the countdown
