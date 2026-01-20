@@ -178,9 +178,8 @@ p, span, div {
     gap: 8px;
 }
 #locationNav .nav-arrow {
-    cursor: pointer;
+    cursor: default;
     font-size: 32px;
-    /* font-weight: bold; */
     opacity: 0;
     transition: opacity 0.2s;
     user-select: none;
@@ -189,13 +188,11 @@ p, span, div {
     opacity: 1;
 }
 #locationNav .nav-remove {
-    cursor: pointer;
+    cursor: default;
     font-size: 28px;
-    /* font-weight: bold; */
     opacity: 0;
     transition: opacity 0.2s;
     user-select: none;
-    /* color: #ff6b6b; */
 }
 #locationNav .nav-remove:hover {
     opacity: 1;
@@ -309,7 +306,6 @@ p, span, div {
     width: 216px;
     border: 2px solid #333;
     padding: 5px 10px;
-    margin-bottom: 10px;
     font-family:"Ubuntu Condensed";
     font-size: 15px;
     outline: none;
@@ -348,6 +344,9 @@ p, span, div {
 }
 #locationModal .measurement span {
     padding: 0 7px 5px 10px;
+}
+#locationModal p {
+    text-align: center;
 }
 #locationModal .speed span {
     line-height: 35px;
