@@ -234,12 +234,12 @@ p, span, div {
     text-align: right;
     display: inline-block;
     box-sizing: border-box;
-    padding-right: 10px;
+    padding-right: 5px;
 }
 .details .right {
     font-size: 25px;
     box-sizing: border-box;
-    padding-left: 30px;
+    padding-left: 45px;
     display: inline-block;
     width: 50%;
     text-align: left;
@@ -556,13 +556,13 @@ input[type="range"]::-webkit-slider-thumb:active {
 
 .additional-info .info-left {
     text-align: right;
-    margin-left: -45px; /* Move only the left section further to the left */
+    margin-left: -32px; /* Move only the left section further to the left */
     margin-right: 0; /* Keep it in its current position */
 }
 
 .additional-info .info-right {
     text-align: left;
-    margin-left: 30px; /* Move only the right section further to the right */
+    margin-left: 46px; /* Move only the right section further to the right */
 }
 .hidden {
     display: none;
