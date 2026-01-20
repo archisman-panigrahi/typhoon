@@ -24,7 +24,7 @@
       <li>Supports customizable background color</li>
       <li>Powered by Open-Meteo, OpenStreetMap and ipapi</li>
       <li>Supports IP address-based location detection</li>
-      <li>Supports multiple locations via multiple windows</li>
+      <li>Supports multiple locations</li>
     </ul>
   </description>
   <url type="homepage">https://archisman-panigrahi.github.io/typhoon</url>
@@ -79,6 +79,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.4.0" date="2026-01-20">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.4.0</url>
+      <description>
+        <ul>
+          <li>Support multiple locations</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.3.3" date="2025-12-21">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.3.3</url>
       <description>

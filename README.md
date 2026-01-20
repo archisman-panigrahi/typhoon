@@ -24,7 +24,7 @@ Originally based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by 
 - Supports customizable background color
 - Powered by Open-Meteo, OpenStreetMap and ipapi
 - Supports IP address-based location detection
-- Multiple locations supported via multiple windows
+- Supports multiple locations
 
 ## Climacons
 

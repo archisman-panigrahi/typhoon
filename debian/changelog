@@ -1,3 +1,9 @@
+typhoon (1.4.0) noble; urgency=medium
+
+  * Support multiple locations
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Tue, 20 Jan 2026 10:49:35 +0530
+
 typhoon (1.3.3) noble; urgency=medium
 
   * Added Chameleonic background support in LXDE & Pixel Desktop
