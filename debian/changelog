@@ -1,3 +1,9 @@
+typhoon (1.4.4) noble; urgency=medium
+
+  * Initial window bugfix release
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Wed, 21 Jan 2026 12:37:59 +0530
+
 typhoon (1.4.3) noble; urgency=medium
 
   * stylesheet update for temperature and other details
