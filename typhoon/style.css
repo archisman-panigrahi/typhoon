@@ -294,6 +294,7 @@ p, span, div {
     padding: 25px;
     padding-bottom: 5px;
     -webkit-transform-origin: 0 0;
+    z-index: 25;
 }
 #errorMessage {
     display: none;
