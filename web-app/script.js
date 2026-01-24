@@ -6,6 +6,9 @@ var TYPHOON_NOTIFICATIONS_ENABLED = (localStorage.typhoon_notifications !== 'dis
 // Track last manual location navigation to prevent immediate auto-refresh
 var lastManualNavigationTime = 0;
 var NAVIGATION_REFRESH_DELAY = 3000; // Wait 3 seconds after manual navigation before allowing auto-refresh
+// Debounce mechanism for navigation/delete button refresh
+var navigationRefreshTimeout = null;
+const NAVIGATION_REFRESH_DEBOUNCE_MS = 2000; // 2 seconds after navigation/delete to trigger refresh
 function getWeatherData(cityName, callback) {
     const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
 
@@ -626,7 +629,26 @@ function navigateToLocation(index) {
         // Only display cached data - NO network calls or API requests
         displayCachedLocationOnly(currentLocations[currentLocationIndex]);
         updateLocationNav();
+        
+        // Schedule a refresh 2 seconds after this navigation
+        scheduleNavigationRefresh();
     }
+}
+
+// Schedule refresh after navigation/delete, with debouncing
+function scheduleNavigationRefresh() {
+    // Clear any existing scheduled refresh
+    if (navigationRefreshTimeout !== null) {
+        clearTimeout(navigationRefreshTimeout);
+    }
+    
+    // Schedule a new refresh 2 seconds from now
+    navigationRefreshTimeout = setTimeout(function() {
+        navigationRefreshTimeout = null; // Clear the timeout reference
+        // Perform the refresh
+        delete weatherCache[currentLocations[currentLocationIndex]];
+        render(currentLocations[currentLocationIndex]);
+    }, NAVIGATION_REFRESH_DEBOUNCE_MS);
 }
 
 // Update location navigation UI
@@ -705,6 +727,9 @@ $(document).ready(function() {
                 // Render the new current location
                 render(currentLocations[currentLocationIndex]);
                 updateLocationNav();
+                
+                // Schedule a refresh 2 seconds after this deletion
+                scheduleNavigationRefresh();
             }
         }
     });
