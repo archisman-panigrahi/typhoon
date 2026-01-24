@@ -1,3 +1,9 @@
+typhoon (1.4.5) noble; urgency=medium
+
+  * update weather on city change
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sat, 24 Jan 2026 22:55:45 +0530
+
 typhoon (1.4.4) noble; urgency=medium
 
   * Initial window bugfix release
