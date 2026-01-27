@@ -282,9 +282,9 @@ function displayCachedWeather(currentWeather, locationData, weeklyData) {
                 const city = (locationData && (locationData.name || locationData.display_name)) ? (locationData.name || locationData.display_name.split(',')[0]) : 'your area';
 
                 const buildMessage = () => {
+                    if (isThunder) return `Thunderstorm warning for ${city}. Precipitation chance ${Math.round(rainPct)}%`;
+                    if (isSnow) return `Snow expected (${Math.round(rainPct)}% chance) in ${city}.`;
                     if (rainPct >= notifyThreshold) return `Rain expected (${Math.round(rainPct)}% chance) in ${city}.`;
-                    if (isSnow) return `Snow expected in ${city}.`;
-                    if (isThunder) return `Thunderstorm warning for ${city}.`;
                     return null;
                 };
 
