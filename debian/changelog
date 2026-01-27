@@ -1,3 +1,9 @@
+typhoon (1.4.6) noble; urgency=medium
+
+  * Fix snow and thunderstorm warning
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Tue, 27 Jan 2026 07:49:30 +0530
+
 typhoon (1.4.5) noble; urgency=medium
 
   * update weather on city change
