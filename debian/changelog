@@ -1,3 +1,9 @@
+typhoon (1.5.0) noble; urgency=medium
+
+  * new feature: wind direction
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Fri, 30 Jan 2026 12:01:36 +0530
+
 typhoon (1.4.6) noble; urgency=medium
 
   * Fix snow and thunderstorm warning

@@ -80,6 +80,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.5.0" date="2026-01-30">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.5.0</url>
+      <description>
+        <ul>
+          <li>new feature: wind direction</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.4.6" date="2026-01-27">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.4.6</url>
       <description>
