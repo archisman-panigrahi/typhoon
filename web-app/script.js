@@ -18,7 +18,7 @@ function getWeatherData(cityName, callback) {
             const { lat: latitude, lon: longitude, display_name } = geoData[0];
 
             // Fetch weather data using the latitude and longitude
-            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m,apparent_temperature,precipitation_probability`;
+            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m,apparent_temperature,precipitation_probability,wind_direction_10m`;
 
             $.get(weatherUrl, function (weatherData) {
                 console.log("API Response (Current Weather):", weatherData); // Log the API response for debugging
@@ -58,9 +58,13 @@ function getWeatherData(cityName, callback) {
                         // Use the humidity and feels like temperature at the current time
                         currentWeather.relative_humidity_2m = weatherData.hourly.relative_humidity_2m[timeIndex];
                         currentWeather.feels_like = weatherData.hourly.apparent_temperature[timeIndex];
+                        
+                        // Get wind direction at the current time
+                        currentWeather.wind_direction_10m = weatherData.hourly.wind_direction_10m[timeIndex];
 
                         console.log("Current Humidity:", currentWeather.relative_humidity_2m);
                         console.log("Feels Like Temperature:", currentWeather.feels_like);
+                        console.log("Wind Direction:", currentWeather.wind_direction_10m);
 
                     } else {
                         console.error("No matching time found in hourly data.");
@@ -235,6 +239,12 @@ function displayCachedWeather(currentWeather, locationData, weeklyData) {
         }
         $("#windSpeed").text(windSpeed);
         $("#windUnit").text((localStorage.typhoon_speed == "ms") ? "m/s" : (localStorage.typhoon_speed == "kph") ? "km/h" : localStorage.typhoon_speed);
+        
+        // Display wind direction
+        const windDirection = currentWeather.wind_direction_10m || 0;
+        // Rotate arrow to match the precise wind direction
+        $("#windDirection").html(`<span class="wind-arrow" style="transform: rotate(${windDirection}deg);">↓</span>`);
+        
         $("#humidity").html(
             `<div title="Humidity" style="display: inline-block; position: relative; padding: 0px;">
             <img id="humidityIcon" src="humidity.svg" height="18" style="vertical-align: middle; filter: none; box-shadow: none;"> 
