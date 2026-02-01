@@ -1,7 +1,7 @@
 Name:           typhoon
 Version:        1.5.0
 Release:        1%{?dist}
-Summary:        Simple weather application, powered by Open-Meteo and OpenStreetMap
+Summary:        Check the weather with style
 
 License:        MIT
 URL:            https://archisman-panigrahi.github.io/typhoon
