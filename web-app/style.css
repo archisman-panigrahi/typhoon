@@ -240,7 +240,7 @@ p, span, div {
 .details .right {
     font-size: 25px;
     box-sizing: border-box;
-    padding-left: 45px;
+    padding-left: 35px;
     display: inline-block;
     width: 50%;
     text-align: left;
@@ -558,13 +558,13 @@ input[type="range"]::-webkit-slider-thumb:active {
 
 .additional-info .info-left {
     text-align: right;
-    margin-left: -32px; /* Move only the left section further to the left */
+    margin-left: -40px; /* Move only the left section further to the left */
     margin-right: 0; /* Keep it in its current position */
 }
 
 .additional-info .info-right {
     text-align: left;
-    margin-left: 46px; /* Move only the right section further to the right */
+    margin-left: 30px; /* Move only the right section further to the right */
 }
 .hidden {
     display: none;
@@ -642,4 +642,48 @@ input[type="range"]::-webkit-slider-thumb:active {
   padding: 0;
   margin: -4px 0 0 4px;
   letter-spacing: 0.15em;
+}
+
+/* Compass wrapper to show small N (top) and S (bottom) around the circular arrow */
+.wind-compass {
+    display: inline-block;
+    position: relative;
+    width: 40px;
+    height: 44px;
+    margin-left: 6px; /* nudge compass to the right */
+    margin-bottom: -30px; /* nudge compass upwards */
+    vertical-align: middle;
+}
+
+.wind-compass .compass-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 12px;
+    font-family: "Ubuntu Condensed";
+    line-height: 1;
+    pointer-events: none;
+    font-weight: 600;
+}
+
+.wind-compass .north { top: -4px; }
+.wind-compass .south { bottom: -4px; }
+
+/* East/West labels centered vertically and placed outside the compass */
+.wind-compass .east, .wind-compass .west {
+    top: 50%;
+    transform: translateY(-50%);
+    left: auto;
+}
+.wind-compass .east { left: calc(100% - 4px); transform: translateY(-50%); }
+.wind-compass .west { left: -4px; transform: translateY(-50%); }
+
+/* Center the wind-arrow inside the compass wrapper. Inline transform will provide rotation. */
+.wind-compass .wind-arrow {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: 0;
+    transform-origin: center center;
 }

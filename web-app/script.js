@@ -242,8 +242,17 @@ function displayCachedWeather(currentWeather, locationData, weeklyData) {
         
         // Display wind direction
         const windDirection = currentWeather.wind_direction_10m || 0;
-        // Rotate arrow to match the precise wind direction
-        $("#windDirection").html(`<span class="wind-arrow" style="transform: rotate(${windDirection}deg);">↓</span>`);
+        // Render a small compass: N above, W left, E right, the circular arrow, and S below.
+        // The arrow is centered using translate so rotation doesn't displace it.
+        $("#windDirection").html(`
+            <span class="wind-compass">
+                <span class="compass-label north">N</span>
+                <span class="compass-label west">W</span>
+                <span class="wind-arrow" style="transform: translate(-50%,-50%) rotate(${windDirection}deg);">↓</span>
+                <span class="compass-label east">E</span>
+                <span class="compass-label south">S</span>
+            </span>
+        `);
         
         $("#humidity").html(
             `<div title="Humidity" style="display: inline-block; position: relative; padding: 0px;">
