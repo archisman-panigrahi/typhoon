@@ -43,7 +43,7 @@ a {
     color: #fff;
     text-decoration: none;
 }
-a:not([class*="btn"]):hover {
+a:not([class*="btn"]) {
     text-decoration: underline;
 }
 [class*="btn"] {
