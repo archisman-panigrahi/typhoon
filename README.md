@@ -26,6 +26,12 @@ Originally based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by 
 - Supports IP address-based location detection
 - Supports multiple locations
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=archisman-panigrahi/typhoon&type=date&legend=top-left)](https://www.star-history.com/#archisman-panigrahi/typhoon&type=date&legend=top-left)
+
+[![Stargazers repo roster for @archisman-panigrahi/typhoon](https://reporoster.com/stars/archisman-panigrahi/typhoon)](https://github.com/archisman-panigrahi/typhoon/stargazers)
+
 ## Climacons
 
 Thanks to [Adam Whitcroft](https://adamwhitcroft.com/) for [Climacons](https://web.archive.org/web/20160531215708/http://adamwhitcroft.com/climacons/).
