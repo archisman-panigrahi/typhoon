@@ -176,6 +176,7 @@ class TyphoonWindow(Gtk.Window):
         settings = self.webview.get_settings()
         settings.set_user_agent('Typhoon Weather App (https://github.com/archisman-panigrahi/typhoon)')
         # Enable Web Inspector
+        # settings = self.webview.get_settings()
         # settings.set_enable_developer_extras(True)
 
         self.webview.connect("decide-policy", self._handle_policy_decision)
