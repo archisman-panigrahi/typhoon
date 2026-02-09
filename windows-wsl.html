@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Typhoon on Windows (WSL)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <link rel="shortcut icon" href="assets/img/typhoon.ico">
+  </head>
+  <body>
+    <div class="content">
+      <h1>How to install Typhoon on Windows with WSL</h1>
+
+      <div class="instructions" style="display: block;">
+        <p>
+          Typhoon running on Windows
+        </p>
+        <p>
+          <img class="screenshot-img" src="assets/img/typhoon_windows.png" alt="Typhoon running on Windows with WSL">
+        </p>
+      </div>
+
+      <div class="instructions" style="display: block;">
+        <h2>1) Install WSL and Ubuntu</h2>
+        <p>Open PowerShell as Administrator and run:</p>
+        <pre><code>wsl --install</code></pre>
+        <h2>2) Install Ubuntu</h2>
+        <p>
+          Install <a href="https://apps.microsoft.com/detail/9pdxgncfsczv?hl=en-US&gl=US">Ubuntu from the Microsoft Store</a>, then launch it once to finish setup.
+        </p>
+
+        <h2>3) Add the Typhoon Launchpad PPA</h2>
+        <p>
+          The official PPA is hosted on
+          <a href="https://launchpad.net/~apandada1/+archive/ubuntu/typhoon" target="_blank">Launchpad</a>
+        </p>
+        <pre><code>sudo add-apt-repository ppa:apandada1/typhoon</code></pre>
+
+        <h2>4) Install Typhoon</h2>
+        <pre><code>sudo apt install typhoon</code></pre>
+
+        <h2>5) Launch from the Windows Start menu</h2>
+        <p>
+          On Windows 11 with WSLg, Start menu entries are created automatically from Linux apps.
+          Open the Start menu and search for "Typhoon" or look under the "Ubuntu" folder.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

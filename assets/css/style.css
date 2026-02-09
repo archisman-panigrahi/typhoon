@@ -27,6 +27,12 @@ img:hover {
 .instructions img:hover {
     opacity: 1;
 }
+.screenshot-img {
+    width: 80%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
 .instructions {
     text-align: left;
     margin-left: 0;
@@ -72,6 +78,9 @@ a:not([class*="btn"]) {
 }
 .btn-flatpak {
     background-color: #232225;
+}
+.btn-windows {
+    background-color: #0b57d0;
 }
 .btn-source {
     background-color: #3dd816;
@@ -141,7 +150,7 @@ p img {
     background: #d64937;
 }
 /* Button styles */
-a.btn-ubuntu, a.btn-source, a.btn-flatpak, a.btn-site, a.btn-rpm, a.btn-android {
+a.btn-ubuntu, a.btn-source, a.btn-flatpak, a.btn-site, a.btn-rpm, a.btn-android, a.btn-windows {
     display: inline-block;
     margin: 10px 5px;
     padding: 10px 15px;
@@ -190,7 +199,7 @@ pre code {
         font-size: 1rem;
     }
 
-    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-flatpak, a.btn-site, a.btn-android {
+    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-flatpak, a.btn-site, a.btn-android, a.btn-windows {
         font-size: 0.9rem;
         padding: 8px 12px;
     }
@@ -210,7 +219,7 @@ pre code {
         font-size: 0.9rem;
     }
 
-    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-flatpak, a.btn-site, a.btn-android {
+    a.btn-ubuntu, a.btn-rpm, a.btn-source, a.btn-flatpak, a.btn-site, a.btn-android, a.btn-windows {
         font-size: 0.8rem;
         padding: 6px 10px;
     }
