@@ -246,6 +246,7 @@ p, span, div {
     text-align: left;
     word-spacing: 0;
     letter-spacing: -2px;
+    position: relative;
 }
 .week {
     height: 20%;
@@ -636,7 +637,9 @@ input[type="range"]::-webkit-slider-thumb:active {
   height: 20px;
   border: 2.5px solid rgba(255, 255, 255, 0.6);
   border-radius: 50%;
-  font-size: 16px;  font-weight: 900;  transition: transform 0.3s ease;
+  font-size: 16px;
+  font-weight: 900;
+  transition: transform 0.3s ease;
   vertical-align: middle;
   line-height: 1;
   padding: 0;
@@ -647,11 +650,11 @@ input[type="range"]::-webkit-slider-thumb:active {
 /* Compass wrapper to show small N (top) and S (bottom) around the circular arrow */
 .wind-compass {
     display: inline-block;
-    position: relative;
+    position: absolute;
+    right: 5px;
+    top: 10px;
     width: 40px;
     height: 44px;
-    margin-left: 6px; /* nudge compass to the right */
-    margin-bottom: -30px; /* nudge compass upwards */
     vertical-align: middle;
 }
 
