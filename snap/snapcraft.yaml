@@ -8,7 +8,7 @@ parts:
   typhoon:
     plugin: meson
     source: https://github.com/archisman-panigrahi/typhoon.git
-    source-tag: 'v1.5.1'
+    source-tag: 'v1.5.2'
     source-depth: 1
     meson-parameters:
       - --prefix=/snap/typhoon/current/usr

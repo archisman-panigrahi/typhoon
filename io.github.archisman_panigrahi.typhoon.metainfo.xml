@@ -80,6 +80,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.5.2" date="2026-02-10">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.5.2</url>
+      <description>
+        <ul>
+          <li>Fix compass position</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.5.1" date="2026-02-01">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.5.1</url>
       <description>

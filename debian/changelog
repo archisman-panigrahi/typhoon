@@ -1,3 +1,9 @@
+typhoon (1.5.2) noble; urgency=medium
+
+  * Fix compass position
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Tue, 10 Feb 2026 21:26:32 -0500
+
 typhoon (1.5.1) noble; urgency=medium
 
   * implemented better compass positioning
