@@ -294,7 +294,7 @@ function displayCachedWeather(currentWeather, locationData, weeklyData) {
 
                 // Determine if weathercode indicates snow/thunderstorm/extreme
                 const code = parseInt(currentWeather.weathercode, 10);
-                const isSnow = (code >= 71 && code <= 86) || code === 77;
+                const isSnow = [71, 73, 75, 77, 85, 86].includes(code);
                 const isThunder = (code >= 95 && code <= 99);
 
                 const rainPct = Number(currentWeather.rain_percentage) || 0;
