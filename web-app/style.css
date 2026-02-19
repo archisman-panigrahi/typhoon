@@ -34,7 +34,11 @@ p, span, div {
     display: inline-block;
     opacity: 0;
     z-index: 20;
-    -webkit-transition: 500ms ease opacity;
+    -webkit-transition: 500ms ease opacity, 200ms ease left, 200ms ease right;
+}
+.border.controls-right .sync {
+    right: auto;
+    left: 8px;
 }
 @-webkit-keyframes busy-spinning {
     from {
@@ -59,7 +63,11 @@ p, span, div {
     top: 8px;
     opacity: 0;
     z-index: 20;
-    -webkit-transition: 200ms ease opacity;
+    -webkit-transition: 200ms ease opacity, 200ms ease left, 200ms ease right;
+}
+.border.controls-right .settings {
+    right: auto;
+    left: 30px;
 }
 .border .sync:hover, .border .settings:hover {
     opacity: 1 !important;
@@ -85,7 +93,13 @@ p, span, div {
     line-height: 34px;
     background: rgba(0, 0, 0, 0.05);
     cursor: default;
-    -webkit-transition: 200ms ease background;
+    -webkit-transition: 200ms ease background, 200ms ease left, 200ms ease right;
+    position: absolute;
+    left: 0;
+}
+.border.controls-right .close {
+    left: auto;
+    right: 0;
 }
 .close:hover {
     background: rgba(0, 0, 0, 0.2);
@@ -103,7 +117,11 @@ p, span, div {
     line-height: 38px;
     background: rgba(0, 0, 0, 0.05);
     cursor: default;
-    -webkit-transition: 200ms ease background;
+    -webkit-transition: 200ms ease background, 200ms ease left, 200ms ease right;
+}
+.border.controls-right .minimize {
+    left: auto;
+    right: 30px;
 }
 .minimize:hover {
     background: rgba(0, 0, 0, 0.2);
@@ -177,6 +195,10 @@ p, span, div {
     display: flex;
     align-items: center;
     gap: 8px;
+    -webkit-transition: 200ms ease left, 200ms ease right;
+}
+.border.controls-right #locationNav {
+    left: 60px;
 }
 #locationNav .nav-arrow {
     cursor: default;
@@ -387,6 +409,72 @@ p, span, div {
     padding: 0px 14px 0px;
     vertical-align: top;
 }
+.switch-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: -8px;
+}
+.switch-title {
+    font-family: "Ubuntu Condensed";
+    font-size: 16px;
+    color: #fff;
+    margin-right: 15px;
+}
+.switch-label {
+    font-family: "Ubuntu Condensed";
+    font-size: 16px;
+    color: #fff;
+    margin: 0 3px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider-switch {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #333;
+    border: 2px solid #222;
+    transition: .3s;
+    border-radius: 10px;
+}
+
+.slider-switch:before {
+    position: absolute;
+    content: "";
+    height: 15px;
+    width: 15px;
+    left: 1px;
+    bottom: 1px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+.switch input:checked + .slider-switch:before {
+    transform: translateX(20px);
+}
+
+.slider-switch:hover {
+    background-color: #444;
+}
+
 #locationModal .launcher {
     margin-top: 10px;
 }
@@ -487,9 +575,10 @@ span[data-color="chameleonic"] {
 }
 input[type=range] {
     -webkit-appearance: none;
-    width: 250px;
+    width: 180px;
     height: 5px;
     margin: 0;
+    margin-left: 8px;
     display: inline-block;
     background-color: rgba(255, 255, 255, 0.3);
     -webkit-border-radius: 15px;
