@@ -785,7 +785,7 @@ $(document).ready(function() {
 
 function init_settings() {
     // Prevents Dragging on certain elements
-    $('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img, #locationNav').mouseover(function() {
+    $('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img, #locationNav, #locationModal .slider-switch').mouseover(function() {
         document.title = "disabledrag";
     }).mouseout(function() {
         document.title = "enabledrag";
@@ -932,6 +932,22 @@ function init_settings() {
     $('#notificationswitch').click(function() {
         TYPHOON_NOTIFICATIONS_ENABLED = $('#notificationswitch').prop('checked');
         localStorage.typhoon_notifications = TYPHOON_NOTIFICATIONS_ENABLED ? 'enabled' : 'disabled';
+    });
+
+    // Window control position switch
+    localStorage.typhoon_controls_position = localStorage.typhoon_controls_position || 'left';
+    if (localStorage.typhoon_controls_position === 'right') {
+        $('#positiontoggle').prop('checked', true);
+        $('.border').addClass('controls-right');
+    }
+    $('#positiontoggle').click(function() {
+        if ($(this).prop('checked')) {
+            localStorage.typhoon_controls_position = 'right';
+            $('.border').addClass('controls-right');
+        } else {
+            localStorage.typhoon_controls_position = 'left';
+            $('.border').removeClass('controls-right');
+        }
     });
 
     // NOTE: do not overwrite the entire .launcher inputs here (would clobber notifications checkbox)
