@@ -80,6 +80,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.6.0" date="2026-02-19">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.6.0</url>
+      <description>
+        <ul>
+          <li>left/right window control</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.5.2" date="2026-02-10">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.5.2</url>
       <description>
