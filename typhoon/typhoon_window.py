@@ -59,7 +59,7 @@ logger = logging.getLogger(__name__)
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(levelname)s - %(message)s",
+    format="%(message)s",
 )
 
 if QT_MAJOR == 6:
