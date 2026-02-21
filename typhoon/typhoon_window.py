@@ -66,6 +66,8 @@ if QT_MAJOR == 6:
     QT_NAV_LINK_CLICKED = QWebEnginePage.NavigationType.NavigationTypeLinkClicked
     QT_CURSOR_BDIAG = Qt.CursorShape.SizeBDiagCursor
     QT_CURSOR_FDIAG = Qt.CursorShape.SizeFDiagCursor
+    QT_CURSOR_HOR = Qt.CursorShape.SizeHorCursor
+    QT_CURSOR_VER = Qt.CursorShape.SizeVerCursor
     QT_MOUSE_LEFT = Qt.MouseButton.LeftButton
     QT_MOUSE_MIDDLE = Qt.MouseButton.MiddleButton
     QT_MOUSE_RIGHT = Qt.MouseButton.RightButton
@@ -90,6 +92,8 @@ else:
     QT_NAV_LINK_CLICKED = QWebEnginePage.NavigationTypeLinkClicked
     QT_CURSOR_BDIAG = Qt.SizeBDiagCursor
     QT_CURSOR_FDIAG = Qt.SizeFDiagCursor
+    QT_CURSOR_HOR = Qt.SizeHorCursor
+    QT_CURSOR_VER = Qt.SizeVerCursor
     QT_MOUSE_LEFT = Qt.LeftButton
     QT_MOUSE_MIDDLE = Qt.MiddleButton
     QT_MOUSE_RIGHT = Qt.RightButton
@@ -146,46 +150,73 @@ class Service(dbus.service.Object):
 
 
 class ResizeHandle(QWidget):
-    def __init__(self, parent, side="right"):
+    def __init__(self, parent, direction="bottom_right"):
         super().__init__(parent)
-        self.side = side
+        self.direction = direction
         self._resizing = False
         self._start_global = QPoint()
-        self._start_width = 0
-        self._start_right = 0
-        self._start_y = 0
-        self.setFixedSize(18, 18)
-        if self.side == "left":
-            self.setCursor(QT_CURSOR_BDIAG)
-            self.setToolTip("Resize from left")
-        else:
-            self.setCursor(QT_CURSOR_FDIAG)
-            self.setToolTip("Resize from right")
+        self._start_geometry = None
+
+        cursor_map = {
+            "left": QT_CURSOR_HOR,
+            "right": QT_CURSOR_HOR,
+            "top": QT_CURSOR_VER,
+            "bottom": QT_CURSOR_VER,
+            "top_left": QT_CURSOR_FDIAG,
+            "bottom_right": QT_CURSOR_FDIAG,
+            "top_right": QT_CURSOR_BDIAG,
+            "bottom_left": QT_CURSOR_BDIAG,
+        }
+        self.setCursor(cursor_map[self.direction])
+        self.setToolTip(f"Resize from {self.direction.replace('_', ' ')}")
 
     def mousePressEvent(self, event):
         if event.button() == QT_MOUSE_LEFT:
             self._resizing = True
             self._start_global = event_global_point(event)
-            self._start_width = self.parent().width()
-            self._start_right = self.parent().x() + self.parent().width()
-            self._start_y = self.parent().y()
+            self._start_geometry = self.parent().geometry()
             event.accept()
             return
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        if self._resizing:
+        if self._resizing and self._start_geometry is not None:
             delta = event_global_point(event) - self._start_global
-            if self.side == "left":
-                new_width = self._start_width - delta.x()
+            start = self._start_geometry
+            start_x = start.x()
+            start_y = start.y()
+            start_w = start.width()
+            start_h = start.height()
+            start_right = start_x + start_w
+            start_bottom = start_y + start_h
+            parent = self.parent()
+
+            if self.direction in ("left", "right"):
+                width_from_x = start_w - delta.x() if self.direction == "left" else start_w + delta.x()
+                target_w, target_h = parent._aspect_size_from_width(width_from_x)
+            elif self.direction in ("top", "bottom"):
+                height_from_y = start_h - delta.y() if self.direction == "top" else start_h + delta.y()
+                target_w, target_h = parent._aspect_size_from_height(height_from_y)
             else:
-                new_width = self._start_width + delta.x()
-            target_w, target_h = self.parent()._aspect_size_from_width(new_width)
-            if self.side == "left":
-                new_x = self._start_right - target_w
-                self.parent().setGeometry(new_x, self._start_y, target_w, target_h)
-            else:
-                self.parent().resize(target_w, target_h)
+                if "left" in self.direction:
+                    width_from_x = start_w - delta.x()
+                else:
+                    width_from_x = start_w + delta.x()
+
+                if "top" in self.direction:
+                    height_from_y = start_h - delta.y()
+                else:
+                    height_from_y = start_h + delta.y()
+
+                width_from_y = int(round(height_from_y * parent.aspect_ratio))
+                if abs(width_from_x - start_w) >= abs(width_from_y - start_w):
+                    target_w, target_h = parent._aspect_size_from_width(width_from_x)
+                else:
+                    target_w, target_h = parent._aspect_size_from_height(height_from_y)
+
+            new_x = start_right - target_w if "left" in self.direction else start_x
+            new_y = start_bottom - target_h if "top" in self.direction else start_y
+            parent.setGeometry(new_x, new_y, target_w, target_h)
             event.accept()
             return
         super().mouseMoveEvent(event)
@@ -193,13 +224,14 @@ class ResizeHandle(QWidget):
     def mouseReleaseEvent(self, event):
         if event.button() == QT_MOUSE_LEFT:
             self._resizing = False
+            self._start_geometry = None
         super().mouseReleaseEvent(event)
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QT_TEXT_ANTIALIAS)
         painter.setPen(QT_COLOR_WHITE)
-        if self.side == "right":
+        if self.direction == "bottom_right":
             # Draw a small corner line so the handle looks like a classic resize grip.
             painter.drawLine(self.width() - 2, self.height() - 2, self.width() - 2, self.height() - 8)
             painter.drawLine(self.width() - 2, self.height() - 2, self.width() - 8, self.height() - 2)
@@ -261,10 +293,41 @@ class TyphoonWindow(QWidget):
         self.setMouseTracking(True)
         self._set_window_icon()
 
-        self.grip_right = ResizeHandle(self, side="right")
-        self.grip_left = ResizeHandle(self, side="left")
-        self.grip_right.show()
-        self.grip_left.show()
+        self._handle_thickness = 8
+        self._corner_size = 18
+        self.resize_handles = {
+            "left": ResizeHandle(self, "left"),
+            "right": ResizeHandle(self, "right"),
+            "top": ResizeHandle(self, "top"),
+            "bottom": ResizeHandle(self, "bottom"),
+            "top_left": ResizeHandle(self, "top_left"),
+            "top_right": ResizeHandle(self, "top_right"),
+            "bottom_left": ResizeHandle(self, "bottom_left"),
+            "bottom_right": ResizeHandle(self, "bottom_right"),
+        }
+        for handle in self.resize_handles.values():
+            handle.show()
+
+    def _update_resize_handles(self):
+        width = self.width()
+        height = self.height()
+        thickness = self._handle_thickness
+        corner = self._corner_size
+        edge_w = max(0, width - 2 * corner)
+        edge_h = max(0, height - 2 * corner)
+
+        self.resize_handles["top_left"].setGeometry(0, 0, corner, corner)
+        self.resize_handles["top_right"].setGeometry(width - corner, 0, corner, corner)
+        self.resize_handles["bottom_left"].setGeometry(0, height - corner, corner, corner)
+        self.resize_handles["bottom_right"].setGeometry(width - corner, height - corner, corner, corner)
+
+        self.resize_handles["top"].setGeometry(corner, 0, edge_w, thickness)
+        self.resize_handles["bottom"].setGeometry(corner, height - thickness, edge_w, thickness)
+        self.resize_handles["left"].setGeometry(0, corner, thickness, edge_h)
+        self.resize_handles["right"].setGeometry(width - thickness, corner, thickness, edge_h)
+
+        for handle in self.resize_handles.values():
+            handle.raise_()
 
     def _set_window_icon(self):
         icon_path = os.path.join(
@@ -816,12 +879,7 @@ class TyphoonWindow(QWidget):
 
         super().resizeEvent(event)
         self.webview.setGeometry(0, 0, self.width(), self.height())
-        self.grip_right.move(
-            self.width() - self.grip_right.width(), self.height() - self.grip_right.height()
-        )
-        self.grip_left.move(0, self.height() - self.grip_left.height())
-        self.grip_right.raise_()
-        self.grip_left.raise_()
+        self._update_resize_handles()
 
         self._save_window_size(self.width(), self.height())
 
