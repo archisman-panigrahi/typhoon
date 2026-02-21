@@ -299,10 +299,7 @@ class TyphoonWindow(QWidget):
         self.resize_handles = {
             "left": ResizeHandle(self, "left"),
             "right": ResizeHandle(self, "right"),
-            "top": ResizeHandle(self, "top"),
             "bottom": ResizeHandle(self, "bottom"),
-            "top_left": ResizeHandle(self, "top_left"),
-            "top_right": ResizeHandle(self, "top_right"),
             "bottom_left": ResizeHandle(self, "bottom_left"),
             "bottom_right": ResizeHandle(self, "bottom_right"),
         }
@@ -317,12 +314,9 @@ class TyphoonWindow(QWidget):
         edge_w = max(0, width - 2 * corner)
         edge_h = max(0, height - 2 * corner)
 
-        self.resize_handles["top_left"].setGeometry(0, 0, corner, corner)
-        self.resize_handles["top_right"].setGeometry(width - corner, 0, corner, corner)
         self.resize_handles["bottom_left"].setGeometry(0, height - corner, corner, corner)
         self.resize_handles["bottom_right"].setGeometry(width - corner, height - corner, corner, corner)
 
-        self.resize_handles["top"].setGeometry(corner, 0, edge_w, thickness)
         self.resize_handles["bottom"].setGeometry(corner, height - thickness, edge_w, thickness)
         self.resize_handles["left"].setGeometry(0, corner, thickness, edge_h)
         self.resize_handles["right"].setGeometry(width - thickness, corner, thickness, edge_h)
