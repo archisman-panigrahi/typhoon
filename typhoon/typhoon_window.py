@@ -501,7 +501,7 @@ class TyphoonWindow(QWidget):
         if not title:
             return
 
-        logger.info("Web title command: %s", title)
+        logger.info("%s", title)
 
         if title.startswith("notify:"):
             message = title[len("notify:"):] or "Weather alert"
