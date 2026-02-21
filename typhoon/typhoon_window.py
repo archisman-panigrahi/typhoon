@@ -47,6 +47,7 @@ try:
     gi.require_version("Xdp", "1.0")
     from gi.repository import Xdp
     try:
+        gi.require_version("Unity", "7.0")
         from gi.repository import Unity
     except Exception:
         Unity = None
