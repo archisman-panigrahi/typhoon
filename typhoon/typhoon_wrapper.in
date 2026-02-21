@@ -1,4 +1,15 @@
 #!/bin/bash
 export __NV_DISABLE_EXPLICIT_SYNC=1
 
+# Default to XWayland on Wayland sessions so manual window positioning works.
+if [[ -z "${QT_QPA_PLATFORM:-}" ]]; then
+  if [[ "${XDG_SESSION_TYPE:-}" == "wayland" || -n "${WAYLAND_DISPLAY:-}" ]]; then
+    if [[ "${TYPHOON_WINDOW_POSITION_BACKEND:-xwayland}" != "native" \
+       && "${TYPHOON_WINDOW_POSITION_BACKEND:-xwayland}" != "wayland" \
+       && -n "${DISPLAY:-}" ]]; then
+      export QT_QPA_PLATFORM=xcb
+    fi
+  fi
+fi
+
 python3 @script@

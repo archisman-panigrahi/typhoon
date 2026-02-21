@@ -23,6 +23,7 @@ apps:
     extensions: [gnome]
     desktop: usr/share/applications/io.github.archisman_panigrahi.typhoon.desktop
     plugs:
+      - x11
       - unity7
       - network
-      - network-status 
+      - network-status
