@@ -199,18 +199,11 @@ class ResizeHandle(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QT_TEXT_ANTIALIAS)
         painter.setPen(QT_COLOR_WHITE)
-        # Draw a small corner line so the handle looks like a classic resize grip.
-        if self.side == "left":
-            painter.drawLine(2, self.height() - 2, 2, self.height() - 8)
-            painter.drawLine(2, self.height() - 2, 8, self.height() - 2)
-        else:
+        if self.side == "right":
+            # Draw a small corner line so the handle looks like a classic resize grip.
             painter.drawLine(self.width() - 2, self.height() - 2, self.width() - 2, self.height() - 8)
             painter.drawLine(self.width() - 2, self.height() - 2, self.width() - 8, self.height() - 2)
-        painter.drawText(
-            self.rect(),
-            QT_ALIGN_CENTER,
-            "↙" if self.side == "left" else "↘",
-        )
+            painter.drawText(self.rect(), QT_ALIGN_CENTER, "↘")
         painter.end()
         super().paintEvent(event)
 
