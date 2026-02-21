@@ -109,7 +109,7 @@
                 <span data-color="chameleonic">
                     <img src="chameleon-svgrepo-com.svg" alt="Chameleon Icon" style="width: 90%; height: 90%; display: block; margin: 0 auto;" title="Wallpaper based Chameleonic background">
                 </span>
-                <input type="color" id="customColorPicker" title="Pick a custom color" />
+                <button id="customColorPicker" title="Pick a custom color" aria-label="Pick a custom color"></button>
                 <span data-color="575591"></span>
                 <span data-color="FF0097"></span>
                 <span data-color="00ABA9"></span>
@@ -120,6 +120,18 @@
                 <span data-color="1BA1E2"></span>
                 <span data-color="FF8E83"></span>
                 <span data-color="339933"></span>
+            </div>
+            <div id="customColorPanel" aria-hidden="true">
+                <div class="custom-row">
+                    <div class="custom-sliders">
+                        <label>Saturation <input id="customSatSlider" type="range" min="0" max="100" step="1"></label>
+                        <label>Hue <input id="customHueSlider" type="range" min="0" max="360" step="1"></label>
+                        <label>Darkness <input id="customDarkSlider" type="range" min="0" max="100" step="1"></label>
+                    </div>
+                    <div class="custom-actions">
+                        <a class="btn mini-btn" id="customColorDone">✓</a>
+                    </div>
+                </div>
             </div>
             <br>
             <div class="launcher">
@@ -140,7 +152,7 @@
                 <br>
                 Opacity <input id="slider" type="range" min ="0.1" max="1.0" step ="0.05" onchange="updateTitle(this.value);"/>
             
-        <br><br>&nbsp;&nbsp;&nbsp;<a class="btn" tag="credits">CREDITS</a>&nbsp;&nbsp;<a class="btn" href="https://archisman-panigrahi.github.io/typhoon">HOMEPAGE</a>&nbsp;&nbsp;<a class="btn" id="resetButton">RESET</a>
+        <br>&nbsp;&nbsp;&nbsp;<a class="btn" tag="credits">CREDITS</a>&nbsp;&nbsp;<a class="btn" href="https://archisman-panigrahi.github.io/typhoon">HOMEPAGE</a>&nbsp;&nbsp;<a class="btn" id="resetButton">RESET</a>
         <p>Add multiple locations by typing a new location in the searchbox above!</p>
         <br><br>
         </div>

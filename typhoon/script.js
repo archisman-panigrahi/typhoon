@@ -523,24 +523,136 @@ function background(temp) {
     } else {
         $("#container").css("background", "#" + localStorage.typhoon_color)
     }
-// Custom Color Picker logic
+// Custom Color Picker logic (Hue + Saturation + Darkness)
 $(function() {
     const customColorPicker = $('#customColorPicker');
-    if (localStorage.typhoon_custom_color) {
-        customColorPicker.val(localStorage.typhoon_custom_color);
+    const customColorPanel = $('#customColorPanel');
+    const customSatSlider = $('#customSatSlider');
+    const customHueSlider = $('#customHueSlider');
+    const customDarkSlider = $('#customDarkSlider');
+    const customColorDone = $('#customColorDone');
+
+    // background(...) runs often; bind picker handlers only once.
+    if (customColorPicker.data('custom-picker-bound')) {
+        return;
     }
+    customColorPicker.data('custom-picker-bound', true);
+
+    function normalizeHexColor(color) {
+        if (!color) return '#575591';
+        const c = String(color).trim();
+        return c.startsWith('#') ? c : ('#' + c);
+    }
+
+    function hexToRgb(hex) {
+        const n = normalizeHexColor(hex).slice(1);
+        if (!/^[0-9a-fA-F]{6}$/.test(n)) return { r: 87, g: 85, b: 145 };
+        return {
+            r: parseInt(n.slice(0, 2), 16),
+            g: parseInt(n.slice(2, 4), 16),
+            b: parseInt(n.slice(4, 6), 16),
+        };
+    }
+
+    function rgbToHex(r, g, b) {
+        const rr = Math.max(0, Math.min(255, Math.round(r)));
+        const gg = Math.max(0, Math.min(255, Math.round(g)));
+        const bb = Math.max(0, Math.min(255, Math.round(b)));
+        return '#' + [rr, gg, bb].map(v => v.toString(16).padStart(2, '0')).join('');
+    }
+
+    function hsvToRgb(h, s, v) {
+        const hh = ((h % 360) + 360) % 360;
+        const ss = Math.max(0, Math.min(100, s)) / 100;
+        const vv = Math.max(0, Math.min(100, v)) / 100;
+        const c = vv * ss;
+        const x = c * (1 - Math.abs((hh / 60) % 2 - 1));
+        const m = vv - c;
+        let rp = 0, gp = 0, bp = 0;
+        if (hh < 60) { rp = c; gp = x; bp = 0; }
+        else if (hh < 120) { rp = x; gp = c; bp = 0; }
+        else if (hh < 180) { rp = 0; gp = c; bp = x; }
+        else if (hh < 240) { rp = 0; gp = x; bp = c; }
+        else if (hh < 300) { rp = x; gp = 0; bp = c; }
+        else { rp = c; gp = 0; bp = x; }
+        return {
+            r: (rp + m) * 255,
+            g: (gp + m) * 255,
+            b: (bp + m) * 255,
+        };
+    }
+
+    function rgbToHsv(r, g, b) {
+        const rr = (r || 0) / 255;
+        const gg = (g || 0) / 255;
+        const bb = (b || 0) / 255;
+        const max = Math.max(rr, gg, bb);
+        const min = Math.min(rr, gg, bb);
+        const d = max - min;
+        let h = 0;
+        const s = max === 0 ? 0 : d / max;
+        const v = max;
+        if (d !== 0) {
+            if (max === rr) h = ((gg - bb) / d) % 6;
+            else if (max === gg) h = (bb - rr) / d + 2;
+            else h = (rr - gg) / d + 4;
+            h = Math.round(h * 60);
+            if (h < 0) h += 360;
+        }
+        return { h: h, s: Math.round(s * 100), v: Math.round(v * 100) };
+    }
+
     function applyCustomColorInstantly(color) {
+        const hex = normalizeHexColor(color);
         localStorage.typhoon_color = 'custom';
-        localStorage.typhoon_custom_color = color;
-        $("#container").css("background", color);
+        localStorage.typhoon_custom_color = hex;
+        $("#container").css("background", hex);
+        customColorPicker.css("background", hex);
         $('.color span').removeClass('selected');
         customColorPicker.addClass('selected');
     }
-    customColorPicker.on('input', function() {
-        applyCustomColorInstantly($(this).val());
+
+    function updateCustomColorFromSliders() {
+        const hue = parseInt(customHueSlider.val(), 10);
+        const sat = parseInt(customSatSlider.val(), 10);
+        const darkness = parseInt(customDarkSlider.val(), 10);
+        const rgb = hsvToRgb(hue, sat, darkness);
+        applyCustomColorInstantly(rgbToHex(rgb.r, rgb.g, rgb.b));
+
+        const satStart = hsvToRgb(hue, 0, darkness);
+        const satEnd = hsvToRgb(hue, 100, darkness);
+        customSatSlider.css(
+            "background",
+            "linear-gradient(to right, " + rgbToHex(satStart.r, satStart.g, satStart.b) + " 0%, " + rgbToHex(satEnd.r, satEnd.g, satEnd.b) + " 100%)"
+        );
+
+        const bright = hsvToRgb(hue, sat, 100);
+        customDarkSlider.css(
+            "background",
+            "linear-gradient(to right, #000000 0%, " + rgbToHex(bright.r, bright.g, bright.b) + " 100%)"
+        );
+    }
+
+    const initial = hexToRgb(localStorage.typhoon_custom_color || '#575591');
+    customColorPicker.css("background", rgbToHex(initial.r, initial.g, initial.b));
+    const initialHsv = rgbToHsv(initial.r, initial.g, initial.b);
+    customHueSlider.val(initialHsv.h);
+    customSatSlider.val(initialHsv.s);
+    customDarkSlider.val(initialHsv.v);
+    updateCustomColorFromSliders();
+
+    customColorPicker.off('click.custompicker').on('click.custompicker', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        customColorPanel.stop(true, true).slideToggle(120);
     });
-    customColorPicker.on('change', function() {
-        applyCustomColorInstantly($(this).val());
+    customSatSlider.off('input.custompicker change.custompicker').on('input.custompicker change.custompicker', updateCustomColorFromSliders);
+    customHueSlider.off('input.custompicker change.custompicker').on('input.custompicker change.custompicker', updateCustomColorFromSliders);
+    customDarkSlider.off('input.custompicker change.custompicker').on('input.custompicker change.custompicker', updateCustomColorFromSliders);
+    customColorDone.off('click.custompicker').on('click.custompicker', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        customColorPanel.stop(true, true).slideUp(120);
     });
 });
 }
@@ -820,7 +932,7 @@ $(document).ready(function() {
 
 function init_settings() {
     // Prevents Dragging on certain elements
-    $('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img, #locationNav, #locationModal .slider-switch').mouseover(function() {
+    $('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img, #locationNav, #locationModal .slider-switch, #customColorPanel, #customColorPanel *').mouseover(function() {
         document.title = "disabledrag";
     }).mouseout(function() {
         document.title = "enabledrag";
@@ -1057,12 +1169,12 @@ function opacity() {
         document.title = "o" + localStorage.app_opacity;
     }
 
-    const slider = $('input[type=range]');
+    const slider = $('#slider');
     slider.val(localStorage.app_opacity);
     document.title = "o" + localStorage.app_opacity;
 
     // Update opacity dynamically as the slider value changes
-    slider.on('input', function () {
+    slider.off('input.opacity').on('input.opacity', function () {
         const newOpacity = $(this).val();
         console.log("Opacity value:", newOpacity); // Print the value to the console
         document.title = "o" + newOpacity; // Update the title dynamically

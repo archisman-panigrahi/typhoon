@@ -537,11 +537,82 @@ p, span, div {
 #customColorPicker {
     width: 16px;
     height: 16px;
-    border: 0px solid rgba(0, 0, 0, 0.4);
+    border: 0;
     background: linear-gradient(90deg, #ff0000 0%, #ff9900 16%, #ffff00 33%, #00ff00 50%, #00ffff 66%, #0000ff 83%, #791779 100%);
     vertical-align: middle;
     cursor: default;
     display: inline-block;
+    padding: 0;
+    outline: none;
+}
+#customColorPanel {
+    display: none;
+    margin-top: 6px;
+    padding: 6px;
+    border: 2px solid #333;
+    background: #2f2f2f;
+}
+#customColorPanel .custom-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+#customColorPanel .custom-sliders {
+    flex: 1;
+    min-width: 0;
+}
+#customColorPanel label {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    margin: 3px 0;
+    gap: 6px;
+    white-space: nowrap;
+}
+#customColorPanel input[type=range] {
+    width: 118px;
+    margin-left: 0;
+    flex: 1;
+}
+#customColorPanel .custom-sliders label {
+    min-height: 18px;
+    justify-content: space-between;
+}
+#customColorPanel .custom-sliders label > input[type=range] {
+    min-width: 0;
+    margin-left: 8px;
+}
+#customSatSlider {
+    background: linear-gradient(to right, #808080 0%, #ff0000 100%);
+}
+#customHueSlider {
+    background: linear-gradient(
+        to right,
+        #ff0000 0%,
+        #ffff00 16%,
+        #00ff00 33%,
+        #00ffff 50%,
+        #0000ff 66%,
+        #ff00ff 83%,
+        #ff0000 100%
+    );
+}
+#customDarkSlider {
+    background: linear-gradient(to right, #000000 0%, #ffffff 100%);
+}
+#customColorPanel .custom-actions {
+    margin-top: 0;
+    text-align: right;
+}
+.mini-btn {
+    min-width: 0;
+    width: 14px;
+    padding: 0;
+    margin-top: 0;
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0;
+    text-align: center;
 }
 span[data-color=gradient] {
     background: -webkit-linear-gradient(#0081d3, #e44211);
