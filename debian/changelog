@@ -1,3 +1,9 @@
+typhoon (1.7.0) noble; urgency=medium
+
+  * GTK3 --> Qt6 rewrite
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sat, 21 Feb 2026 17:06:17 -0500
+
 typhoon (1.6.0) noble; urgency=medium
 
   * left/right window control

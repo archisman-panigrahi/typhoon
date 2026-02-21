@@ -80,6 +80,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.7.0" date="2026-02-21">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.7.0</url>
+      <description>
+        <ul>
+          <li>GTK3 --> Qt6 rewrite</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.6.0" date="2026-02-19">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.6.0</url>
       <description>
