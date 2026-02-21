@@ -84,6 +84,8 @@ if QT_MAJOR == 6:
     QT_ASPECT_IGNORE = Qt.AspectRatioMode.IgnoreAspectRatio
     QT_SMOOTH_TRANSFORM = Qt.TransformationMode.SmoothTransformation
     QT_TEXT_ANTIALIAS = QPainter.RenderHint.TextAntialiasing
+    QT_WA_TRANSLUCENT_BG = Qt.WidgetAttribute.WA_TranslucentBackground
+    QT_COLOR_TRANSPARENT = Qt.GlobalColor.transparent
 else:
     QT_NAV_LINK_CLICKED = QWebEnginePage.NavigationTypeLinkClicked
     QT_CURSOR_BDIAG = Qt.SizeBDiagCursor
@@ -106,6 +108,8 @@ else:
     QT_ASPECT_IGNORE = Qt.IgnoreAspectRatio
     QT_SMOOTH_TRANSFORM = Qt.SmoothTransformation
     QT_TEXT_ANTIALIAS = QPainter.TextAntialiasing
+    QT_WA_TRANSLUCENT_BG = Qt.WA_TranslucentBackground
+    QT_COLOR_TRANSPARENT = Qt.transparent
 
 
 def event_global_point(event):
@@ -219,6 +223,7 @@ class TyphoonWindow(QWidget):
         self._resizing_guard = False
         self._drag_start = QPoint()
         self._dragging = False
+        self._prefer_per_pixel_alpha = self._is_wayland_platform()
 
         self._initialize_window()
         self._setup_webview()
@@ -257,6 +262,9 @@ class TyphoonWindow(QWidget):
     def _initialize_window(self):
         self.setWindowTitle("Typhoon")
         self.setWindowFlags(QT_WINDOW_FLAGS)
+        self.setAttribute(QT_WA_TRANSLUCENT_BG, True)
+        self.setAutoFillBackground(False)
+        self.setStyleSheet("background: transparent;")
         self.setMouseTracking(True)
         self._set_window_icon()
 
@@ -275,6 +283,8 @@ class TyphoonWindow(QWidget):
 
     def _setup_webview(self):
         self.webview = QWebEngineView(self)
+        self.webview.setAttribute(QT_WA_TRANSLUCENT_BG, True)
+        self.webview.setStyleSheet("background: transparent;")
         profile_root = os.path.join(self._get_config_dir(), "qtwebengine")
         os.makedirs(profile_root, exist_ok=True)
         self.web_profile = QWebEngineProfile("typhoon", self)
@@ -287,6 +297,7 @@ class TyphoonWindow(QWidget):
         )
 
         self.webview.setPage(TyphoonWebPage(self.web_profile, self.webview))
+        self.webview.page().setBackgroundColor(QT_COLOR_TRANSPARENT)
         self.webview.setContextMenuPolicy(QT_NO_CONTEXT_MENU)
         self.webview.installEventFilter(self)
 
@@ -540,10 +551,26 @@ class TyphoonWindow(QWidget):
 
     def _set_opacity_from_title(self, title):
         try:
-            opacity = float(title[1:])
-            self.setWindowOpacity(opacity)
+            opacity = self._clamp(float(title[1:]), 0.1, 1.0)
+            if self._prefer_per_pixel_alpha:
+                self._set_webview_alpha(opacity)
+            else:
+                self.setWindowOpacity(opacity)
         except ValueError:
             pass
+
+    def _set_webview_alpha(self, opacity):
+        js_code = (
+            "(function(){"
+            f"var o={opacity:.3f};"
+            "if (window.setWindowAlpha) {"
+            "window.setWindowAlpha(o);"
+            "} else {"
+            "document.documentElement.style.setProperty('--window-alpha', o);"
+            "}"
+            "})();"
+        )
+        self.webview.page().runJavaScript(js_code)
 
     def _toggle_unity_launcher(self, title):
         visible = title == "enable_launcher"
@@ -590,7 +617,7 @@ class TyphoonWindow(QWidget):
         return app_config_dir
 
     def _get_last_window_size(self):
-        config_file = os.path.join(self._get_config_dir(), "typhoon_size.conf")
+        config_file = os.path.join(self._get_config_dir(), "typhoon_size_qt.conf")
         try:
             with open(config_file, "r", encoding="utf-8") as file:
                 size = file.read().strip().split("x")
@@ -600,12 +627,12 @@ class TyphoonWindow(QWidget):
             return 300, 500
 
     def _save_window_size(self, width, height):
-        config_file = os.path.join(self._get_config_dir(), "typhoon_size.conf")
+        config_file = os.path.join(self._get_config_dir(), "typhoon_size_qt.conf")
         with open(config_file, "w", encoding="utf-8") as file:
             file.write(f"{width}x{height}")
 
     def _get_last_window_position(self):
-        config_file = os.path.join(self._get_config_dir(), "typhoon_position.conf")
+        config_file = os.path.join(self._get_config_dir(), "typhoon_position_qt.conf")
         try:
             with open(config_file, "r", encoding="utf-8") as file:
                 position = file.read().strip().split(",")
@@ -615,7 +642,7 @@ class TyphoonWindow(QWidget):
             return None
 
     def _save_window_position(self):
-        config_file = os.path.join(self._get_config_dir(), "typhoon_position.conf")
+        config_file = os.path.join(self._get_config_dir(), "typhoon_position_qt.conf")
         with open(config_file, "w", encoding="utf-8") as file:
             file.write(f"{self.x()},{self.y()}")
 
@@ -729,6 +756,18 @@ class TyphoonWindow(QWidget):
             except Exception:
                 pass
         return False
+
+    def _is_wayland_platform(self):
+        app = QApplication.instance()
+        if app:
+            platform_name = (app.platformName() or "").lower()
+            if "wayland" in platform_name:
+                return True
+            if "xcb" in platform_name:
+                return False
+        if os.environ.get("WAYLAND_DISPLAY"):
+            return True
+        return os.environ.get("XDG_SESSION_TYPE", "").lower() == "wayland"
 
     def _event_from_webview(self, obj):
         if obj is self.webview:

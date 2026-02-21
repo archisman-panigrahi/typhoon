@@ -1035,6 +1035,12 @@ function opacity() {
     });
 }
 
+function setWindowAlpha(alpha) {
+    const parsed = parseFloat(alpha);
+    const normalized = Number.isFinite(parsed) ? Math.max(0.1, Math.min(1, parsed)) : 1;
+    document.documentElement.style.setProperty('--window-alpha', normalized.toFixed(3));
+}
+
 $(window).on('resize', function () {
     scaleContent();
 });

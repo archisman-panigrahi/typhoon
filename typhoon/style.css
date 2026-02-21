@@ -24,6 +24,9 @@ body {
     -o-user-select: none;
     user-select: none;
 }
+html, body {
+    background: transparent;
+}
 p, span, div {
     cursor: default;
 }
@@ -131,6 +134,7 @@ p, span, div {
     width: 300px;
     position: relative;
     background: #575591;
+    opacity: var(--window-alpha, 1);
     overflow: hidden;
     -webkit-transition: 500ms background ease;
     -webkit-transform-origin: 0 0;

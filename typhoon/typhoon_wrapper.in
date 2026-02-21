@@ -1,10 +1,4 @@
 #!/bin/bash
 export __NV_DISABLE_EXPLICIT_SYNC=1
 
-# Force X11/XWayland for Qt so window opacity works consistently.
-# Avoid forcing inside Flatpak/Snap, where xcb may be unavailable.
-if [[ -z "${FLATPAK_ID:-}" && -z "${SNAP:-}" ]]; then
-  export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}"
-fi
-
 python3 @script@
