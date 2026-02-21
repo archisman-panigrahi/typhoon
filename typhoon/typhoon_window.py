@@ -10,14 +10,31 @@ import threading
 from urllib.parse import unquote, urlparse
 
 import dbus
-import dbus.service
 import dbus.mainloop.glib
+import dbus.service
 
-from PyQt6.QtCore import QEvent, QPoint, Qt, QUrl
-from PyQt6.QtGui import QDesktopServices, QIcon, QImage, QPainter
-from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineProfile, QWebEngineSettings
-from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWidgets import QApplication, QWidget
+QT_MAJOR = 6
+try:
+    from PyQt6.QtCore import QEvent, QPoint, Qt, QUrl
+    from PyQt6.QtGui import QDesktopServices, QIcon, QImage, QPainter
+    from PyQt6.QtWebEngineCore import (
+        QWebEnginePage,
+        QWebEngineProfile,
+        QWebEngineSettings,
+    )
+    from PyQt6.QtWebEngineWidgets import QWebEngineView
+    from PyQt6.QtWidgets import QApplication, QWidget
+except ImportError:
+    QT_MAJOR = 5
+    from PyQt5.QtCore import QEvent, QPoint, Qt, QUrl
+    from PyQt5.QtGui import QDesktopServices, QIcon, QImage, QPainter
+    from PyQt5.QtWebEngineWidgets import (
+        QWebEnginePage,
+        QWebEngineProfile,
+        QWebEngineSettings,
+        QWebEngineView,
+    )
+    from PyQt5.QtWidgets import QApplication, QWidget
 
 try:
     import cairosvg
@@ -45,11 +62,62 @@ logging.basicConfig(
     format="%(levelname)s - %(message)s",
 )
 
+if QT_MAJOR == 6:
+    QT_NAV_LINK_CLICKED = QWebEnginePage.NavigationType.NavigationTypeLinkClicked
+    QT_CURSOR_BDIAG = Qt.CursorShape.SizeBDiagCursor
+    QT_CURSOR_FDIAG = Qt.CursorShape.SizeFDiagCursor
+    QT_MOUSE_LEFT = Qt.MouseButton.LeftButton
+    QT_MOUSE_MIDDLE = Qt.MouseButton.MiddleButton
+    QT_MOUSE_RIGHT = Qt.MouseButton.RightButton
+    QT_WINDOW_FLAGS = Qt.WindowType.Window | Qt.WindowType.FramelessWindowHint
+    QT_NO_CONTEXT_MENU = Qt.ContextMenuPolicy.NoContextMenu
+    QT_ALIGN_CENTER = Qt.AlignmentFlag.AlignCenter
+    QT_COLOR_WHITE = Qt.GlobalColor.white
+    QT_EVENT_MOUSE_PRESS = QEvent.Type.MouseButtonPress
+    QT_EVENT_MOUSE_MOVE = QEvent.Type.MouseMove
+    QT_EVENT_MOUSE_RELEASE = QEvent.Type.MouseButtonRelease
+    QT_EVENT_WINDOW_STATE_CHANGE = QEvent.Type.WindowStateChange
+    QT_ATTR_LOCAL_STORAGE = QWebEngineSettings.WebAttribute.LocalStorageEnabled
+    QT_ATTR_LOCAL_TO_REMOTE = QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls
+    QT_ATTR_LOCAL_TO_FILE = QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls
+    QT_COOKIE_FORCE_PERSIST = QWebEngineProfile.PersistentCookiesPolicy.ForcePersistentCookies
+    QT_ASPECT_IGNORE = Qt.AspectRatioMode.IgnoreAspectRatio
+    QT_SMOOTH_TRANSFORM = Qt.TransformationMode.SmoothTransformation
+    QT_TEXT_ANTIALIAS = QPainter.RenderHint.TextAntialiasing
+else:
+    QT_NAV_LINK_CLICKED = QWebEnginePage.NavigationTypeLinkClicked
+    QT_CURSOR_BDIAG = Qt.SizeBDiagCursor
+    QT_CURSOR_FDIAG = Qt.SizeFDiagCursor
+    QT_MOUSE_LEFT = Qt.LeftButton
+    QT_MOUSE_MIDDLE = Qt.MiddleButton
+    QT_MOUSE_RIGHT = Qt.RightButton
+    QT_WINDOW_FLAGS = Qt.Window | Qt.FramelessWindowHint
+    QT_NO_CONTEXT_MENU = Qt.NoContextMenu
+    QT_ALIGN_CENTER = Qt.AlignCenter
+    QT_COLOR_WHITE = Qt.white
+    QT_EVENT_MOUSE_PRESS = QEvent.MouseButtonPress
+    QT_EVENT_MOUSE_MOVE = QEvent.MouseMove
+    QT_EVENT_MOUSE_RELEASE = QEvent.MouseButtonRelease
+    QT_EVENT_WINDOW_STATE_CHANGE = QEvent.WindowStateChange
+    QT_ATTR_LOCAL_STORAGE = QWebEngineSettings.LocalStorageEnabled
+    QT_ATTR_LOCAL_TO_REMOTE = QWebEngineSettings.LocalContentCanAccessRemoteUrls
+    QT_ATTR_LOCAL_TO_FILE = QWebEngineSettings.LocalContentCanAccessFileUrls
+    QT_COOKIE_FORCE_PERSIST = QWebEngineProfile.ForcePersistentCookies
+    QT_ASPECT_IGNORE = Qt.IgnoreAspectRatio
+    QT_SMOOTH_TRANSFORM = Qt.SmoothTransformation
+    QT_TEXT_ANTIALIAS = QPainter.TextAntialiasing
+
+
+def event_global_point(event):
+    if hasattr(event, "globalPosition"):
+        return event.globalPosition().toPoint()
+    return event.globalPos()
+
 
 class TyphoonWebPage(QWebEnginePage):
     def acceptNavigationRequest(self, url, nav_type, is_main_frame):
         if (
-            nav_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked
+            nav_type == QT_NAV_LINK_CLICKED
             and url.scheme() != "file"
         ):
             logger.info("Opening link externally: %s", url.toString())
@@ -84,16 +152,16 @@ class ResizeHandle(QWidget):
         self._start_y = 0
         self.setFixedSize(18, 18)
         if self.side == "left":
-            self.setCursor(Qt.CursorShape.SizeBDiagCursor)
+            self.setCursor(QT_CURSOR_BDIAG)
             self.setToolTip("Resize from left")
         else:
-            self.setCursor(Qt.CursorShape.SizeFDiagCursor)
+            self.setCursor(QT_CURSOR_FDIAG)
             self.setToolTip("Resize from right")
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
+        if event.button() == QT_MOUSE_LEFT:
             self._resizing = True
-            self._start_global = event.globalPosition().toPoint()
+            self._start_global = event_global_point(event)
             self._start_width = self.parent().width()
             self._start_right = self.parent().x() + self.parent().width()
             self._start_y = self.parent().y()
@@ -103,7 +171,7 @@ class ResizeHandle(QWidget):
 
     def mouseMoveEvent(self, event):
         if self._resizing:
-            delta = event.globalPosition().toPoint() - self._start_global
+            delta = event_global_point(event) - self._start_global
             if self.side == "left":
                 new_width = self._start_width - delta.x()
             else:
@@ -119,14 +187,14 @@ class ResizeHandle(QWidget):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
+        if event.button() == QT_MOUSE_LEFT:
             self._resizing = False
         super().mouseReleaseEvent(event)
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.TextAntialiasing)
-        painter.setPen(Qt.GlobalColor.white)
+        painter.setRenderHint(QT_TEXT_ANTIALIAS)
+        painter.setPen(QT_COLOR_WHITE)
         # Draw a small corner line so the handle looks like a classic resize grip.
         if self.side == "left":
             painter.drawLine(2, self.height() - 2, 2, self.height() - 8)
@@ -136,7 +204,7 @@ class ResizeHandle(QWidget):
             painter.drawLine(self.width() - 2, self.height() - 2, self.width() - 8, self.height() - 2)
         painter.drawText(
             self.rect(),
-            Qt.AlignmentFlag.AlignCenter,
+            QT_ALIGN_CENTER,
             "↙" if self.side == "left" else "↘",
         )
         painter.end()
@@ -188,9 +256,7 @@ class TyphoonWindow(QWidget):
 
     def _initialize_window(self):
         self.setWindowTitle("Typhoon")
-        self.setWindowFlags(
-            Qt.WindowType.Window | Qt.WindowType.FramelessWindowHint
-        )
+        self.setWindowFlags(QT_WINDOW_FLAGS)
         self.setMouseTracking(True)
         self._set_window_icon()
 
@@ -217,23 +283,17 @@ class TyphoonWindow(QWidget):
         )
         self.web_profile.setCachePath(os.path.join(profile_root, "cache"))
         self.web_profile.setPersistentCookiesPolicy(
-            QWebEngineProfile.PersistentCookiesPolicy.ForcePersistentCookies
+            QT_COOKIE_FORCE_PERSIST
         )
 
         self.webview.setPage(TyphoonWebPage(self.web_profile, self.webview))
-        self.webview.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
+        self.webview.setContextMenuPolicy(QT_NO_CONTEXT_MENU)
         self.webview.installEventFilter(self)
 
         settings = self.webview.settings()
-        settings.setAttribute(
-            QWebEngineSettings.WebAttribute.LocalStorageEnabled, True
-        )
-        settings.setAttribute(
-            QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True
-        )
-        settings.setAttribute(
-            QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, True
-        )
+        settings.setAttribute(QT_ATTR_LOCAL_STORAGE, True)
+        settings.setAttribute(QT_ATTR_LOCAL_TO_REMOTE, True)
+        settings.setAttribute(QT_ATTR_LOCAL_TO_FILE, True)
         self.webview.page().profile().setHttpUserAgent(
             "Typhoon Weather App (https://github.com/archisman-panigrahi/typhoon)"
         )
@@ -351,8 +411,8 @@ class TyphoonWindow(QWidget):
         tiny = image.scaled(
             1,
             1,
-            Qt.AspectRatioMode.IgnoreAspectRatio,
-            Qt.TransformationMode.SmoothTransformation,
+            QT_ASPECT_IGNORE,
+            QT_SMOOTH_TRANSFORM,
         )
         if tiny.isNull():
             return None
@@ -662,8 +722,12 @@ class TyphoonWindow(QWidget):
 
     def _start_window_drag(self):
         window = self.windowHandle()
-        if window and window.startSystemMove():
-            return True
+        if window and hasattr(window, "startSystemMove"):
+            try:
+                if window.startSystemMove():
+                    return True
+            except Exception:
+                pass
         return False
 
     def _event_from_webview(self, obj):
@@ -675,24 +739,24 @@ class TyphoonWindow(QWidget):
 
     def eventFilter(self, obj, event):
         if self._event_from_webview(obj):
-            if event.type() == QEvent.Type.MouseButtonPress:
-                if event.button() == Qt.MouseButton.RightButton:
+            if event.type() == QT_EVENT_MOUSE_PRESS:
+                if event.button() == QT_MOUSE_RIGHT:
                     return True
                 if self.drag_enabled and event.button() in (
-                    Qt.MouseButton.LeftButton,
-                    Qt.MouseButton.MiddleButton,
+                    QT_MOUSE_LEFT,
+                    QT_MOUSE_MIDDLE,
                 ):
                     if self._start_window_drag():
                         return True
                     self._dragging = True
                     self._drag_start = (
-                        event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+                        event_global_point(event) - self.frameGeometry().topLeft()
                     )
                     return True
-            elif event.type() == QEvent.Type.MouseMove and self._dragging:
-                self.move(event.globalPosition().toPoint() - self._drag_start)
+            elif event.type() == QT_EVENT_MOUSE_MOVE and self._dragging:
+                self.move(event_global_point(event) - self._drag_start)
                 return True
-            elif event.type() == QEvent.Type.MouseButtonRelease:
+            elif event.type() == QT_EVENT_MOUSE_RELEASE:
                 self._dragging = False
         return super().eventFilter(obj, event)
 
@@ -735,17 +799,20 @@ class TyphoonWindow(QWidget):
 
     def changeEvent(self, event):
         super().changeEvent(event)
-        if event.type() == QEvent.Type.WindowStateChange and self.isMaximized():
+        if event.type() == QT_EVENT_WINDOW_STATE_CHANGE and self.isMaximized():
             self.showNormal()
 
 
 def main():
     app = QApplication(sys.argv)
     app.setApplicationName("Typhoon")
-    app.setDesktopFileName("io.github.archisman_panigrahi.typhoon")
+    if hasattr(app, "setDesktopFileName"):
+        app.setDesktopFileName("io.github.archisman_panigrahi.typhoon")
     window = TyphoonWindow()
     window.show()
-    sys.exit(app.exec())
+    if hasattr(app, "exec"):
+        sys.exit(app.exec())
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
