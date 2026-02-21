@@ -783,3 +783,23 @@ input[type="range"]::-webkit-slider-thumb:active {
     margin: 0;
     transform-origin: center center;
 }
+
+#typhoonTooltip {
+    position: absolute;
+    display: none;
+    max-width: 220px;
+    padding: 5px 8px;
+    border: 1px solid #b8b8b8;
+    background: #fafafa;
+    color: #181818;
+    font-family: "Ubuntu Condensed";
+    font-size: 13px;
+    line-height: 1.2;
+    z-index: 9999;
+    pointer-events: none;
+    white-space: normal;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+}
+#typhoonTooltip.visible {
+    display: block;
+}

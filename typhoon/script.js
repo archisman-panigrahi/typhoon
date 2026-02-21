@@ -9,6 +9,40 @@ var NAVIGATION_REFRESH_DELAY = 3000; // Wait 3 seconds after manual navigation b
 // Debounce mechanism for navigation/delete button refresh
 var navigationRefreshTimeout = null;
 const NAVIGATION_REFRESH_DEBOUNCE_MS = 2000; // 2 seconds after navigation/delete to trigger refresh
+
+function initOpaqueTooltips() {
+    if ($('#typhoonTooltip').length === 0) {
+        $('body').append('<div id="typhoonTooltip" aria-hidden="true"></div>');
+    }
+    const tip = $('#typhoonTooltip');
+
+    $(document).on('mouseenter', '[title]', function() {
+        const text = this.getAttribute('title');
+        if (!text) {
+            return;
+        }
+        this.setAttribute('data-typhoon-title', text);
+        this.removeAttribute('title');
+        tip.text(text).addClass('visible');
+    });
+
+    $(document).on('mousemove', '[data-typhoon-title]', function(event) {
+        tip.css({
+            left: (event.pageX + 12) + 'px',
+            top: (event.pageY + 14) + 'px'
+        });
+    });
+
+    $(document).on('mouseleave', '[data-typhoon-title]', function() {
+        const original = this.getAttribute('data-typhoon-title');
+        if (original) {
+            this.setAttribute('title', original);
+            this.removeAttribute('data-typhoon-title');
+        }
+        tip.removeClass('visible');
+    });
+}
+
 function getWeatherData(cityName, callback) {
     const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
 
@@ -683,6 +717,7 @@ function updateLocationNav() {
 $(document).ready(function() {
     // Set the size
     scaleContent();
+    initOpaqueTooltips();
 
     // Initialize locations
     initLocations();

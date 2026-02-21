@@ -173,7 +173,6 @@ class ResizeHandle(QWidget):
             "bottom_left": QT_CURSOR_BDIAG,
         }
         self.setCursor(cursor_map[self.direction])
-        self.setToolTip(f"Resize from {self.direction.replace('_', ' ')}")
 
     def mousePressEvent(self, event):
         if event.button() == QT_MOUSE_LEFT:
