@@ -9,8 +9,8 @@ Package: typhoon
 Architecture: all
 Depends: ${misc:Depends},
  gir1.2-glib-2.0,
- gir1.2-gtk-3.0,
- gir1.2-webkit2-4.0 | gir1.2-webkit2-4.1,
+ gir1.2-gtk-4.0,
+ gir1.2-webkit-6.0,
  gir1.2-xdp-1.0,
  imagemagick,
  dbus, python3-dbus

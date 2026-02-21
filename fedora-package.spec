@@ -11,15 +11,15 @@ BuildArch:      noarch
 BuildRequires:  meson
 BuildRequires:  python3-setuptools
 BuildRequires:  glib2-devel
-BuildRequires:  gtk3-devel
-BuildRequires:  webkit2gtk4.1-devel
+BuildRequires:  gtk4-devel
+BuildRequires:  webkitgtk6.0-devel
 BuildRequires:  dbus-devel
 BuildRequires:  python3-dbus
 BuildRequires:  desktop-file-utils
 
 Requires:       glib2
-Requires:       gtk3
-Requires:       webkit2gtk4.1
+Requires:       gtk4
+Requires:       webkitgtk6.0
 Requires:       ImageMagick
 Requires:       dbus
 Requires:       python3-dbus
@@ -54,4 +54,3 @@ always will be free.
 %changelog
 * Mon Apr 28 2025 Archisman Panigrahi <apandada1@gmail.com> - 0.9.87-1
 - Initial package
-
