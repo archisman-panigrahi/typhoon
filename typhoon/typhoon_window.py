@@ -153,6 +153,10 @@ class ResizeHandle(QWidget):
     def __init__(self, parent, direction="bottom_right"):
         super().__init__(parent)
         self.direction = direction
+        self._is_horizontal = self.direction in ("left", "right")
+        self._is_vertical = self.direction in ("top", "bottom")
+        self._from_left = "left" in self.direction
+        self._from_top = "top" in self.direction
         self._resizing = False
         self._start_global = QPoint()
         self._start_geometry = None
@@ -191,22 +195,15 @@ class ResizeHandle(QWidget):
             start_bottom = start_y + start_h
             parent = self.parent()
 
-            if self.direction in ("left", "right"):
-                width_from_x = start_w - delta.x() if self.direction == "left" else start_w + delta.x()
+            if self._is_horizontal:
+                width_from_x = start_w - delta.x() if self._from_left else start_w + delta.x()
                 target_w, target_h = parent._aspect_size_from_width(width_from_x)
-            elif self.direction in ("top", "bottom"):
-                height_from_y = start_h - delta.y() if self.direction == "top" else start_h + delta.y()
+            elif self._is_vertical:
+                height_from_y = start_h - delta.y() if self._from_top else start_h + delta.y()
                 target_w, target_h = parent._aspect_size_from_height(height_from_y)
             else:
-                if "left" in self.direction:
-                    width_from_x = start_w - delta.x()
-                else:
-                    width_from_x = start_w + delta.x()
-
-                if "top" in self.direction:
-                    height_from_y = start_h - delta.y()
-                else:
-                    height_from_y = start_h + delta.y()
+                width_from_x = start_w - delta.x() if self._from_left else start_w + delta.x()
+                height_from_y = start_h - delta.y() if self._from_top else start_h + delta.y()
 
                 width_from_y = int(round(height_from_y * parent.aspect_ratio))
                 if abs(width_from_x - start_w) >= abs(width_from_y - start_w):
@@ -214,9 +211,11 @@ class ResizeHandle(QWidget):
                 else:
                     target_w, target_h = parent._aspect_size_from_height(height_from_y)
 
-            new_x = start_right - target_w if "left" in self.direction else start_x
-            new_y = start_bottom - target_h if "top" in self.direction else start_y
+            new_x = start_right - target_w if self._from_left else start_x
+            new_y = start_bottom - target_h if self._from_top else start_y
+            parent._resizing_guard = True
             parent.setGeometry(new_x, new_y, target_w, target_h)
+            parent._resizing_guard = False
             event.accept()
             return
         super().mouseMoveEvent(event)
@@ -228,14 +227,16 @@ class ResizeHandle(QWidget):
         super().mouseReleaseEvent(event)
 
     def paintEvent(self, event):
+        if self.direction != "bottom_right":
+            super().paintEvent(event)
+            return
         painter = QPainter(self)
         painter.setRenderHint(QT_TEXT_ANTIALIAS)
         painter.setPen(QT_COLOR_WHITE)
-        if self.direction == "bottom_right":
-            # Draw a small corner line so the handle looks like a classic resize grip.
-            painter.drawLine(self.width() - 2, self.height() - 2, self.width() - 2, self.height() - 8)
-            painter.drawLine(self.width() - 2, self.height() - 2, self.width() - 8, self.height() - 2)
-            painter.drawText(self.rect(), QT_ALIGN_CENTER, "↘")
+        # Draw a small corner line so the handle looks like a classic resize grip.
+        painter.drawLine(self.width() - 2, self.height() - 2, self.width() - 2, self.height() - 8)
+        painter.drawLine(self.width() - 2, self.height() - 2, self.width() - 8, self.height() - 2)
+        painter.drawText(self.rect(), QT_ALIGN_CENTER, "↘")
         painter.end()
         super().paintEvent(event)
 
