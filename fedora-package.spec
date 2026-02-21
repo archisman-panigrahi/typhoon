@@ -10,20 +10,20 @@ BuildArch:      noarch
 
 BuildRequires:  meson
 BuildRequires:  python3-setuptools
-BuildRequires:  glib2-devel
-BuildRequires:  gtk3-devel
-BuildRequires:  webkit2gtk4.1-devel
 BuildRequires:  dbus-devel
 BuildRequires:  python3-dbus
+BuildRequires:  python3-qt6
+BuildRequires:  python3-qt6-webengine
+BuildRequires:  libportal-devel
+BuildRequires:  python3-gobject-base
 BuildRequires:  desktop-file-utils
 
-Requires:       glib2
-Requires:       gtk3
-Requires:       webkit2gtk4.1
-Requires:       ImageMagick
 Requires:       dbus
 Requires:       python3-dbus
+Requires:       python3-qt6
+Requires:       python3-qt6-webengine
 Requires:       libportal
+Requires:       python3-gobject-base
 Recommends:     python3-cairosvg
 
 %description
@@ -54,4 +54,3 @@ always will be free.
 %changelog
 * Mon Apr 28 2025 Archisman Panigrahi <apandada1@gmail.com> - 0.9.87-1
 - Initial package
-

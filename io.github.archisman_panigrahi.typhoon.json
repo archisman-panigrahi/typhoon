@@ -1,15 +1,19 @@
 {
     "app-id" : "io.github.archisman_panigrahi.typhoon",
-    "runtime" : "org.gnome.Platform",
-    "runtime-version" : "49",
-    "sdk" : "org.gnome.Sdk",
+    "runtime" : "org.kde.Platform",
+    "runtime-version" : "6.10",
+    "sdk" : "org.kde.Sdk",
     "command" : "typhoon",
     "finish-args" : [
         "--share=network",
         "--share=ipc",
         "--socket=fallback-x11",
         "--socket=wayland",
-        "--device=dri"
+        "--device=dri",
+        "--own-name=io.github.archisman_panigrahi.typhoon",
+        "--talk-name=org.freedesktop.Notifications",
+        "--talk-name=org.freedesktop.portal.Desktop",
+        "--talk-name=com.canonical.Unity"
     ],
     "modules" : [
         {
@@ -32,6 +36,13 @@
                     "url": "https://dbus.freedesktop.org/releases/dbus-python/dbus-python-1.3.2.tar.gz",
                     "sha256": "ad67819308618b5069537be237f8e68ca1c7fcc95ee4a121fe6845b1418248f8"
                 }
+            ]
+        },
+        {
+            "name": "python3-pyqt6",
+            "buildsystem": "simple",
+            "build-commands": [
+                "pip3 install --prefix=/app --no-build-isolation PyQt6==6.9.1 PyQt6-WebEngine==6.9.0"
             ]
         },
         {
