@@ -59,11 +59,11 @@ if [ -f "$METAINFO" ]; then
     echo "Updated $METAINFO"
 fi
 
-# 5. Update snap/snapcraft.yaml
-if [ -f snap/snapcraft.yaml ]; then
-    sed -i "s/source-tag: 'v[0-9.]\+'/source-tag: 'v$NEW_VERSION'/" snap/snapcraft.yaml
-    echo "Updated snap/snapcraft.yaml"
-fi
+# # 5. Update snap/snapcraft.yaml
+# if [ -f snap/snapcraft.yaml ]; then
+#     sed -i "s/source-tag: 'v[0-9.]\+'/source-tag: 'v$NEW_VERSION'/" snap/snapcraft.yaml
+#     echo "Updated snap/snapcraft.yaml"
+# fi
 
 # 6. Update aur/PKGBUILD
 if [ -f aur/PKGBUILD ]; then
