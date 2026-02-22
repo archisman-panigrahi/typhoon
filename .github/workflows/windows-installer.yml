@@ -33,6 +33,7 @@ jobs:
             --clean `
             --windowed `
             --name Typhoon `
+            --icon windows_packaging/typhoon.ico `
             --add-data "typhoon;typhoon" `
             typhoon/typhoon_window.py
 
@@ -59,6 +60,7 @@ jobs:
           New-Item -Path dist-installer -ItemType Directory -Force | Out-Null
           $buildDir = (Resolve-Path "dist/Typhoon").Path
           $outDir = (Resolve-Path "dist-installer").Path
+          $iconPath = (Resolve-Path "windows_packaging/typhoon.ico").Path
 
           $makensis = "${env:ProgramFiles(x86)}\NSIS\makensis.exe"
           if (!(Test-Path $makensis)) {
@@ -69,6 +71,7 @@ jobs:
             "/DPRODUCT_VERSION=$version" `
             "/DAPP_BUILD_DIR=$buildDir" `
             "/DOUTPUT_DIR=$outDir" `
+            "/DAPP_ICON_ICO=$iconPath" `
             "windows_packaging/installer.nsi"
 
       - name: Upload installer as workflow artifact
