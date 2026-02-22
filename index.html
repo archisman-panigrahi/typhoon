@@ -27,6 +27,28 @@
           }
         });
 
+        // Function to update Windows exe link and fetch the latest version
+        async function updateWindowsLink() {
+          const $windowsLink = $('#windows-exe-link');
+
+          try {
+            const response = await fetch('https://api.github.com/repos/archisman-panigrahi/typhoon/releases/latest');
+            if (!response.ok) throw new Error('Failed to fetch release info');
+            const release = await response.json();
+
+            // Update Windows exe link
+            const latestExeUrl = release.assets.find(asset => asset.name.endsWith('.exe'))?.browser_download_url;
+            if (latestExeUrl) {
+              $windowsLink.attr('href', latestExeUrl);
+            }
+          } catch (error) {
+            console.error('Error updating Windows link:', error);
+          }
+        }
+
+        // Initialize the Windows link update on page load
+        updateWindowsLink();
+
         // Function to update Flatpak and .deb links and fetch the latest version
         async function updateFlatpakLink() {
           const $flatpakButton = $('.btn-rpm');
@@ -84,7 +106,7 @@
         <a class="btn-flatpak" href="https://flathub.org/apps/io.github.archisman_panigrahi.typhoon">Flathub</a>
         <a class="btn-ubuntu" href="https://snapcraft.io/typhoon" style="background-color: #ff6c2e;">Snap Store</a>
         <a class="btn-ubuntu" style="background-color: #411e86;" data-section="other-gnu-linux-instructions">Other GNU/Linux</a>
-        <a class="btn-windows" style="background-color: #1971e4;" href="windows-wsl.html">Windows (WSL)</a>
+        <a class="btn-windows" style="background-color: #1971e4;" data-section="windows-instructions">Windows</a>
        <!-- <a class="btn-android" href="https://github.com/archisman-panigrahi/typhoon/releases/download/v1.0/Typhoon_1.0.apk" target="_blank">Android (APK)</a> -->
         <a class="btn-site" href="webapp.html">Webapp</a>
         <a class="btn-source" href="https://github.com/archisman-panigrahi/typhoon" target="_blank">Report a bug</a>
@@ -131,6 +153,19 @@ meson setup builddir --prefix=/usr
 sudo ninja -C builddir install</code></pre>
           </li>
         </ul>
+      </div>
+
+      <div id="windows-instructions" class="instructions" style="display: none;">
+        <h2>Windows Installation</h2>
+        <p><a id="windows-exe-link" href="https://github.com/archisman-panigrahi/typhoon/releases" target="_blank">Download the latest .exe installer</a> from GitHub Releases.</p>
+        
+        <h3>SmartScreen Warning</h3>
+        <p>When you run the installer, Windows SmartScreen may display a warning because the application is not from a verified publisher. This is normal for unsigned applications. To proceed:</p>
+        <ol>
+          <li>Click <strong>"More info"</strong> on the warning dialog</li>
+          <li>Click the <strong>"Run anyway"</strong> button that appears</li>
+        </ol>
+        <p>Alternatively, you can add the installer to your Windows Defender exclusions to suppress the warning entirely.</p>
       </div>
     </div>
   </body>
