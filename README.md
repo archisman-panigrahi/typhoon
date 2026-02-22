@@ -78,7 +78,7 @@ Linux-specific integrations (`dbus-python`, `python-gobject`, `libportal`) are o
 
 <img src="./assets/screenshots/blur_kde_screenshot.png" align="center" alt="Typhoon with KDE blur effect">
 
-Typhoon supports background blur effects on KDE Plasma. To activate blur, install KVantum and enable blur option for transparent windows in KVantum settings.
+Typhoon supports background blur effects on KDE Plasma. To activate blur, install KVantum and enable blur option for transparent windows in KVantum settings. Alternatively use https://github.com/can1357/kde-blur if you don't want to install KVantum.
 
 
 ## Build System
