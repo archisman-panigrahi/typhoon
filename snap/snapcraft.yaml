@@ -3,6 +3,20 @@ base: core24
 adopt-info: typhoon
 grade: stable
 confinement: strict
+compression: lzo
+
+plugs:
+  lxqt-support:
+    content: lxqt-support
+    interface: content
+    target: $SNAP/lxqt-support
+    default-provider: lxqt-support
+
+layout:
+  /usr/share/color-schemes:
+    symlink: $SNAP/lxqt-support/usr/share/color-schemes
+  /usr/share/Kvantum:
+    symlink: $SNAP/lxqt-support/usr/share/Kvantum
 
 parts:
   typhoon:
@@ -10,6 +24,11 @@ parts:
     source: https://github.com/archisman-panigrahi/typhoon.git
     source-branch: master
     source-depth: 1
+    build-packages:
+      - meson
+      - ninja-build
+      - python3
+      - desktop-file-utils
     stage-packages:
       - python3-pyqt6
       - python3-pyqt6.qtwebengine
@@ -27,8 +46,13 @@ parts:
 apps:
   typhoon:
     command: usr/bin/typhoon
-    extensions: [gnome]
+    extensions: [kde-neon-6]
     desktop: usr/share/applications/io.github.archisman_panigrahi.typhoon.desktop
+    environment:
+      PYTHONPATH: $SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
+      QT_QPA_PLATFORMTHEME: xdgdesktopportal
+      LD_LIBRARY_PATH: $SNAP/lxqt-support/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$LD_LIBRARY_PATH
+      QT_PLUGIN_PATH: $SNAP/lxqt-support/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins:$QT_PLUGIN_PATH
     plugs:
       - x11
       - unity7

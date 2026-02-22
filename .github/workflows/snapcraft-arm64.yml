@@ -1,4 +1,4 @@
-name: Build & Publish Snap (AMD64)
+name: Build & Publish Snap (ARM64)
 
 on:
   release:
@@ -15,9 +15,9 @@ on:
         default: 'edge'
 
 jobs:
-  build-amd64:
-    name: 🧪 Build and (optionally) publish (AMD64)
-    runs-on: ubuntu-24.04
+  build-arm64:
+    name: 🧪 Build and (optionally) publish (ARM64)
+    runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
         uses: actions/checkout@v4
