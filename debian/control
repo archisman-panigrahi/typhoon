@@ -8,11 +8,10 @@ Standards-Version: 4.5.0
 Package: typhoon
 Architecture: all
 Depends: ${misc:Depends},
- gir1.2-glib-2.0,
- gir1.2-gtk-3.0,
- gir1.2-webkit2-4.0 | gir1.2-webkit2-4.1,
+ python3-pyqt6 | python3-pyqt5,
+ python3-pyqt6.qtwebengine | python3-pyqt5.qtwebengine,
+ python3-gi,
  gir1.2-xdp-1.0,
- imagemagick,
  dbus, python3-dbus
 Recommends: python3-cairosvg
 Description: Check the weather with style

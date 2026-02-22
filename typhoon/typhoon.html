@@ -15,8 +15,8 @@
                 <span id="removeLocation" class="nav-remove" title="Remove this location">×</span>
                 <span id="nextLocation" class="nav-arrow" title="Next location">›</span>
             </div>
-            <div class="settings"><img src="settings.svg" title="Settings"></div>
-            <div class="sync"><img src="sync.svg" title="Sync"></div>
+            <div class="settings"><img src="settings.svg"></div>
+            <div class="sync"><img src="sync.svg"></div>
         </div>
         <div id="actualWeather">
             <div id="city"><span></span></div>
@@ -71,7 +71,7 @@
     <div id="locationModal">
         <div class="credits">
             <img src="back.svg">
-            <h1 style="text-align: center"><a href="https://archisman-panigrahi.github.io/typhoon">Typhoon</a> 1.6.0</h1>
+            <h1 style="text-align: center"><a href="https://archisman-panigrahi.github.io/typhoon">Typhoon</a> 1.7.0</h1>
             <p>Typhoon is a stylish weather application for GNU/Linux. It is and always will be free.<br> 
             <a href="https://github.com/apandada1/typhoon/">Source code</a> is released under <a href="http://www.gnu.org/licenses/gpl.html">GPL-3</a>.</p>
             <li>Based on <a href="https://github.com/consindo/stormcloud/tree/e7ef8e131466d477075e92337e502c3cac004ee2">Stormcloud 1.1</a> by <a href="https://github.com/consindo">Jono Cooper</a>.</li>
@@ -109,7 +109,7 @@
                 <span data-color="chameleonic">
                     <img src="chameleon-svgrepo-com.svg" alt="Chameleon Icon" style="width: 90%; height: 90%; display: block; margin: 0 auto;" title="Wallpaper based Chameleonic background">
                 </span>
-                <input type="color" id="customColorPicker" title="Pick a custom color" />
+                <button id="customColorPicker" title="Pick a custom color" aria-label="Pick a custom color"></button>
                 <span data-color="575591"></span>
                 <span data-color="FF0097"></span>
                 <span data-color="00ABA9"></span>
@@ -121,7 +121,18 @@
                 <span data-color="FF8E83"></span>
                 <span data-color="339933"></span>
             </div>
-            <br>
+            <div id="customColorPanel" aria-hidden="true">
+                <div class="custom-row">
+                    <div class="custom-sliders">
+                        <label>Saturation <input id="customSatSlider" type="range" min="0" max="100" step="1"></label>
+                        <label>Hue <input id="customHueSlider" type="range" min="0" max="360" step="1"></label>
+                        <label>Darkness <input id="customDarkSlider" type="range" min="0" max="100" step="1"></label>
+                    </div>
+                    <div class="custom-actions">
+                        <a class="btn mini-btn" id="customColorDone">✓</a>
+                    </div>
+                </div>
+            </div>
             <div class="launcher">
                 <input type="checkbox" id="launcherswitch"><label for="launcherswitch">Launcher Count</label>
                 &nbsp;&nbsp;
