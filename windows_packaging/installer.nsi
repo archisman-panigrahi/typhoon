@@ -1,5 +1,4 @@
 !include "MUI2.nsh"
-!include "MultiUser.nsh"
 !include "LogicLib.nsh"
 !include "FileFunc.nsh"
 
@@ -19,11 +18,6 @@
 !define PUBLISHER "archisman-panigrahi"
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}"
 
-!define MULTIUSER_EXECUTIONLEVEL Highest
-!define MULTIUSER_MUI
-!define MULTIUSER_INSTALLMODE_COMMANDLINE
-!define MULTIUSER_INSTALLMODE_DEFAULT_CURRENTUSER
-
 !ifdef APP_ICON_ICO
   !define MUI_ICON "${APP_ICON_ICO}"
   !define MUI_UNICON "${APP_ICON_ICO}"
@@ -32,14 +26,12 @@
 Name "${APP_NAME}"
 OutFile "${OUTPUT_DIR}\${APP_NAME}-${PRODUCT_VERSION}-Setup.exe"
 InstallDir "$LOCALAPPDATA\Programs\${APP_NAME}"
-InstallDirRegKey SHCTX "${UNINSTALL_KEY}" "InstallLocation"
 RequestExecutionLevel highest
 
 SetCompressor /SOLID lzma
 
 !define MUI_ABORTWARNING
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MULTIUSER_PAGE_INSTALLMODE
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
@@ -48,22 +40,9 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_UNPAGE_INSTFILES
 !insertmacro MUI_LANGUAGE "English"
 
-Function .onInit
-  !insertmacro MULTIUSER_INIT
-FunctionEnd
-
-Function un.onInit
-  !insertmacro MULTIUSER_UNINIT
-FunctionEnd
-
 Section "Install"
-  ${If} $MultiUser.InstallMode == "AllUsers"
-    StrCpy $INSTDIR "$PROGRAMFILES64\${APP_NAME}"
-    SetShellVarContext all
-  ${Else}
-    StrCpy $INSTDIR "$LOCALAPPDATA\Programs\${APP_NAME}"
-    SetShellVarContext current
-  ${EndIf}
+  StrCpy $INSTDIR "$LOCALAPPDATA\Programs\${APP_NAME}"
+  SetShellVarContext current
 
   SetOutPath "$INSTDIR"
   File /r "${APP_BUILD_DIR}\*.*"
@@ -91,13 +70,6 @@ Section "Uninstall"
   Delete "$SMPROGRAMS\${APP_NAME}\Uninstall ${APP_NAME}.lnk"
   RMDir "$SMPROGRAMS\${APP_NAME}"
 
-  SetShellVarContext all
-  Delete "$DESKTOP\${APP_NAME}.lnk"
-  Delete "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk"
-  Delete "$SMPROGRAMS\${APP_NAME}\Uninstall ${APP_NAME}.lnk"
-  RMDir "$SMPROGRAMS\${APP_NAME}"
-
   RMDir /r "$INSTDIR"
   DeleteRegKey HKCU "${UNINSTALL_KEY}"
-  DeleteRegKey HKLM "${UNINSTALL_KEY}"
 SectionEnd
