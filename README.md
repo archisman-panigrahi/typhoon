@@ -74,6 +74,12 @@ On **Windows**, download the prebuilt installers from [GitHub releases](https://
 Linux-specific integrations (`dbus-python`, `python-gobject`, `libportal`) are optional on Windows.
 
 
+## Blur in KDE
+
+<img src="./assets/screenshots/blur_kde_screenshot.png" align="center" alt="Typhoon with KDE blur effect">
+
+Typhoon supports background blur effects on KDE Plasma. To activate blur, enable blur option for transparent windows in KDE settings.
+
 
 ## Build System
 This project uses the Meson build system for configuration and installation.
