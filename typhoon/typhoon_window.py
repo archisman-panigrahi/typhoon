@@ -331,6 +331,8 @@ class TyphoonWindow(QWidget):
         self._drag_start = QPoint()
         self._dragging = False
         self._drag_touch_id = None
+        self._touch_drag_active = False
+        self._touch_start_global = QPoint()
         self._prefer_per_pixel_alpha = self._is_wayland_platform()
         self._notification_tray = None
         self._tray_menu = None
@@ -1076,28 +1078,48 @@ class TyphoonWindow(QWidget):
             elif event.type() == QT_EVENT_MOUSE_RELEASE:
                 self._dragging = False
                 self._drag_touch_id = None
+                self._touch_drag_active = False
             elif event.type() == QT_EVENT_TOUCH_BEGIN and self.drag_enabled:
                 touch_pos, touch_id = touch_event_global_point(event)
                 if touch_pos is None:
-                    return True
+                    return False
                 self._drag_touch_id = touch_id
-                if self._start_window_drag():
-                    event.accept()
-                    return True
-                self._dragging = True
-                self._drag_start = touch_pos - self.frameGeometry().topLeft()
-                event.accept()
-                return True
-            elif event.type() == QT_EVENT_TOUCH_UPDATE and self._dragging:
+                self._touch_start_global = touch_pos
+                self._touch_drag_active = False
+                self._dragging = False
+                return False
+            elif event.type() == QT_EVENT_TOUCH_UPDATE and self.drag_enabled:
                 touch_pos, _ = touch_event_global_point(event, self._drag_touch_id)
                 if touch_pos is None:
-                    return True
-                self.move(touch_pos - self._drag_start)
+                    return False
+
+                if not self._touch_drag_active:
+                    delta = touch_pos - self._touch_start_global
+                    drag_threshold = QApplication.startDragDistance()
+                    if delta.manhattanLength() < drag_threshold:
+                        return False
+
+                    self._touch_drag_active = True
+                    if self._start_window_drag():
+                        event.accept()
+                        return True
+
+                    self._dragging = True
+                    self._drag_start = touch_pos - self.frameGeometry().topLeft()
+
+                if self._dragging:
+                    self.move(touch_pos - self._drag_start)
                 event.accept()
                 return True
             elif event.type() in (QT_EVENT_TOUCH_END, QT_EVENT_TOUCH_CANCEL):
+                was_dragging = self._touch_drag_active or self._dragging
                 self._dragging = False
                 self._drag_touch_id = None
+                self._touch_drag_active = False
+                if was_dragging:
+                    event.accept()
+                    return True
+                return False
         return super().eventFilter(obj, event)
 
     def resizeEvent(self, event):
