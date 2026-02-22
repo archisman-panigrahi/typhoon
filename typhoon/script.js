@@ -9,7 +9,6 @@ var NAVIGATION_REFRESH_DELAY = 3000; // Wait 3 seconds after manual navigation b
 // Debounce mechanism for navigation/delete button refresh
 var navigationRefreshTimeout = null;
 const NAVIGATION_REFRESH_DEBOUNCE_MS = 2000; // 2 seconds after navigation/delete to trigger refresh
-
 function initOpaqueTooltips() {
     if ($('#typhoonTooltip').length === 0) {
         $('body').append('<div id="typhoonTooltip" aria-hidden="true"></div>');
@@ -43,132 +42,163 @@ function initOpaqueTooltips() {
     });
 }
 
-function getWeatherData(cityName, callback) {
+function getLocationData(cityName, callback) {
     const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
-
-    // First, get the latitude and longitude of the city using OpenStreetMap's Nominatim API
     $.get(geocodingUrl, function (geoData) {
         if (geoData && geoData.length > 0) {
-            const { lat: latitude, lon: longitude, display_name } = geoData[0];
-
-            // Fetch weather data using the latitude and longitude
-            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m,apparent_temperature,precipitation_probability,wind_direction_10m`;
-
-            $.get(weatherUrl, function (weatherData) {
-                console.log("API Response (Current Weather):", weatherData); // Log the API response for debugging
-                console.log("Total Rain Probability Data:", weatherData.hourly.precipitation_probability); // Log rain probability data
-
-                if (weatherData && weatherData.current_weather && weatherData.hourly) {
-                    const currentWeather = weatherData.current_weather;
-
-                    // Get the current time in GMT
-                    const currentTime = new Date().toISOString(); // Current time in ISO format (GMT)
-
-                    // Find the index of the closest time in the hourly data
-                    const timeIndex = weatherData.hourly.time.findIndex(hour => hour === currentTime.slice(0, 13) + ":00");
-
-                    // Print the timeIndex for debugging
-                    console.log("Time Index:", timeIndex);
-
-                    if (timeIndex !== -1) {
-                        // Get the rain probabilities for the previous 1 hours, current hour, and the next 5 hours
-                        const previousHours = timeIndex === 0 
-                            ? [weatherData.hourly.precipitation_probability[timeIndex]] 
-                            : weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 1), timeIndex);
-                        const currentHour = [weatherData.hourly.precipitation_probability[timeIndex]];
-                        const nextHours = weatherData.hourly.precipitation_probability.slice(timeIndex + 1, timeIndex + 6);
-
-                        // Combine the previous, current, and next hours into a single array
-                        const combinedHours = [...previousHours, ...currentHour, ...nextHours];
-
-                        // Find the maximum rain probability
-                        const rainPercentage = combinedHours.length > 0 ? Math.max(...combinedHours) : 0;
-                        console.log("Current Rain Probability Data:", combinedHours); // Log combined rain probability data
-                        // console.log("Maximum Rain Probability:", rainPercentage);
-
-                        // Add the rain percentage to the current weather object
-                        currentWeather.rain_percentage = rainPercentage;
-
-                        // Use the humidity and feels like temperature at the current time
-                        currentWeather.relative_humidity_2m = weatherData.hourly.relative_humidity_2m[timeIndex];
-                        currentWeather.feels_like = weatherData.hourly.apparent_temperature[timeIndex];
-                        
-                        // Get wind direction at the current time
-                        currentWeather.wind_direction_10m = weatherData.hourly.wind_direction_10m[timeIndex];
-
-                        console.log("Current Humidity:", currentWeather.relative_humidity_2m);
-                        console.log("Feels Like Temperature:", currentWeather.feels_like);
-                        console.log("Wind Direction:", currentWeather.wind_direction_10m);
-
-                    } else {
-                        console.error("No matching time found in hourly data.");
-                    }
-
-                    // Use the country from the Nominatim API's address field
-                    const countryName = display_name.split(',').pop().trim() || "Unknown Country";
-
-                    console.log("Full Address:", display_name);
-                    // Print is_day and weathercode values to the console
-                    console.log("is_day:", currentWeather.is_day);
-                    console.log("weathercode:", currentWeather.weathercode);
-
-                    $('#errorMessage').fadeOut(350); // Hide the error message if the request succeeds
-                    callback(currentWeather, geoData[0]); // Pass weather and location data
-                } else {
-                    console.error("Unexpected API response:", weatherData);
-                    $("#locationModal .loader").attr("class", "loader").html("&#10005;");
-                }
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                console.error("API request failed:", textStatus, errorThrown);
-                console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
-                showError('Network error. Please try again.');
-            });
+            callback(geoData[0]);
         } else {
             console.error("Geocoding failed:", geoData);
             $("#locationModal .loader").attr("class", "loader").html("&#10005;");
+            callback(null);
         }
     }).fail(function (jqXHR, textStatus, errorThrown) {
         console.error("Geocoding request failed:", textStatus, errorThrown);
         console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
         showError('Network error. Please try again.');
+        callback(null);
+    });
+}
+
+function getWeatherDataForLocation(locationData, callback) {
+    if (!locationData || locationData.lat === undefined || locationData.lon === undefined) {
+        callback(null, null);
+        return;
+    }
+    const latitude = locationData.lat;
+    const longitude = locationData.lon;
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m,apparent_temperature,precipitation_probability,wind_direction_10m`;
+
+    $.get(weatherUrl, function (weatherData) {
+        console.log("API Response (Current Weather):", weatherData); // Log the API response for debugging
+
+        if (weatherData && weatherData.current_weather && weatherData.hourly) {
+            console.log("Total Rain Probability Data:", weatherData.hourly.precipitation_probability); // Log rain probability data
+            const currentWeather = weatherData.current_weather;
+            const currentTime = new Date().toISOString(); // Current time in ISO format (GMT)
+            const timeIndex = weatherData.hourly.time.findIndex(hour => hour === currentTime.slice(0, 13) + ":00");
+
+            console.log("Time Index:", timeIndex);
+
+            if (timeIndex !== -1) {
+                const previousHours = timeIndex === 0
+                    ? [weatherData.hourly.precipitation_probability[timeIndex]]
+                    : weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 1), timeIndex);
+                const currentHour = [weatherData.hourly.precipitation_probability[timeIndex]];
+                const nextHours = weatherData.hourly.precipitation_probability.slice(timeIndex + 1, timeIndex + 6);
+                const combinedHours = [...previousHours, ...currentHour, ...nextHours];
+                const rainPercentage = combinedHours.length > 0 ? Math.max(...combinedHours) : 0;
+
+                console.log("Current Rain Probability Data:", combinedHours);
+
+                currentWeather.rain_percentage = rainPercentage;
+                currentWeather.relative_humidity_2m = weatherData.hourly.relative_humidity_2m[timeIndex];
+                currentWeather.feels_like = weatherData.hourly.apparent_temperature[timeIndex];
+                currentWeather.wind_direction_10m = weatherData.hourly.wind_direction_10m[timeIndex];
+
+                console.log("Current Humidity:", currentWeather.relative_humidity_2m);
+                console.log("Feels Like Temperature:", currentWeather.feels_like);
+                console.log("Wind Direction:", currentWeather.wind_direction_10m);
+            } else {
+                console.error("No matching time found in hourly data.");
+            }
+
+            console.log("Full Address:", locationData.display_name);
+            console.log("is_day:", currentWeather.is_day);
+            console.log("weathercode:", currentWeather.weathercode);
+
+            $('#errorMessage').fadeOut(350); // Hide the error message if the request succeeds
+            callback(currentWeather, locationData);
+        } else {
+            console.error("Unexpected API response:", weatherData);
+            $("#locationModal .loader").attr("class", "loader").html("&#10005;");
+            callback(null, locationData);
+        }
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        console.error("API request failed:", textStatus, errorThrown);
+        console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
+        showError('Network error. Please try again.');
+        callback(null, locationData);
+    });
+}
+
+function getWeatherData(cityName, callback) {
+    getLocationData(cityName, function(locationData) {
+        if (!locationData) {
+            callback(null, null);
+            return;
+        }
+        getWeatherDataForLocation(locationData, callback);
     });
 }
 
 // Fetch weekly forecast data from Open-Meteo
-function getWeeklyForecast(cityName, callback) {
-    const geocodingUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
+function getWeeklyForecast(locationData, callback) {
+    if (!locationData || locationData.lat === undefined || locationData.lon === undefined) {
+        showError('City not found. Please enter a valid city name.');
+        callback(null);
+        return;
+    }
+    const latitude = locationData.lat;
+    const longitude = locationData.lon;
+    const forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_min,temperature_2m_max,weathercode&temperature_unit=fahrenheit&timezone=auto`;
 
-    // First, get the latitude and longitude of the city using OpenStreetMap's Nominatim API
-    $.get(geocodingUrl, function (geoData) {
-        if (geoData && geoData.length > 0) {
-            const { lat: latitude, lon: longitude } = geoData[0];
-
-            // Fetch forecast data using the latitude and longitude
-            const forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_min,temperature_2m_max,weathercode&temperature_unit=fahrenheit&timezone=auto`;
-
-            $.get(forecastUrl, function (forecastData) {
-                console.log("API Response (Weekly Forecast):", forecastData); // Log the API response for debugging
-                if (forecastData && forecastData.daily) {
-                    const dailyForecasts = processForecastData(forecastData.daily);
-                    callback(dailyForecasts);
-                } else {
-                    console.error("Unexpected API response:", forecastData);
-                    showError('Invalid data received from the weather API.');
-                }
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                console.error("API request failed:", textStatus, errorThrown);
-                console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
-                showError('Network error. Please try again.');
-            });
+    $.get(forecastUrl, function (forecastData) {
+        console.log("API Response (Weekly Forecast):", forecastData); // Log the API response for debugging
+        if (forecastData && forecastData.daily) {
+            const dailyForecasts = processForecastData(forecastData.daily);
+            callback(dailyForecasts);
         } else {
-            console.error("Geocoding failed:", geoData);
-            showError('City not found. Please enter a valid city name.');
+            console.error("Unexpected API response:", forecastData);
+            showError('Invalid data received from the weather API.');
+            callback(null);
         }
     }).fail(function (jqXHR, textStatus, errorThrown) {
-        console.error("Geocoding request failed:", textStatus, errorThrown);
+        console.error("API request failed:", textStatus, errorThrown);
         console.error("Response Text:", jqXHR.responseText); // Log the response text for debugging
         showError('Network error. Please try again.');
+        callback(null);
     });
+}
+
+function getCacheConfig() {
+    const maxEntries = parseInt(localStorage.typhoon_cache_max_entries || '8', 10);
+    const ttlMs = parseInt(localStorage.typhoon_cache_ttl_ms || '21600000', 10); // 6h
+    return {
+        maxEntries: Number.isFinite(maxEntries) && maxEntries > 0 ? maxEntries : 8,
+        ttlMs: Number.isFinite(ttlMs) && ttlMs > 0 ? ttlMs : 21600000,
+    };
+}
+
+function compactLocationData(locationData) {
+    return {
+        name: locationData.name,
+        display_name: locationData.display_name,
+        lat: locationData.lat,
+        lon: locationData.lon,
+    };
+}
+
+function pruneWeatherCache() {
+    const config = getCacheConfig();
+    const now = Date.now();
+    const validEntries = [];
+
+    Object.keys(weatherCache).forEach(function(city) {
+        const entry = weatherCache[city];
+        if (!entry || typeof entry !== 'object') return;
+        if (!entry.timestamp || (now - entry.timestamp) > config.ttlMs) return;
+        if (!entry.currentWeather || !entry.locationData || !entry.weeklyData) return;
+        validEntries.push({ city: city, timestamp: entry.timestamp, entry: entry });
+    });
+
+    validEntries.sort(function(a, b) { return b.timestamp - a.timestamp; });
+    const trimmed = validEntries.slice(0, config.maxEntries);
+    const nextCache = {};
+    trimmed.forEach(function(item) {
+        nextCache[item.city] = item.entry;
+    });
+    weatherCache = nextCache;
 }
 
 // Process forecast data from Open-Meteo
@@ -190,6 +220,7 @@ function processForecastData(dailyData) {
 function render(cityName) {
     $('.border .sync').addClass('busy');
     $(".border .settings").show();
+    pruneWeatherCache();
 
     // Check if we have cached data for instant display
     if (weatherCache[cityName]) {
@@ -207,11 +238,14 @@ function render(cityName) {
         }
 
         // Fetch and render weekly forecast
-        getWeeklyForecast(cityName, function (weeklyData) {
+        getWeeklyForecast(locationData, function (weeklyData) {
+            if (!weeklyData) {
+                return;
+            }
             // Cache the weather data
             weatherCache[cityName] = {
                 currentWeather: currentWeather,
-                locationData: locationData,
+                locationData: compactLocationData(locationData),
                 weeklyData: weeklyData,
                 timestamp: Date.now()
             };
@@ -758,6 +792,7 @@ function initLocations() {
     if (localStorage.typhoon_weather_cache) {
         try {
             weatherCache = JSON.parse(localStorage.typhoon_weather_cache);
+            pruneWeatherCache();
         } catch (e) {
             weatherCache = {};
         }
@@ -772,12 +807,14 @@ function saveLocations() {
 
 // Save weather cache to localStorage
 function saveWeatherCache() {
+    pruneWeatherCache();
     localStorage.typhoon_weather_cache = JSON.stringify(weatherCache);
 }
 
 // Navigate to a specific location
 // Display location using only cached data - no network calls
 function displayCachedLocationOnly(cityName) {
+    pruneWeatherCache();
     if (!weatherCache[cityName]) {
         return; // No cached data available, don't display anything
     }
@@ -876,7 +913,10 @@ $(document).ready(function() {
     $('#removeLocation').click(function() {
         if (currentLocations.length > 0) {
             // Remove current location
+            const removedCity = currentLocations[currentLocationIndex];
             currentLocations.splice(currentLocationIndex, 1);
+            delete weatherCache[removedCity];
+            saveWeatherCache();
             
             // Adjust index if needed
             if (currentLocationIndex >= currentLocations.length && currentLocationIndex > 0) {
@@ -1022,6 +1062,24 @@ function init_settings() {
     localStorage.typhoon_color = localStorage.typhoon_color || "gradient";
     localStorage.typhoon_launcher = localStorage.typhoon_launcher || "checked";
 
+    // Bind custom color picker handlers once.
+    const customColorPicker = $('#customColorPicker');
+    if (localStorage.typhoon_custom_color) {
+        customColorPicker.val(localStorage.typhoon_custom_color);
+    }
+    function applyCustomColorInstantly(color) {
+        localStorage.typhoon_color = 'custom';
+        localStorage.typhoon_custom_color = color;
+        $("#container").css("background", color);
+        $('.color span').removeClass('selected');
+        customColorPicker.addClass('selected');
+    }
+    customColorPicker
+        .off('input.typhoonCustomColor change.typhoonCustomColor')
+        .on('input.typhoonCustomColor change.typhoonCustomColor', function() {
+            applyCustomColorInstantly($(this).val());
+        });
+
     $('#locationModal .measurement [data-type=' + localStorage.typhoon_measurement + ']').addClass('selected');
     $('#locationModal .speed [data-type=' + localStorage.typhoon_speed + ']').addClass('selected');
 
@@ -1137,11 +1195,15 @@ function show_settings(amount) {
         $("#locationModal .full").hide()
         $("#locationModal .credits").hide()
     }
-    $('.btn[tag="credits"]').click(function() {
+    $('.btn[tag="credits"]')
+    .off('click.typhoonCredits')
+    .on('click.typhoonCredits', function() {
         $("#locationModal .input, #locationModal .full, .settings, .sync, #locationNav").hide()
         $("#locationModal .credits").fadeIn(500)
     })
-    $('#locationModal .credits img').click(function() {
+    $('#locationModal .credits img')
+    .off('click.typhoonCreditsBack')
+    .on('click.typhoonCreditsBack', function() {
         $("#locationModal .credits").fadeOut(350)
         if(currentLocations.length===1) {
             $("#locationModal .input, #locationModal .full, .settings, .sync").fadeIn(350)
