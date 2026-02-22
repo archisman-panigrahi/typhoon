@@ -1,9 +1,3 @@
-Coming Soon
-----
+(Deprecated)
 
-
-
-# Typhoon
-
-
-![Typhoon](https://raw.github.com/apandada1/typhoon/gh-pages/assets/img/typhoon.png)
+This is a much older version of Typhoon that used node webkit. Currently, the master branch holds combined code for both Windows and GNU/Linux.
