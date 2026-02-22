@@ -57,10 +57,14 @@ except ImportError:
     )
     from PyQt5.QtWidgets import QApplication, QMenu, QStyle, QSystemTrayIcon, QWidget
 
-try:
-    import cairosvg
-except ImportError:
-    cairosvg = None
+cairosvg = None
+if not IS_WINDOWS:
+    try:
+        import importlib
+
+        cairosvg = importlib.import_module("cairosvg")
+    except Exception:
+        cairosvg = None
 
 if IS_WINDOWS:
     Xdp = None
