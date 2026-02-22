@@ -9,9 +9,30 @@ import sys
 import threading
 from urllib.parse import unquote, urlparse
 
-import dbus
-import dbus.mainloop.glib
-import dbus.service
+IS_WINDOWS = sys.platform.startswith("win")
+
+if not IS_WINDOWS:
+    try:
+        import dbus
+        import dbus.mainloop.glib
+        import dbus.service
+    except Exception:
+        dbus = None
+else:
+    dbus = None
+
+if IS_WINDOWS:
+    try:
+        import ctypes
+    except Exception:
+        ctypes = None
+    try:
+        import winreg
+    except Exception:
+        winreg = None
+else:
+    ctypes = None
+    winreg = None
 
 QT_MAJOR = 6
 try:
@@ -23,7 +44,7 @@ try:
         QWebEngineSettings,
     )
     from PyQt6.QtWebEngineWidgets import QWebEngineView
-    from PyQt6.QtWidgets import QApplication, QWidget
+    from PyQt6.QtWidgets import QApplication, QMenu, QStyle, QSystemTrayIcon, QWidget
 except ImportError:
     QT_MAJOR = 5
     from PyQt5.QtCore import QEvent, QPoint, Qt, QUrl
@@ -34,26 +55,30 @@ except ImportError:
         QWebEngineSettings,
         QWebEngineView,
     )
-    from PyQt5.QtWidgets import QApplication, QWidget
+    from PyQt5.QtWidgets import QApplication, QMenu, QStyle, QSystemTrayIcon, QWidget
 
 try:
     import cairosvg
 except ImportError:
     cairosvg = None
 
-try:
-    import gi
-
-    gi.require_version("Xdp", "1.0")
-    from gi.repository import Xdp
-    try:
-        gi.require_version("Unity", "7.0")
-        from gi.repository import Unity
-    except Exception:
-        Unity = None
-except Exception:
+if IS_WINDOWS:
     Xdp = None
     Unity = None
+else:
+    try:
+        import gi
+
+        gi.require_version("Xdp", "1.0")
+        from gi.repository import Xdp
+        try:
+            gi.require_version("Unity", "7.0")
+            from gi.repository import Unity
+        except Exception:
+            Unity = None
+    except Exception:
+        Xdp = None
+        Unity = None
 
 
 logger = logging.getLogger(__name__)
@@ -89,6 +114,10 @@ if QT_MAJOR == 6:
     QT_TEXT_ANTIALIAS = QPainter.RenderHint.TextAntialiasing
     QT_WA_TRANSLUCENT_BG = Qt.WidgetAttribute.WA_TranslucentBackground
     QT_COLOR_TRANSPARENT = Qt.GlobalColor.transparent
+    QT_TRAY_INFO = QSystemTrayIcon.MessageIcon.Information
+    QT_TRAY_TRIGGER = QSystemTrayIcon.ActivationReason.Trigger
+    QT_TRAY_DOUBLECLICK = QSystemTrayIcon.ActivationReason.DoubleClick
+    QT_STYLE_INFO_ICON = QStyle.StandardPixmap.SP_MessageBoxInformation
 else:
     QT_NAV_LINK_CLICKED = QWebEnginePage.NavigationTypeLinkClicked
     QT_CURSOR_BDIAG = Qt.SizeBDiagCursor
@@ -115,12 +144,33 @@ else:
     QT_TEXT_ANTIALIAS = QPainter.TextAntialiasing
     QT_WA_TRANSLUCENT_BG = Qt.WA_TranslucentBackground
     QT_COLOR_TRANSPARENT = Qt.transparent
+    QT_TRAY_INFO = QSystemTrayIcon.Information
+    QT_TRAY_TRIGGER = QSystemTrayIcon.Trigger
+    QT_TRAY_DOUBLECLICK = QSystemTrayIcon.DoubleClick
+    QT_STYLE_INFO_ICON = QStyle.SP_MessageBoxInformation
 
 
 def event_global_point(event):
     if hasattr(event, "globalPosition"):
         return event.globalPosition().toPoint()
     return event.globalPos()
+
+
+def app_resource_dir():
+    if getattr(sys, "frozen", False):
+        return getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def app_resource_path(filename):
+    base = app_resource_dir()
+    direct = os.path.join(base, filename)
+    if os.path.exists(direct):
+        return direct
+    nested = os.path.join(base, "typhoon", filename)
+    if os.path.exists(nested):
+        return nested
+    return direct
 
 
 class TyphoonWebPage(QWebEnginePage):
@@ -135,19 +185,22 @@ class TyphoonWebPage(QWebEnginePage):
         return super().acceptNavigationRequest(url, nav_type, is_main_frame)
 
 
-class Service(dbus.service.Object):
-    def __init__(self):
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        bus_name = dbus.service.BusName(
-            "io.github.archisman_panigrahi.typhoon", dbus.SessionBus()
-        )
-        super().__init__(bus_name, "/io/github/archisman_panigrahi/typhoon")
+if dbus is not None:
+    class Service(dbus.service.Object):
+        def __init__(self):
+            dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+            bus_name = dbus.service.BusName(
+                "io.github.archisman_panigrahi.typhoon", dbus.SessionBus()
+            )
+            super().__init__(bus_name, "/io/github/archisman_panigrahi/typhoon")
 
-    @dbus.service.signal(
-        dbus_interface="com.canonical.Unity.LauncherEntry", signature="sa{sv}"
-    )
-    def Update(self, app_uri, properties):
-        logger.info("Launcher update %s %s", app_uri, properties)
+        @dbus.service.signal(
+            dbus_interface="com.canonical.Unity.LauncherEntry", signature="sa{sv}"
+        )
+        def Update(self, app_uri, properties):
+            logger.info("Launcher update %s %s", app_uri, properties)
+else:
+    Service = None
 
 
 class ResizeHandle(QWidget):
@@ -239,8 +292,11 @@ class TyphoonWindow(QWidget):
         self._drag_start = QPoint()
         self._dragging = False
         self._prefer_per_pixel_alpha = self._is_wayland_platform()
+        self._notification_tray = None
+        self._tray_menu = None
 
         self._initialize_window()
+        self._setup_notification_tray()
         self._setup_webview()
         self._setup_dbus_launcher()
         self._restore_size_and_position()
@@ -314,10 +370,7 @@ class TyphoonWindow(QWidget):
             handle.raise_()
 
     def _set_window_icon(self):
-        icon_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            "io.github.archisman_panigrahi.typhoon.svg",
-        )
+        icon_path = app_resource_path("io.github.archisman_panigrahi.typhoon.svg")
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
 
@@ -352,14 +405,14 @@ class TyphoonWindow(QWidget):
         self.webview.titleChanged.connect(self._handle_title_change)
         self.webview.loadFinished.connect(self._on_load_finished)
 
-        html_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "typhoon.html"
-        )
+        html_path = app_resource_path("typhoon.html")
         self.webview.setUrl(QUrl.fromLocalFile(html_path))
 
     def _setup_dbus_launcher(self):
         self.launcher = None
         self.launcher_service = None
+        if dbus is None or Service is None:
+            return
         if Unity is not None:
             try:
                 self.launcher = Unity.LauncherEntry.get_for_desktop_id(
@@ -377,6 +430,55 @@ class TyphoonWindow(QWidget):
         self.launcher_service.Update(
             "application://io.github.archisman_panigrahi.typhoon.desktop", {}
         )
+
+    def _setup_notification_tray(self):
+        if not IS_WINDOWS:
+            return
+
+        if not QSystemTrayIcon.isSystemTrayAvailable():
+            logger.info("System tray unavailable; Qt tray notifications disabled")
+            return
+
+        icon = self.windowIcon()
+        if icon.isNull():
+            icon = QApplication.style().standardIcon(QT_STYLE_INFO_ICON)
+
+        self._notification_tray = QSystemTrayIcon(icon, self)
+        self._notification_tray.setToolTip("Typhoon")
+        self._notification_tray.activated.connect(self._on_tray_activated)
+        self._tray_menu = QMenu(self)
+        exit_action = self._tray_menu.addAction("Exit")
+        exit_action.triggered.connect(self._exit_from_tray)
+        self._notification_tray.setContextMenu(self._tray_menu)
+        self._notification_tray.show()
+
+    def _send_qt_notification(self, message):
+        if self._notification_tray is None:
+            return False
+        if not self._notification_tray.isVisible():
+            self._notification_tray.show()
+        self._notification_tray.showMessage(
+            "Typhoon Weather Alert",
+            str(message),
+            QT_TRAY_INFO,
+            5000,
+        )
+        return True
+
+    def _exit_from_tray(self):
+        app = QApplication.instance()
+        if app is not None:
+            app.quit()
+
+    def _on_tray_activated(self, reason):
+        if reason not in (QT_TRAY_TRIGGER, QT_TRAY_DOUBLECLICK):
+            return
+        if self.isMinimized():
+            self.showNormal()
+        else:
+            self.show()
+        self.raise_()
+        self.activateWindow()
 
     def _restore_size_and_position(self):
         last_width, last_height = self._get_last_window_size()
@@ -420,6 +522,10 @@ class TyphoonWindow(QWidget):
             raise ValueError("Invalid color format from wallpaper method")
         except Exception as e:
             logger.info("Error determining color from wallpaper: %s", e)
+
+        if IS_WINDOWS:
+            self._get_accent_color()
+            return
 
         try:
             output = subprocess.check_output(["xprop", "-root"], text=True)
@@ -472,6 +578,10 @@ class TyphoonWindow(QWidget):
 
     def _get_accent_color(self):
         logger.info("Getting system accent color")
+        if IS_WINDOWS:
+            self._get_windows_accent_color()
+            return
+
         hex_color = "575591"
         used_source = None
 
@@ -521,11 +631,65 @@ class TyphoonWindow(QWidget):
 
         self.send_message_to_webview(f"'{hex_color}'")
 
+    def _registry_read_dword(self, path, name):
+        if winreg is None:
+            return None
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, path) as key:
+                value, _ = winreg.QueryValueEx(key, name)
+                if isinstance(value, int):
+                    return value
+        except Exception:
+            return None
+        return None
+
+    def _get_windows_accent_color(self):
+        hex_color = None
+        used_source = None
+
+        # DWM colorization is typically ARGB; keep RGB bytes.
+        value = self._registry_read_dword(
+            r"Software\Microsoft\Windows\DWM", "ColorizationColor"
+        )
+        if value is not None:
+            r = (value >> 16) & 0xFF
+            g = (value >> 8) & 0xFF
+            b = value & 0xFF
+            hex_color = "{:02x}{:02x}{:02x}".format(r, g, b)
+            used_source = "windows-dwm"
+
+        if hex_color is None:
+            value = self._registry_read_dword(
+                r"Software\Microsoft\Windows\CurrentVersion\Explorer\Accent",
+                "AccentColorMenu",
+            )
+            if value is not None:
+                # Explorer accent uses ABGR order.
+                r = value & 0xFF
+                g = (value >> 8) & 0xFF
+                b = (value >> 16) & 0xFF
+                hex_color = "{:02x}{:02x}{:02x}".format(r, g, b)
+                used_source = "windows-accent"
+
+        if hex_color is None:
+            # Fallback to Qt palette highlight color.
+            highlight = QApplication.palette().highlight().color()
+            hex_color = "{:02x}{:02x}{:02x}".format(
+                highlight.red(), highlight.green(), highlight.blue()
+            )
+            used_source = "qt-palette"
+
+        logger.info("Accent color found via %s: '#%s'", used_source, hex_color)
+        self.send_message_to_webview(f"'{hex_color}'")
+
     def send_message_to_webview(self, message):
         js_code = f"receiveMessage({message});"
         self.webview.page().runJavaScript(js_code)
 
     def _send_dbus_notification(self, message):
+        if dbus is None:
+            logger.info("D-Bus unavailable; skipping Linux notification backend")
+            return
         try:
             bus = dbus.SessionBus()
             notify_obj = bus.get_object(
@@ -548,6 +712,12 @@ class TyphoonWindow(QWidget):
         except Exception as e:
             logger.error("Failed to send D-Bus notification: %s", e)
 
+    def _send_windows_notification(self, message):
+        logger.warning(
+            "Windows notification skipped: Qt system tray notification backend unavailable. Message: %s",
+            message,
+        )
+
     def _handle_title_change(self, title):
         if not title:
             return
@@ -556,9 +726,13 @@ class TyphoonWindow(QWidget):
 
         if title.startswith("notify:"):
             message = title[len("notify:"):] or "Weather alert"
-            threading.Thread(
-                target=self._send_dbus_notification, args=(message,), daemon=True
-            ).start()
+            if IS_WINDOWS:
+                if not self._send_qt_notification(message):
+                    self._send_windows_notification(message)
+            else:
+                threading.Thread(
+                    target=self._send_dbus_notification, args=(message,), daemon=True
+                ).start()
             return
 
         if title.startswith("height="):
@@ -643,7 +817,7 @@ class TyphoonWindow(QWidget):
             count = int(title)
             self.launcher_service.Update(
                 "application://io.github.archisman_panigrahi.typhoon.desktop",
-                {"count": dbus.Int64(count)},
+                {"count": dbus.Int64(count) if dbus is not None else count},
             )
         except ValueError:
             pass
@@ -651,7 +825,10 @@ class TyphoonWindow(QWidget):
             logger.warning("Failed to update launcher count: %s", e)
 
     def _get_config_dir(self):
-        config_dir = os.getenv("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
+        if IS_WINDOWS:
+            config_dir = os.getenv("APPDATA", os.path.expanduser("~"))
+        else:
+            config_dir = os.getenv("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
         app_config_dir = os.path.join(config_dir, "io.github.archisman_panigrahi.typhoon")
         os.makedirs(app_config_dir, exist_ok=True)
         return app_config_dir
@@ -703,6 +880,9 @@ class TyphoonWindow(QWidget):
             return None
 
     def get_wallpaper_path(self):
+        if IS_WINDOWS:
+            return self._get_windows_wallpaper_path()
+
         if os.environ.get("FLATPAK_ID") is not None or os.environ.get("SNAP") is not None:
             raise RuntimeError("Flatpak or Snap detected, use xprop/accent fallback.")
 
@@ -784,6 +964,21 @@ class TyphoonWindow(QWidget):
         parsed = urlparse(wallpaper)
         if parsed.scheme == "file":
             wallpaper = unquote(parsed.path)
+        logger.info("Wallpaper path: %s", wallpaper)
+        return wallpaper
+
+    def _get_windows_wallpaper_path(self):
+        if winreg is None:
+            raise RuntimeError("winreg module unavailable")
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Control Panel\Desktop") as key:
+                wallpaper, _ = winreg.QueryValueEx(key, "WallPaper")
+        except Exception as e:
+            raise RuntimeError(f"Could not read Windows wallpaper path: {e}") from e
+
+        wallpaper = str(wallpaper).strip()
+        if not wallpaper:
+            raise RuntimeError("Windows wallpaper path is empty")
         logger.info("Wallpaper path: %s", wallpaper)
         return wallpaper
 
@@ -878,9 +1073,18 @@ class TyphoonWindow(QWidget):
 
 
 def main():
+    if IS_WINDOWS and ctypes is not None:
+        try:
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+                "io.github.archisman_panigrahi.typhoon"
+            )
+        except Exception:
+            pass
+
     app = QApplication(sys.argv)
     app.setApplicationName("Typhoon")
-    if hasattr(app, "setDesktopFileName"):
+    app.setQuitOnLastWindowClosed(True)
+    if hasattr(app, "setDesktopFileName") and not IS_WINDOWS:
         app.setDesktopFileName("io.github.archisman_panigrahi.typhoon")
     window = TyphoonWindow()
     window.show()

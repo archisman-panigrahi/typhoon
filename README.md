@@ -69,7 +69,9 @@ Typhoon is available on [Flathub](https://flathub.org) and the [Snap Store](http
 
 *Note that the chameleonic background does not work in the flatpak and snap packages. To use this feature, use the native packages instead.*
 
-On **Windows** you can [install typhoon via WSL](https://archisman-panigrahi.github.io/typhoon/windows-wsl).
+On **Windows**, download the prebuilt installers from [GitHub releases](https://github.com/archisman-panigrahi/typhoon/releases).
+
+Linux-specific integrations (`dbus-python`, `python-gobject`, `libportal`) are optional on Windows.
 
 
 
@@ -78,7 +80,9 @@ This project uses the Meson build system for configuration and installation.
 
 ### Build Instructions
 1. Ensure you have Meson and Ninja installed on your system.
-2. Install the dependencies: `PyQt6`, `PyQt6-WebEngine`, `dbus-python`, `python-gobject`, `libportal`.
+2. Install the dependencies:
+   - Common: `PyQt6`, `PyQt6-WebEngine`
+   - Linux extras: `dbus-python`, `python-gobject`, `libportal`
 3. Navigate to the project directory.
 4. Run the following commands to build and install the application:
 

@@ -1,0 +1,86 @@
+name: Build Windows Installer
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build-windows-installer:
+    name: Build NSIS Installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller PyQt6 PyQt6-WebEngine cairosvg
+
+      - name: Build Windows app bundle (PyInstaller)
+        shell: pwsh
+        run: |
+          pyinstaller `
+            --noconfirm `
+            --clean `
+            --windowed `
+            --name Typhoon `
+            --add-data "typhoon;typhoon" `
+            typhoon/typhoon_window.py
+
+      - name: Install NSIS
+        shell: pwsh
+        run: |
+          choco install nsis -y
+          $nsisDir = "${env:ProgramFiles(x86)}\NSIS"
+          if (!(Test-Path "$nsisDir\makensis.exe")) {
+            throw "makensis.exe not found in $nsisDir"
+          }
+          $nsisDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Build NSIS installer
+        shell: pwsh
+        run: |
+          if ("${{ github.ref }}" -like "refs/tags/*") {
+            $version = "${{ github.ref_name }}"
+            if ($version.StartsWith("v")) { $version = $version.Substring(1) }
+          } else {
+            $version = "dev-${{ github.run_number }}"
+          }
+
+          New-Item -Path dist-installer -ItemType Directory -Force | Out-Null
+          $buildDir = (Resolve-Path "dist/Typhoon").Path
+          $outDir = (Resolve-Path "dist-installer").Path
+
+          $makensis = "${env:ProgramFiles(x86)}\NSIS\makensis.exe"
+          if (!(Test-Path $makensis)) {
+            $makensis = "makensis"
+          }
+
+          & $makensis `
+            "/DPRODUCT_VERSION=$version" `
+            "/DAPP_BUILD_DIR=$buildDir" `
+            "/DOUTPUT_DIR=$outDir" `
+            "windows_packaging/installer.nsi"
+
+      - name: Upload installer as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: dist-installer/*.exe
+
+      - name: Upload installer to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist-installer/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
