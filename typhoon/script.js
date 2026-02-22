@@ -602,22 +602,22 @@ $(function() {
         return { h: h, s: Math.round(s * 100), v: Math.round(v * 100) };
     }
 
-    function applyCustomColorInstantly(color) {
+    function applyCustomColorInstantly(color, persistSelection) {
         const hex = normalizeHexColor(color);
-        localStorage.typhoon_color = 'custom';
-        localStorage.typhoon_custom_color = hex;
-        $("#container").css("background", hex);
+        if (persistSelection !== false) {
+            localStorage.typhoon_color = 'custom';
+            localStorage.typhoon_custom_color = hex;
+            $("#container").css("background", hex);
+        }
         customColorPicker.css("background-color", hex);
-        $('.color span').removeClass('selected');
-        customColorPicker.addClass('selected');
     }
 
-    function updateCustomColorFromSliders() {
+    function updateCustomColorFromSliders(persistSelection) {
         const hue = parseInt(customHueSlider.val(), 10);
         const sat = parseInt(customSatSlider.val(), 10);
         const darkness = parseInt(customDarkSlider.val(), 10);
         const rgb = hsvToRgb(hue, sat, darkness);
-        applyCustomColorInstantly(rgbToHex(rgb.r, rgb.g, rgb.b));
+        applyCustomColorInstantly(rgbToHex(rgb.r, rgb.g, rgb.b), persistSelection);
 
         const satStart = hsvToRgb(hue, 0, darkness);
         const satEnd = hsvToRgb(hue, 100, darkness);
@@ -639,7 +639,7 @@ $(function() {
     customHueSlider.val(initialHsv.h);
     customSatSlider.val(initialHsv.s);
     customDarkSlider.val(initialHsv.v);
-    updateCustomColorFromSliders();
+    updateCustomColorFromSliders(false);
 
     customColorPicker.off('click.custompicker').on('click.custompicker', function(e) {
         e.preventDefault();
