@@ -65,4 +65,10 @@ if [ -f snap/snapcraft.yaml ]; then
     echo "Updated snap/snapcraft.yaml"
 fi
 
+# 6. Update aur/PKGBUILD
+if [ -f aur/PKGBUILD ]; then
+    sed -i "s/^pkgver=.*/pkgver=$NEW_VERSION/" aur/PKGBUILD
+    echo "Updated aur/PKGBUILD"
+fi
+
 echo "All done. Version updated to $NEW_VERSION."
