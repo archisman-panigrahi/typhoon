@@ -12,16 +12,16 @@ BuildRequires:  meson
 BuildRequires:  python3-setuptools
 BuildRequires:  dbus-devel
 BuildRequires:  python3-dbus
-BuildRequires:  python3-qt6
-BuildRequires:  python3-qt6-webengine
+BuildRequires:  python3-pyqt6
+BuildRequires:  python3-pyqt6-webengine
 BuildRequires:  libportal-devel
 BuildRequires:  python3-gobject-base
 BuildRequires:  desktop-file-utils
 
 Requires:       dbus
 Requires:       python3-dbus
-Requires:       python3-qt6
-Requires:       python3-qt6-webengine
+Requires:       python3-pyqt6
+Requires:       python3-pyqt6-webengine
 Requires:       libportal
 Requires:       python3-gobject-base
 Recommends:     python3-cairosvg
