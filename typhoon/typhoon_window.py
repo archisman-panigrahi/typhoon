@@ -1116,6 +1116,10 @@ class TyphoonWindow(QWidget):
                 self._dragging = False
                 self._drag_touch_id = None
                 self._touch_drag_active = False
+                # Touch has no hover state; interactive taps may send "disabledrag"
+                # without a matching "enabledrag". Reset after touch gesture ends so
+                # the next touch-drag can start without an extra priming tap.
+                self.drag_enabled = True
                 if was_dragging:
                     event.accept()
                     return True
