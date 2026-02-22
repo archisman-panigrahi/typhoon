@@ -607,7 +607,7 @@ $(function() {
         localStorage.typhoon_color = 'custom';
         localStorage.typhoon_custom_color = hex;
         $("#container").css("background", hex);
-        customColorPicker.css("background", hex);
+        customColorPicker.css("background-color", hex);
         $('.color span').removeClass('selected');
         customColorPicker.addClass('selected');
     }
@@ -634,7 +634,7 @@ $(function() {
     }
 
     const initial = hexToRgb(localStorage.typhoon_custom_color || '#575591');
-    customColorPicker.css("background", rgbToHex(initial.r, initial.g, initial.b));
+    customColorPicker.css("background-color", rgbToHex(initial.r, initial.g, initial.b));
     const initialHsv = rgbToHsv(initial.r, initial.g, initial.b);
     customHueSlider.val(initialHsv.h);
     customSatSlider.val(initialHsv.s);

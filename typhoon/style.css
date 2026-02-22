@@ -538,7 +538,11 @@ p, span, div {
     width: 16px;
     height: 16px;
     border: 0;
-    background: linear-gradient(90deg, #ff0000 0%, #ff9900 16%, #ffff00 33%, #00ff00 50%, #00ffff 66%, #0000ff 83%, #791779 100%);
+    background-color: #575591;
+    background-image: url("dropper-svgrepo-com.svg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 11px 11px;
     vertical-align: middle;
     cursor: default;
     display: inline-block;
