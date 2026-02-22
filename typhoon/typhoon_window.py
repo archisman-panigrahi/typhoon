@@ -108,6 +108,10 @@ if QT_MAJOR == 6:
     QT_EVENT_MOUSE_PRESS = QEvent.Type.MouseButtonPress
     QT_EVENT_MOUSE_MOVE = QEvent.Type.MouseMove
     QT_EVENT_MOUSE_RELEASE = QEvent.Type.MouseButtonRelease
+    QT_EVENT_TOUCH_BEGIN = QEvent.Type.TouchBegin
+    QT_EVENT_TOUCH_UPDATE = QEvent.Type.TouchUpdate
+    QT_EVENT_TOUCH_END = QEvent.Type.TouchEnd
+    QT_EVENT_TOUCH_CANCEL = QEvent.Type.TouchCancel
     QT_EVENT_WINDOW_STATE_CHANGE = QEvent.Type.WindowStateChange
     QT_ATTR_LOCAL_STORAGE = QWebEngineSettings.WebAttribute.LocalStorageEnabled
     QT_ATTR_LOCAL_TO_REMOTE = QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls
@@ -117,6 +121,7 @@ if QT_MAJOR == 6:
     QT_SMOOTH_TRANSFORM = Qt.TransformationMode.SmoothTransformation
     QT_TEXT_ANTIALIAS = QPainter.RenderHint.TextAntialiasing
     QT_WA_TRANSLUCENT_BG = Qt.WidgetAttribute.WA_TranslucentBackground
+    QT_WA_ACCEPT_TOUCH = Qt.WidgetAttribute.WA_AcceptTouchEvents
     QT_COLOR_TRANSPARENT = Qt.GlobalColor.transparent
     QT_TRAY_INFO = QSystemTrayIcon.MessageIcon.Information
     QT_TRAY_TRIGGER = QSystemTrayIcon.ActivationReason.Trigger
@@ -138,6 +143,10 @@ else:
     QT_EVENT_MOUSE_PRESS = QEvent.MouseButtonPress
     QT_EVENT_MOUSE_MOVE = QEvent.MouseMove
     QT_EVENT_MOUSE_RELEASE = QEvent.MouseButtonRelease
+    QT_EVENT_TOUCH_BEGIN = QEvent.TouchBegin
+    QT_EVENT_TOUCH_UPDATE = QEvent.TouchUpdate
+    QT_EVENT_TOUCH_END = QEvent.TouchEnd
+    QT_EVENT_TOUCH_CANCEL = QEvent.TouchCancel
     QT_EVENT_WINDOW_STATE_CHANGE = QEvent.WindowStateChange
     QT_ATTR_LOCAL_STORAGE = QWebEngineSettings.LocalStorageEnabled
     QT_ATTR_LOCAL_TO_REMOTE = QWebEngineSettings.LocalContentCanAccessRemoteUrls
@@ -147,6 +156,7 @@ else:
     QT_SMOOTH_TRANSFORM = Qt.SmoothTransformation
     QT_TEXT_ANTIALIAS = QPainter.TextAntialiasing
     QT_WA_TRANSLUCENT_BG = Qt.WA_TranslucentBackground
+    QT_WA_ACCEPT_TOUCH = Qt.WA_AcceptTouchEvents
     QT_COLOR_TRANSPARENT = Qt.transparent
     QT_TRAY_INFO = QSystemTrayIcon.Information
     QT_TRAY_TRIGGER = QSystemTrayIcon.Trigger
@@ -158,6 +168,31 @@ def event_global_point(event):
     if hasattr(event, "globalPosition"):
         return event.globalPosition().toPoint()
     return event.globalPos()
+
+
+def touch_event_global_point(event, touch_id=None):
+    points = event.points() if hasattr(event, "points") else event.touchPoints()
+    if not points:
+        return None, None
+
+    selected = None
+    if touch_id is not None:
+        for point in points:
+            if point.id() == touch_id:
+                selected = point
+                break
+
+    if selected is None:
+        selected = points[0]
+
+    if hasattr(selected, "globalPosition"):
+        global_pos = selected.globalPosition().toPoint()
+    elif hasattr(selected, "screenPos"):
+        global_pos = selected.screenPos().toPoint()
+    else:
+        return None, None
+
+    return global_pos, selected.id()
 
 
 def app_resource_dir():
@@ -295,6 +330,7 @@ class TyphoonWindow(QWidget):
         self._resizing_guard = False
         self._drag_start = QPoint()
         self._dragging = False
+        self._drag_touch_id = None
         self._prefer_per_pixel_alpha = self._is_wayland_platform()
         self._notification_tray = None
         self._tray_menu = None
@@ -338,6 +374,7 @@ class TyphoonWindow(QWidget):
         self.setWindowTitle("Typhoon")
         self.setWindowFlags(QT_WINDOW_FLAGS)
         self.setAttribute(QT_WA_TRANSLUCENT_BG, True)
+        self.setAttribute(QT_WA_ACCEPT_TOUCH, True)
         self.setAutoFillBackground(False)
         self.setStyleSheet("background: transparent;")
         self.setMouseTracking(True)
@@ -381,6 +418,7 @@ class TyphoonWindow(QWidget):
     def _setup_webview(self):
         self.webview = QWebEngineView(self)
         self.webview.setAttribute(QT_WA_TRANSLUCENT_BG, True)
+        self.webview.setAttribute(QT_WA_ACCEPT_TOUCH, True)
         self.webview.setStyleSheet("background: transparent;")
         profile_root = os.path.join(self._get_config_dir(), "qtwebengine")
         os.makedirs(profile_root, exist_ok=True)
@@ -1024,6 +1062,7 @@ class TyphoonWindow(QWidget):
                     QT_MOUSE_LEFT,
                     QT_MOUSE_MIDDLE,
                 ):
+                    self._drag_touch_id = None
                     if self._start_window_drag():
                         return True
                     self._dragging = True
@@ -1036,6 +1075,29 @@ class TyphoonWindow(QWidget):
                 return True
             elif event.type() == QT_EVENT_MOUSE_RELEASE:
                 self._dragging = False
+                self._drag_touch_id = None
+            elif event.type() == QT_EVENT_TOUCH_BEGIN and self.drag_enabled:
+                touch_pos, touch_id = touch_event_global_point(event)
+                if touch_pos is None:
+                    return True
+                self._drag_touch_id = touch_id
+                if self._start_window_drag():
+                    event.accept()
+                    return True
+                self._dragging = True
+                self._drag_start = touch_pos - self.frameGeometry().topLeft()
+                event.accept()
+                return True
+            elif event.type() == QT_EVENT_TOUCH_UPDATE and self._dragging:
+                touch_pos, _ = touch_event_global_point(event, self._drag_touch_id)
+                if touch_pos is None:
+                    return True
+                self.move(touch_pos - self._drag_start)
+                event.accept()
+                return True
+            elif event.type() in (QT_EVENT_TOUCH_END, QT_EVENT_TOUCH_CANCEL):
+                self._dragging = False
+                self._drag_touch_id = None
         return super().eventFilter(obj, event)
 
     def resizeEvent(self, event):
