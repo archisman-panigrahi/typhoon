@@ -227,17 +227,6 @@ class ResizeHandle(QWidget):
         super().mouseReleaseEvent(event)
 
     def paintEvent(self, event):
-        if self.direction != "bottom_right":
-            super().paintEvent(event)
-            return
-        painter = QPainter(self)
-        painter.setRenderHint(QT_TEXT_ANTIALIAS)
-        painter.setPen(QT_COLOR_WHITE)
-        # Draw a small corner line so the handle looks like a classic resize grip.
-        painter.drawLine(self.width() - 2, self.height() - 2, self.width() - 2, self.height() - 8)
-        painter.drawLine(self.width() - 2, self.height() - 2, self.width() - 8, self.height() - 2)
-        painter.drawText(self.rect(), QT_ALIGN_CENTER, "↘")
-        painter.end()
         super().paintEvent(event)
 
 
