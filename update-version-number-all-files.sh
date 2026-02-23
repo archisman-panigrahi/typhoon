@@ -13,11 +13,22 @@ CHANGELOG="$2"
 EMAIL="apandada1@gmail.com"
 DATE_RFC2822=$(date -R)
 DATE_ISO=$(date +%Y-%m-%d)
+DATE_RPM=$(date '+%a %b %d %Y')
 
 # 1. Update fedora-package.spec
 if [ -f fedora-package.spec ]; then
     sed -i "s/^Version:\s*[0-9.]\+/Version:        $NEW_VERSION/" fedora-package.spec
-    echo "Updated fedora-package.spec"
+    
+    # Update changelog in spec file
+    CHANGELOG_ENTRY="* $DATE_RPM Archisman Panigrahi <$EMAIL> - $NEW_VERSION-1
+- $CHANGELOG
+"
+    # Insert after %changelog line
+    awk -v entry="$CHANGELOG_ENTRY" '
+        /^%changelog/ && !x {print; print entry; x=1; next} 1
+    ' fedora-package.spec > fedora-package.spec.tmp && mv fedora-package.spec.tmp fedora-package.spec
+    
+    echo "Updated fedora-package.spec and its changelog"
 fi
 
 # 2. Update typhoon/typhoon.html

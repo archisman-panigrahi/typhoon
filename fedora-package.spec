@@ -5,7 +5,7 @@ Summary:        Check the weather with style
 
 License:        MIT
 URL:            https://archisman-panigrahi.github.io/typhoon
-Source0:        https://github.com/archisman-panigrahi/typhoon/archive/refs/heads/master.tar.gz
+Source0:        https://github.com/archisman-panigrahi/typhoon/archive/refs/tags/v%{version}.tar.gz
 BuildArch:      noarch
 
 BuildRequires:  meson
@@ -33,7 +33,7 @@ always will be free.
 
 %global debug_package %{nil}
 %prep
-%autosetup -n %{name}-master
+%autosetup -n %{name}-%{version}
 
 %build
 %meson
