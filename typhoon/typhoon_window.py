@@ -424,7 +424,9 @@ class TyphoonWindow(QWidget):
         self.webview.setStyleSheet("background: transparent;")
         profile_root = os.path.join(self._get_config_dir(), "qtwebengine")
         os.makedirs(profile_root, exist_ok=True)
-        self.web_profile = QWebEngineProfile("typhoon", self)
+        # Use a named profile to ensure persistence across runs
+        # The profile name should remain consistent for localStorage to persist
+        self.web_profile = QWebEngineProfile("persistent", self)
         self.web_profile.setPersistentStoragePath(
             os.path.join(profile_root, "storage")
         )
@@ -1174,7 +1176,9 @@ def main():
             pass
 
     app = QApplication(sys.argv)
-    app.setApplicationName("Typhoon")
+    app.setOrganizationDomain("io.github.archisman_panigrahi")
+    app.setOrganizationName("io.github.archisman_panigrahi")
+    app.setApplicationName("typhoon")
     app.setQuitOnLastWindowClosed(True)
     if hasattr(app, "setDesktopFileName") and not IS_WINDOWS:
         app.setDesktopFileName("io.github.archisman_panigrahi.typhoon")
