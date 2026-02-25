@@ -1,3 +1,9 @@
+typhoon (1.7.1) noble; urgency=medium
+
+  * Fix CORS policy block which prevented app from running
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Tue, 24 Feb 2026 23:29:52 -0500
+
 typhoon (1.7.0) noble; urgency=medium
 
   * GTK3 --> Qt6 rewrite

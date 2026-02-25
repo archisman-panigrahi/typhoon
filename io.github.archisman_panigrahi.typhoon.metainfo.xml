@@ -80,6 +80,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.7.1" date="2026-02-24">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.7.1</url>
+      <description>
+        <ul>
+          <li>Fix CORS policy block which prevented app from running</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.7.0" date="2026-02-21">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.7.0</url>
       <description>
