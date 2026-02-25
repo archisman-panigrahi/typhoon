@@ -43,66 +43,38 @@ function initOpaqueTooltips() {
 }
 
 function getLocationData(cityName, callback) {
-    // Photon API as primary - free, reliable geocoding based on OpenStreetMap
-    const geocodingUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(cityName)}&limit=1`;
-    $.get(geocodingUrl, function (geoData) {
-        if (geoData && geoData.features && geoData.features.length > 0) {
-            const feature = geoData.features[0];
-            const props = feature.properties;
-            
-            // Extract location name - prefer city, then name, then fallback to input
-            const locationName = props.city || props.name || cityName;
-            
-            // Build display_name similar to Nominatim format
-            const displayParts = [];
-            if (props.name) displayParts.push(props.name);
-            if (props.city && props.city !== props.name) displayParts.push(props.city);
-            if (props.state) displayParts.push(props.state);
-            if (props.country) displayParts.push(props.country);
-            const displayName = displayParts.length > 0 ? displayParts.join(', ') : cityName;
-            
-            // Convert Photon response format to standard format
-            const locationData = {
-                lat: feature.geometry.coordinates[1],
-                lon: feature.geometry.coordinates[0],
-                name: locationName,
-                display_name: displayName
-            };
-            callback(locationData);
-        } else {
-            console.error("Photon geocoding failed:", geoData);
-            console.log("Trying backup geocoding API (Nominatim)...");
-            tryBackupGeocoding(cityName, callback);
-        }
-    }).fail(function (jqXHR, textStatus, errorThrown) {
-        console.error("Photon request failed:", textStatus, errorThrown);
-        console.error("Response Text:", jqXHR.responseText);
-        console.log("Trying backup geocoding API (Nominatim)...");
-        tryBackupGeocoding(cityName, callback);
-    });
+    geocodeWithNominatim(cityName, callback);
 }
 
-function tryBackupGeocoding(cityName, callback) {
-    // Nominatim API as backup
-    const backupUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`;
-    $.get(backupUrl, function (geoData) {
+function geocodeWithNominatim(cityName, callback) {
+    // JSONP avoids file:// CORS issues and requires no API key.
+    $.ajax({
+        url: 'https://nominatim.openstreetmap.org/search',
+        dataType: 'jsonp',
+        jsonp: 'json_callback',
+        timeout: 10000,
+        data: {
+            q: cityName,
+            format: 'jsonv2',
+            limit: 1
+        }
+    }).done(function (geoData) {
         if (geoData && geoData.length > 0) {
             const data = geoData[0];
-            // Ensure name field exists for consistency
             if (!data.name && data.display_name) {
                 data.name = data.display_name.split(',')[0].trim();
             }
-            console.log("Backup geocoding succeeded:", data);
+            console.log("Nominatim geocoding succeeded:", data);
             callback(data);
         } else {
-            console.error("Backup geocoding failed:", geoData);
+            console.error("Nominatim geocoding failed:", geoData);
             $("#locationModal .loader").attr("class", "loader").html("&#10005;");
             showError('Location not found. Please try again.');
             callback(null);
         }
     }).fail(function (jqXHR, textStatus, errorThrown) {
-        console.error("Backup geocoding request failed:", textStatus, errorThrown);
-        console.error("Response Text:", jqXHR.responseText);
+        console.error("Nominatim geocoding request failed:", textStatus, errorThrown);
+        console.error("Response Text:", jqXHR && jqXHR.responseText);
         $("#locationModal .loader").attr("class", "loader").html("&#10005;");
         showError('Network error. Please try again.');
         callback(null);
