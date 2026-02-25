@@ -336,6 +336,8 @@ p, span, div {
     width: 216px;
     border: 2px solid #333;
     padding: 5px 10px;
+    /* Preserve pre-doctype total width so loader stays on the same line */
+    box-sizing: border-box;
     font-family:"Ubuntu Condensed";
     font-size: 15px;
     outline: none;
@@ -497,7 +499,7 @@ p, span, div {
     line-height: 30px;
     height: 28px;
     padding: 0 2px 0 5px;
-    margin-top: 4px;
+    margin-top: 1px;
 }
 #locationModal .loader.loading {
     font-family:"ClimaconsRegular";
