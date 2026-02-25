@@ -1,15 +1,19 @@
+/* Use bundled fonts only; avoid local() to prevent host-specific Chromium fallback/metrics issues. */
 @font-face {
     font-family:'ClimaconsRegular';
-    src: url('fonts/climacons-webfont.eot');
-    src: url('fonts/climacons-webfont.eot?#iefix') format('embedded-opentype'), url('fonts/climacons-webfont.woff') format('woff'), url('fonts/climacons-webfont.ttf') format('truetype');
+    src: url('fonts/climacons-webfont.woff?v=2') format('woff'),
+         url('fonts/climacons-webfont.ttf?v=2') format('truetype'),
+         url('fonts/Climacons.ttf?v=2') format('truetype');
     font-weight: normal;
     font-style: normal;
+    font-display: block;
 }
 @font-face {
     font-family:'Ubuntu Condensed';
     font-style: normal;
     font-weight: 400;
-    src: local('Ubuntu Condensed'), local('UbuntuCondensed-Regular'), url('fonts/ubuntu.woff') format('woff');
+    src: url('fonts/ubuntu.woff?v=2') format('woff');
+    font-display: swap;
 }
 body {
     color: #fff;
