@@ -7,4 +7,4 @@ Terminal=false
 Type=Application
 Keywords=Weather;Stormcloud;Cumulus;Rain;Wind;Sun;Cloud;
 Categories=Utility;
-StartupWMClass=Typhoon_window.py
+StartupWMClass=typhoon_window.py
