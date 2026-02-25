@@ -18,6 +18,10 @@
 !define PUBLISHER "archisman-panigrahi"
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}"
 
+!ifndef LAUNCHER_EXE_REL
+  !define LAUNCHER_EXE_REL "${APP_NAME}.exe"
+!endif
+
 !ifdef APP_ICON_ICO
   !define MUI_ICON "${APP_ICON_ICO}"
   !define MUI_UNICON "${APP_ICON_ICO}"
@@ -47,17 +51,31 @@ Section "Install"
   SetOutPath "$INSTDIR"
   File /r "${APP_BUILD_DIR}\*.*"
 
+  StrCpy $0 "$INSTDIR\${LAUNCHER_EXE_REL}"
+  IfFileExists "$0" launcher_found 0
+  StrCpy $0 "$INSTDIR\${APP_NAME}\${APP_NAME}.exe"
+  IfFileExists "$0" launcher_found 0
+  StrCpy $0 "$INSTDIR\typhoon\${APP_NAME}.exe"
+  IfFileExists "$0" launcher_found 0
+  StrCpy $0 "$INSTDIR\typhoon\typhoon.exe"
+  IfFileExists "$0" launcher_found 0
+  MessageBox MB_ICONSTOP "Launcher EXE not found. Set LAUNCHER_EXE_REL or ensure the build output contains ${APP_NAME}.exe."
+  Abort
+
+  launcher_found:
+
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 
   CreateDirectory "$SMPROGRAMS\${APP_NAME}"
-  CreateShortcut "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk" "$INSTDIR\${APP_NAME}.exe"
+  CreateShortcut "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk" "$0"
   CreateShortcut "$SMPROGRAMS\${APP_NAME}\Uninstall ${APP_NAME}.lnk" "$INSTDIR\Uninstall.exe"
-  CreateShortcut "$DESKTOP\${APP_NAME}.lnk" "$INSTDIR\${APP_NAME}.exe"
+  CreateShortcut "$DESKTOP\${APP_NAME}.lnk" "$0"
 
   WriteRegStr SHCTX "${UNINSTALL_KEY}" "DisplayName" "${APP_NAME}"
   WriteRegStr SHCTX "${UNINSTALL_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr SHCTX "${UNINSTALL_KEY}" "Publisher" "${PUBLISHER}"
   WriteRegStr SHCTX "${UNINSTALL_KEY}" "InstallLocation" "$INSTDIR"
+  WriteRegStr SHCTX "${UNINSTALL_KEY}" "DisplayIcon" "$0"
   WriteRegStr SHCTX "${UNINSTALL_KEY}" "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
   WriteRegDWORD SHCTX "${UNINSTALL_KEY}" "NoModify" 1
   WriteRegDWORD SHCTX "${UNINSTALL_KEY}" "NoRepair" 1
