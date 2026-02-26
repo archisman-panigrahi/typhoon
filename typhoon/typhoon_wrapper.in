@@ -1,5 +1,4 @@
 #!/bin/bash
-export __NV_DISABLE_EXPLICIT_SYNC=1
 
 # Default to XWayland on Wayland sessions so manual window positioning works.
 if [[ -z "${QT_QPA_PLATFORM:-}" ]]; then
