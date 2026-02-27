@@ -237,6 +237,67 @@ function processForecastData(dailyData) {
     }));
 }
 
+function fetchAndCacheWeather(cityName, callback) {
+    getWeatherData(cityName, function (currentWeather, locationData) {
+        if (!currentWeather || !locationData) {
+            callback(null);
+            return;
+        }
+
+        getWeeklyForecast(locationData, function (weeklyData) {
+            if (!weeklyData) {
+                callback(null);
+                return;
+            }
+
+            weatherCache[cityName] = {
+                currentWeather: currentWeather,
+                locationData: compactLocationData(locationData),
+                weeklyData: weeklyData,
+                timestamp: Date.now()
+            };
+            saveWeatherCache();
+            callback({
+                currentWeather: currentWeather,
+                locationData: locationData,
+                weeklyData: weeklyData,
+            });
+        });
+    });
+}
+
+function getTemperatureUnit() {
+    return localStorage.typhoon_measurement || "f";
+}
+
+function convertTemperatureFromFahrenheit(tempF, unit) {
+    if (unit === "c") return (tempF - 32) * 5 / 9;
+    if (unit === "k") return (tempF - 32) * 5 / 9 + 273.15;
+    return tempF;
+}
+
+function formatTemperatureValue(tempF, unit, spaced) {
+    const value = Math.round(convertTemperatureFromFahrenheit(tempF, unit));
+    if (unit === "k") {
+        return spaced ? `${value} K` : `${value}K`;
+    }
+    const suffix = `°${unit.toUpperCase()}`;
+    return spaced ? `${value} ${suffix}` : `${value}${suffix}`;
+}
+
+function convertWindSpeedFromMph(speedMph, unit) {
+    if (unit === "kph") return Math.round(speedMph * 1.609344);
+    if (unit === "ms") return Math.round(speedMph * 4.4704) / 10;
+    return speedMph;
+}
+
+function formatForecastRange(minTempF, maxTempF, unit) {
+    const min = Math.round(convertTemperatureFromFahrenheit(minTempF, unit));
+    const max = Math.round(convertTemperatureFromFahrenheit(maxTempF, unit));
+    const degree = unit === "k" ? "" : "°";
+    return `${min}${degree} / ${max}${degree} ${unit.toUpperCase()}`;
+}
+
 // Update the render function to use Open-Meteo data
 function render(cityName) {
     $('.border .sync').addClass('busy');
@@ -246,40 +307,25 @@ function render(cityName) {
     // Check if we have cached data for instant display
     if (weatherCache[cityName]) {
         const cached = weatherCache[cityName];
-        displayCachedWeather(cached.currentWeather, cached.locationData, cached.weeklyData);
-        $('.border .sync').removeClass('busy');
+        // Keep spinner running while fresh data is fetched in background.
+        displayCachedWeather(cached.currentWeather, cached.locationData, cached.weeklyData, true);
     }
 
     // Fetch fresh data in background
-    getWeatherData(cityName, function (currentWeather, locationData) {
-        if (!currentWeather || !locationData) {
+    fetchAndCacheWeather(cityName, function (result) {
+        if (!result) {
             console.error("Failed to fetch weather data.");
             showError('Failed to fetch weather data. Please try again.');
+            $('.border .sync').removeClass('busy');
             return;
         }
-
-        // Fetch and render weekly forecast
-        getWeeklyForecast(locationData, function (weeklyData) {
-            if (!weeklyData) {
-                return;
-            }
-            // Cache the weather data
-            weatherCache[cityName] = {
-                currentWeather: currentWeather,
-                locationData: compactLocationData(locationData),
-                weeklyData: weeklyData,
-                timestamp: Date.now()
-            };
-            saveWeatherCache();
-            
-            // Display the fresh weather data
-            displayCachedWeather(currentWeather, locationData, weeklyData);
-        });
+        // Display the fresh weather data
+        displayCachedWeather(result.currentWeather, result.locationData, result.weeklyData);
     });
 }
 
 // Function to display weather data (from cache or fresh)
-function displayCachedWeather(currentWeather, locationData, weeklyData) {
+function displayCachedWeather(currentWeather, locationData, weeklyData, preserveBusy) {
     // Update the city div with a hyperlink
     const mapUrl = `https://www.openstreetmap.org/?mlat=${locationData.lat}&mlon=${locationData.lon}#map=10/${locationData.lat}/${locationData.lon}`;
     const countryName = locationData.display_name.split(',').pop().trim() || "Unknown Country";
@@ -288,46 +334,34 @@ function displayCachedWeather(currentWeather, locationData, weeklyData) {
     const iconChar = weather_code(currentWeather.weathercode, currentWeather.is_day);
     const codeClass = "w" + currentWeather.weathercode;
     $("#code").text(iconChar).attr("class", codeClass + (iconChar === "/" ? " moon-large" : ""));
-    // Sets initial temp as Fahrenheit
-    let temp = currentWeather.temperature;
+    const tempUnit = getTemperatureUnit();
+    const displayedTemp = Math.round(convertTemperatureFromFahrenheit(currentWeather.temperature, tempUnit));
 
-    if (temp < 32) {
+    if (currentWeather.temperature < 32) {
             $("#thermometer").text("_");
-        } else if (temp < 55) {
+        } else if (currentWeather.temperature < 55) {
             $("#thermometer").text("+");
-        } else if (temp < 85) {
+        } else if (currentWeather.temperature < 85) {
             $("#thermometer").text("Q");
-        } else if (temp < 100) {
+        } else if (currentWeather.temperature < 100) {
             $("#thermometer").text("W");
         } else {
             $("#thermometer").text("E");
         }
 
-        if (localStorage.typhoon_measurement == "c") {
-            temp = Math.round((temp - 32) * 5 / 9); // Convert to Celsius
-            $("#temperature").text(temp + " °C");
-        } else if (localStorage.typhoon_measurement == "k") {
-            temp = Math.round((temp - 32) * 5 / 9 + 273.15); // Convert to Kelvin
-            $("#temperature").text(temp + " K");
-        } else {
-            temp = Math.round(temp); // Round to the nearest integer for Fahrenheit
-            $("#temperature").text(temp + " °F");
-        }
+        $("#temperature").text(formatTemperatureValue(currentWeather.temperature, tempUnit, true));
         
         // Only set temperature as title if launcher count is enabled
         if (localStorage.typhoon_launcher === "checked") {
             setTimeout(function() {
-                document.title = temp;
+                document.title = displayedTemp;
             }, 25); // Delay to allow "enable_launcher" title to be registered first
         }
 
-        let windSpeed = currentWeather.windspeed;
-        if (localStorage.typhoon_speed != "mph") {
-            // Converts to either kph or m/s
-            windSpeed = (localStorage.typhoon_speed == "kph") ? Math.round(windSpeed * 1.609344) : Math.round(windSpeed * 4.4704) / 10;
-        }
+        const speedUnit = localStorage.typhoon_speed || "mph";
+        const windSpeed = convertWindSpeedFromMph(currentWeather.windspeed, speedUnit);
         $("#windSpeed").text(windSpeed);
-        $("#windUnit").text((localStorage.typhoon_speed == "ms") ? "m/s" : (localStorage.typhoon_speed == "kph") ? "km/h" : localStorage.typhoon_speed);
+        $("#windUnit").text(speedUnit === "ms" ? "m/s" : (speedUnit === "kph" ? "km/h" : speedUnit));
         
         // Display wind direction
         const windDirection = currentWeather.wind_direction_10m || 0;
@@ -351,11 +385,7 @@ function displayCachedWeather(currentWeather, locationData, weeklyData) {
         );
 
         // Update "Feels Like" and "Rain Propability"
-        const feelsLike = localStorage.typhoon_measurement === "c"
-            ? Math.round((currentWeather.feels_like - 32) * 5 / 9) + "°C"
-            : localStorage.typhoon_measurement === "k"
-            ? Math.round((currentWeather.feels_like - 32) * 5 / 9 + 273.15) + "K"
-            : Math.round(currentWeather.feels_like) + "°F";
+        const feelsLike = formatTemperatureValue(currentWeather.feels_like, tempUnit, false);
 
         $("#feelsLike").text(`Feels Like: ${feelsLike}`);
         const shouldShake = currentWeather.rain_percentage > 35;
@@ -422,7 +452,9 @@ function displayCachedWeather(currentWeather, locationData, weeklyData) {
     $('#actualWeather').fadeIn(500);
     $("#humidityIcon").css("opacity", "1");
     $("#locationModal").fadeOut(500);
-    setTimeout(function () { $('.border .sync').removeClass('busy'); }, 1000);
+    if (!preserveBusy) {
+        setTimeout(function () { $('.border .sync').removeClass('busy'); }, 1000);
+    }
 
     // Render weekly forecast if available
     if (weeklyData) {
@@ -431,38 +463,18 @@ function displayCachedWeather(currentWeather, locationData, weeklyData) {
 }
 
 function renderWeeklyForecast(weeklyData) {
+    const unit = getTemperatureUnit();
     // Render the weekly forecast in the "week" div
     weeklyData.forEach((day, index) => {
-        const unit = localStorage.typhoon_measurement || "f"; // Default to Fahrenheit
-        let tempMin = day.tempMin;
-        let tempMax = day.tempMax;
-
-        // Convert temperatures based on the selected unit
-        if (unit === "c") {
-            tempMin = Math.round((tempMin - 32) * 5 / 9); // Convert to Celsius
-            tempMax = Math.round((tempMax - 32) * 5 / 9);
-        } else if (unit === "k") {
-            tempMin = Math.round((tempMin - 32) * 5 / 9 + 273.15); // Convert to Kelvin
-            tempMax = Math.round((tempMax - 32) * 5 / 9 + 273.15);
-        } else {
-            tempMin = Math.round(tempMin); // Round to the nearest integer for Fahrenheit
-            tempMax = Math.round(tempMax);
-        }
-
-        // Adjust font size for Kelvin
         const tempElement = $(`#${index} .temp`);
-        if (unit === "k") {
-            tempElement.css("font-size", "0.85em"); // Smaller font size for Kelvin
-        } else {
-            tempElement.css("font-size", "1em"); // Default font size for other units
-        }
+        tempElement.css("font-size", unit === "k" ? "0.85em" : "1em");
 
         // Update the DOM with the converted temperatures and Climacons icon
         $(`#${index} .day`).text(day.day);
         $(`#${index} .code`)
             .text(weather_code(day.icon, 1))
             .attr("class", `code w${day.icon}`);
-        tempElement.text(`${tempMin}${unit === 'k' ? '' : '°'} / ${tempMax}${unit === 'k' ? '' : '°'} ${unit.toUpperCase()}`);
+        tempElement.text(formatForecastRange(day.tempMin, day.tempMax, unit));
     });
 }
 
@@ -712,76 +724,58 @@ $(function() {
 });
 }
 
+const CLIMACON_DAY_MAP = {
+    "0": "v",
+    "1": "1",
+    "2": "d",
+    "3": "`",
+    "45": "h",
+    "48": "g",
+    "51": "0",
+    "53": "9",
+    "55": "9",
+    "56": "r",
+    "57": "y",
+    "61": "0",
+    "63": "9",
+    "65": "9",
+    "66": "r",
+    "67": "e",
+    "71": "=",
+    "73": "o",
+    "75": "6",
+    "77": "6",
+    "80": "0",
+    "81": "9",
+    "82": "9",
+    "85": "6",
+    "86": "6",
+    "95": "z",
+    "96": "z",
+    "99": "z"
+};
+
+const CLIMACON_NIGHT_OVERRIDES = {
+    "0": "/",
+    "1": "2",
+    "2": "f",
+    "45": "g",
+    "51": "5",
+    "53": "-",
+    "56": "i",
+    "61": "5",
+    "63": "-",
+    "66": "t",
+    "71": "[",
+    "73": "8",
+    "80": "9"
+};
+
 // Converts Open-Meteo weather codes to Climacons icons
 function weather_code(iconCode, isDay) {
-    const climaconMapDay = {
-        "0": "v", // Clear sky (day)
-        "1": "1", // Mainly clear (day)
-        "2": "d", // Partly cloudy (day)
-        "3": "`", // Overcast (day)
-        "45": "h", // Fog (day)
-        "48": "g", // Depositing rime fog (day)
-        "51": "0", // Drizzle: Light (day)
-        "53": "9", // Drizzle: Moderate (day)
-        "55": "9", // Drizzle: Dense intensity (day)
-        "56": "r", // Freezing Drizzle: Light (day)
-        "57": "y", // Freezing Drizzle: Dense intensity (day)
-        "61": "0", // Rain: Slight (day)
-        "63": "9", // Rain: Moderate (day)
-        "65": "9", // Rain: Heavy intensity (day)
-        "66": "r", // Freezing Rain: Light (day)
-        "67": "e", // Freezing Rain: Heavy (day)
-        "71": "=", // Snow fall: Slight (day)
-        "73": "o", // Snow fall: Moderate (day)
-        "75": "6", // Snow fall: Heavy (day)
-        "77": "6", // Snow grains (day)
-        "80": "0", // Rain showers: Slight (day)
-        "81": "9", // Rain showers: Moderate (day)
-        "82": "9", // Rain showers: Violent (day)
-        "85": "6", // Snow showers: Slight (day)
-        "86": "6", // Snow showers: Heavy (day)
-        "95": "z", // Thunderstorm: Slight or moderate (day)
-        "96": "z", // Thunderstorm with slight hail (day)
-        "99": "z"  // Thunderstorm with heavy hail (day)
-    };
-
-    const climaconMapNight = {
-        "0": "/", // Clear sky (night)
-        "1": "2", // Mainly clear (night)
-        "2": "f", // Partly cloudy (night)
-        "3": "`", // Overcast (night)
-        "45": "g", // Fog (night)
-        "48": "g", // Depositing rime fog (night)
-        "51": "5", // Drizzle: Light (night)
-        "53": "-", // Drizzle: Moderate (night)
-        "55": "9", // Drizzle: Dense intensity (night)
-        "56": "i", // Freezing Drizzle: Light (night)
-        "57": "y", // Freezing Drizzle: Dense intensity (night)
-        "61": "5", // Rain: Slight (night)
-        "63": "-", // Rain: Moderate (night)
-        "65": "9", // Rain: Heavy intensity (night)
-        "66": "t", // Freezing Rain: Light (night)
-        "67": "e", // Freezing Rain: Heavy (night)
-        "71": "[", // Snow fall: Slight (night)
-        "73": "8", // Snow fall: Moderate (night)
-        "75": "6", // Snow fall: Heavy (night)
-        "77": "6", // Snow grains (night)
-        "80": "9", // Rain showers: Slight (night)
-        "81": "9", // Rain showers: Moderate (night)
-        "82": "9", // Rain showers: Violent (night)
-        "85": "6", // Snow showers: Slight (night)
-        "86": "6", // Snow showers: Heavy (night)
-        "95": "z", // Thunderstorm: Slight or moderate (night)
-        "96": "z", // Thunderstorm with slight hail (night)
-        "99": "z"  // Thunderstorm with heavy hail (night)
-    };
-
-    // Return the corresponding Climacon icon based on day or night
-    if (isDay) {
-        return climaconMapDay[iconCode] || "`"; // Default to a cloud icon if no match is found
-    } else {
-        return climaconMapNight[iconCode] || "`"; // Default to a cloud icon if no match is found
-    }
+    const code = String(iconCode);
+    const icon = isDay ? CLIMACON_DAY_MAP[code] : (CLIMACON_NIGHT_OVERRIDES[code] || CLIMACON_DAY_MAP[code]);
+    return icon || "`";
 }
 
 function receiveMessage(message) {
@@ -793,6 +787,9 @@ function receiveMessage(message) {
 var currentLocations = [];
 var currentLocationIndex = 0;
 var weatherCache = {}; // Cache weather data for each location
+var cacheWarmInProgress = false;
+var cacheWarmQueue = [];
+var cacheWarmInFlight = {};
 
 // Initialize locations from localStorage
 function initLocations() {
@@ -844,17 +841,99 @@ function displayCachedLocationOnly(cityName) {
     displayCachedWeather(cached.currentWeather, cached.locationData, cached.weeklyData);
 }
 
+function hasFreshCache(cityName) {
+    if (!cityName || !weatherCache[cityName]) {
+        return false;
+    }
+    const entry = weatherCache[cityName];
+    const config = getCacheConfig();
+    const now = Date.now();
+    if (!entry.timestamp || (now - entry.timestamp) > config.ttlMs) {
+        return false;
+    }
+    return !!(entry.currentWeather && entry.locationData && entry.weeklyData);
+}
+
+function cacheLocationWeather(cityName, callback) {
+    if (!cityName) {
+        if (callback) callback(false);
+        return;
+    }
+    if (cacheWarmInFlight[cityName]) {
+        if (callback) callback(false);
+        return;
+    }
+
+    cacheWarmInFlight[cityName] = true;
+    fetchAndCacheWeather(cityName, function(result) {
+        delete cacheWarmInFlight[cityName];
+        if (callback) callback(!!result);
+    });
+}
+
+function warmCacheForAllLocations(excludeCityName) {
+    pruneWeatherCache();
+
+    const pendingCities = currentLocations.filter(function(city) {
+        if (!city) return false;
+        if (excludeCityName && city === excludeCityName) return false;
+        if (hasFreshCache(city)) return false;
+        if (cacheWarmInFlight[city]) return false;
+        return true;
+    });
+
+    if (pendingCities.length > 0) {
+        const queueSet = new Set(cacheWarmQueue);
+        pendingCities.forEach(function(city) {
+            if (!queueSet.has(city)) {
+                cacheWarmQueue.push(city);
+                queueSet.add(city);
+            }
+        });
+    }
+
+    if (cacheWarmInProgress || cacheWarmQueue.length === 0) {
+        return;
+    }
+
+    cacheWarmInProgress = true;
+
+    function warmNext() {
+        if (cacheWarmQueue.length === 0) {
+            cacheWarmInProgress = false;
+            return;
+        }
+        const cityName = cacheWarmQueue.shift();
+        if (!cityName || hasFreshCache(cityName) || cacheWarmInFlight[cityName]) {
+            setTimeout(warmNext, 100);
+            return;
+        }
+        cacheLocationWeather(cityName, function() {
+            // Small spacing avoids burst requests to APIs.
+            setTimeout(warmNext, 250);
+        });
+    }
+
+    warmNext();
+}
+
 function navigateToLocation(index) {
     if (index >= 0 && index < currentLocations.length) {
         currentLocationIndex = index;
         lastManualNavigationTime = Date.now(); // Record time of manual navigation
         saveLocations();
-        // Only display cached data - NO network calls or API requests
-        displayCachedLocationOnly(currentLocations[currentLocationIndex]);
+        const cityName = currentLocations[currentLocationIndex];
+
+        // Navigation should be instant from cache. Fresh network refresh is debounced.
+        displayCachedLocationOnly(cityName);
         updateLocationNav();
-        
-        // Schedule a refresh 2 seconds after this navigation
         scheduleNavigationRefresh();
+
+        // If cache is missing/stale for this location, queue background warming too.
+        if (!hasFreshCache(cityName)) {
+            $('.border .sync').addClass('busy');
+            warmCacheForAllLocations(cityName);
+        }
     }
 }
 
@@ -868,8 +947,10 @@ function scheduleNavigationRefresh() {
     // Schedule a new refresh 2 seconds from now
     navigationRefreshTimeout = setTimeout(function() {
         navigationRefreshTimeout = null; // Clear the timeout reference
-        // Perform the refresh
-        delete weatherCache[currentLocations[currentLocationIndex]];
+        if (currentLocations.length === 0) {
+            return;
+        }
+        // Refresh current location in background without forcing a cache miss.
         render(currentLocations[currentLocationIndex]);
     }, NAVIGATION_REFRESH_DEBOUNCE_MS);
 }
@@ -900,6 +981,8 @@ $(document).ready(function() {
         //Has been run before
         render(currentLocations[currentLocationIndex])
         updateLocationNav();
+        // Warm cache for other saved locations so navigation is instant.
+        warmCacheForAllLocations(currentLocations[currentLocationIndex]);
 
         setInterval(function() {
             // Skip auto-refresh if it's too soon after manual navigation
@@ -954,6 +1037,7 @@ $(document).ready(function() {
                 // Render the new current location
                 render(currentLocations[currentLocationIndex]);
                 updateLocationNav();
+                warmCacheForAllLocations(currentLocations[currentLocationIndex]);
                 
                 // Schedule a refresh 2 seconds after this deletion
                 scheduleNavigationRefresh();
@@ -1061,19 +1145,8 @@ function init_settings() {
             
             render(cityName);
             updateLocationNav();
+            warmCacheForAllLocations(cityName);
             return; // Exit early to prevent old code from running
-        }
-        
-        // Old code below (won't execute due to return above)
-        if (false && $(this).hasClass("tick")) {
-            const cityName = $("#locationModal .loader").attr("data-city");
-            localStorage.typhoon = cityName;
-            render(cityName);
-            show_settings("noweather");
-            setInterval(function() {
-                    console.log("Updating Data...");
-                    $(".border .sync").click();
-                }, TYPHOON_REFRESH_MS);
         }
     });
 
@@ -1082,24 +1155,6 @@ function init_settings() {
     localStorage.typhoon_speed = localStorage.typhoon_speed || "kph";
     localStorage.typhoon_color = localStorage.typhoon_color || "gradient";
     localStorage.typhoon_launcher = localStorage.typhoon_launcher || "checked";
-
-    // Bind custom color picker handlers once.
-    const customColorPicker = $('#customColorPicker');
-    if (localStorage.typhoon_custom_color) {
-        customColorPicker.val(localStorage.typhoon_custom_color);
-    }
-    function applyCustomColorInstantly(color) {
-        localStorage.typhoon_color = 'custom';
-        localStorage.typhoon_custom_color = color;
-        $("#container").css("background", color);
-        $('.color span').removeClass('selected');
-        customColorPicker.addClass('selected');
-    }
-    customColorPicker
-        .off('input.typhoonCustomColor change.typhoonCustomColor')
-        .on('input.typhoonCustomColor change.typhoonCustomColor', function() {
-            applyCustomColorInstantly($(this).val());
-        });
 
     $('#locationModal .measurement [data-type=' + localStorage.typhoon_measurement + ']').addClass('selected');
     $('#locationModal .speed [data-type=' + localStorage.typhoon_speed + ']').addClass('selected');
@@ -1128,8 +1183,7 @@ function init_settings() {
     })
     
 
-    // Launcher switch (existing)
-    localStorage.typhoon_launcher = localStorage.typhoon_launcher || "checked";
+    // Launcher switch
     if (localStorage.typhoon_launcher === "checked") {
         $('#launcherswitch').prop("checked", true);
         document.title = "enable_launcher";
