@@ -68,14 +68,14 @@ function geocodeWithNominatim(cityName, callback) {
             callback(data);
         } else {
             console.error("Nominatim geocoding failed:", geoData);
-            $("#locationModal .loader").attr("class", "loader").html("&#10005;");
+            $("#locationLoader").attr("class", "loader").html("&#10005;");
             showError('Location not found. Please try again.');
             callback(null);
         }
     }).fail(function (jqXHR, textStatus, errorThrown) {
         console.error("Nominatim geocoding request failed:", textStatus, errorThrown);
         console.error("Response Text:", jqXHR && jqXHR.responseText);
-        $("#locationModal .loader").attr("class", "loader").html("&#10005;");
+        $("#locationLoader").attr("class", "loader").html("&#10005;");
         showError('Network error. Please try again.');
         callback(null);
     });
@@ -132,7 +132,7 @@ function getWeatherDataForLocation(locationData, callback) {
             callback(currentWeather, locationData);
         } else {
             console.error("Unexpected API response:", weatherData);
-            $("#locationModal .loader").attr("class", "loader").html("&#10005;");
+            $("#locationLoader").attr("class", "loader").html("&#10005;");
             callback(null, locationData);
         }
     }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -1058,9 +1058,9 @@ $(document).ready(function() {
     locationInput.keyup(function (event) {
         if (event.key === "Enter") {
             const cityName = locationInput.val().trim();
-            if (cityName && $("#locationModal .loader").hasClass("tick")) {
+            if (cityName && $("#locationLoader").hasClass("tick")) {
                 // Trigger the loader click to add location
-                $("#locationModal .loader").click();
+                $("#locationLoader").click();
             }
         }
     });
@@ -1077,7 +1077,7 @@ $(document).ready(function() {
 
 function init_settings() {
     // Prevents Dragging on certain elements
-    $('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationModal .loader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img, #locationNav, #locationModal .slider-switch, #customColorPanel, #customColorPanel *').mouseover(function() {
+    $('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationLoader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img, #locationNav, #locationModal .slider-switch, #customColorPanel, #customColorPanel *').mouseover(function() {
         document.title = "disabledrag";
     }).mouseout(function() {
         document.title = "enabledrag";
@@ -1116,19 +1116,19 @@ function init_settings() {
     });
 
     function doneTyping() {
-        $("#locationModal .loader").attr("class", "loading loader").html("|");
+        $("#locationLoader").attr("class", "loading loader").html("|");
         const cityName = locationInput.val();
         getWeatherData(cityName, function(data) {
             if (data) {
-                $("#locationModal .loader").attr("class", "tick loader").html("&#10003;").attr("data-city", cityName);
+                $("#locationLoader").attr("class", "tick loader").html("&#10003;").attr("data-city", cityName);
             } else {
-                $("#locationModal .loader").attr("class", "loader").html("&#10005;");
+                $("#locationLoader").attr("class", "loader").html("&#10005;");
             }
         });
     }
 
     // This can only be run if there is a tick.
-    $("#locationModal .loader").click(function() {
+    $("#locationLoader").click(function() {
         if ($(this).hasClass("tick")) {
             const cityName = locationInput.val();
             
