@@ -81,6 +81,202 @@ function geocodeWithNominatim(cityName, callback) {
     });
 }
 
+function getWeatherProvider() {
+    const provider = (localStorage.typhoon_provider || "openmeteo").toLowerCase();
+    return provider === "metnorway" ? "metnorway" : "openmeteo";
+}
+
+function convertTemperature(value, fromUnit, toUnit) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return 0;
+    if (fromUnit === toUnit) return numeric;
+
+    let celsius;
+    if (fromUnit === "c") celsius = numeric;
+    else if (fromUnit === "f") celsius = (numeric - 32) * 5 / 9;
+    else if (fromUnit === "k") celsius = numeric - 273.15;
+    else celsius = numeric;
+
+    if (toUnit === "c") return celsius;
+    if (toUnit === "f") return (celsius * 9 / 5) + 32;
+    if (toUnit === "k") return celsius + 273.15;
+    return celsius;
+}
+
+function convertSpeed(value, fromUnit, toUnit) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return 0;
+    if (fromUnit === toUnit) return numeric;
+
+    // Convert to mph as canonical speed unit, then to target unit.
+    let mph;
+    if (fromUnit === "mph") mph = numeric;
+    else if (fromUnit === "kph") mph = numeric / 1.609344;
+    else if (fromUnit === "ms") mph = numeric * 2.2369362920544;
+    else mph = numeric;
+
+    if (toUnit === "mph") return mph;
+    if (toUnit === "kph") return mph * 1.609344;
+    if (toUnit === "ms") return mph / 2.2369362920544;
+    return mph;
+}
+
+function getMetNoPrecipProbabilityPoint(point) {
+    if (!point || !point.data) return 0;
+    return point.data.next_1_hours?.details?.probability_of_precipitation
+        ?? point.data.next_6_hours?.details?.probability_of_precipitation
+        ?? point.data.next_12_hours?.details?.probability_of_precipitation
+        ?? 0;
+}
+
+function normalizeMetNoSymbol(symbolCode) {
+    return String(symbolCode || "").replace(/_(day|night|polartwilight)$/, "");
+}
+
+function mapMetNoSymbolToWeatherCode(symbolCode) {
+    const base = normalizeMetNoSymbol(symbolCode);
+    const map = {
+        clearsky: 0,
+        fair: 1,
+        partlycloudy: 2,
+        cloudy: 3,
+        fog: 45,
+        lightrainshowers: 80,
+        rainshowers: 81,
+        heavyrainshowers: 82,
+        lightsleetshowers: 80,
+        sleetshowers: 81,
+        heavysleetshowers: 82,
+        lightsnowshowers: 85,
+        snowshowers: 85,
+        heavysnowshowers: 86,
+        lightrain: 61,
+        rain: 63,
+        heavyrain: 65,
+        lightsleet: 66,
+        sleet: 67,
+        heavysleet: 67,
+        lightsnow: 71,
+        snow: 73,
+        heavysnow: 75,
+        rainandthunder: 95,
+        lightrainshowersandthunder: 95,
+        rainshowersandthunder: 95,
+        heavyrainshowersandthunder: 96,
+        lightsleetshowersandthunder: 95,
+        sleetshowersandthunder: 96,
+        heavysleetshowersandthunder: 96,
+        lightsnowshowersandthunder: 95,
+        snowshowersandthunder: 96,
+        heavysnowshowersandthunder: 99,
+        sleetandthunder: 96,
+        snowandthunder: 99,
+        lightsleetandthunder: 96,
+        lightsnowandthunder: 99,
+        heavysleetandthunder: 99,
+        heavysnowandthunder: 99,
+        lightrainandthunder: 95,
+        heavyrainandthunder: 96,
+        lightssleetshowersandthunder: 95
+    };
+    return map[base] !== undefined ? map[base] : 3;
+}
+
+function processMetNorwayWeatherData(weatherData) {
+    const series = weatherData && weatherData.properties && weatherData.properties.timeseries;
+    if (!Array.isArray(series) || series.length === 0) {
+        return null;
+    }
+
+    const nowMs = Date.now();
+    let bestIndex = 0;
+    let bestDelta = Infinity;
+    for (let i = 0; i < series.length; i++) {
+        const ts = Date.parse(series[i].time);
+        if (!Number.isFinite(ts)) continue;
+        const delta = Math.abs(ts - nowMs);
+        if (delta < bestDelta) {
+            bestDelta = delta;
+            bestIndex = i;
+        }
+    }
+
+    const point = series[bestIndex];
+    const details = point?.data?.instant?.details || {};
+    const symbolCode = point?.data?.next_1_hours?.summary?.symbol_code
+        || point?.data?.next_6_hours?.summary?.symbol_code
+        || point?.data?.next_12_hours?.summary?.symbol_code
+        || "cloudy";
+
+    const rainWindow = [];
+    for (let i = bestIndex; i < Math.min(series.length, bestIndex + 6); i++) {
+        rainWindow.push(Number(getMetNoPrecipProbabilityPoint(series[i])) || 0);
+    }
+
+    const weatherCode = mapMetNoSymbolToWeatherCode(symbolCode);
+    return {
+        temperature: convertTemperature(details.air_temperature ?? 0, "c", "f"),
+        weathercode: weatherCode,
+        is_day: /_night$/.test(String(symbolCode)) ? 0 : 1,
+        windspeed: convertSpeed(details.wind_speed ?? 0, "ms", "mph"),
+        wind_direction_10m: Number(details.wind_from_direction ?? 0),
+        relative_humidity_2m: Math.round(Number(details.relative_humidity ?? 0)),
+        feels_like: convertTemperature(details.apparent_temperature ?? details.air_temperature ?? 0, "c", "f"),
+        rain_percentage: Math.round(rainWindow.length ? Math.max.apply(null, rainWindow) : 0),
+    };
+}
+
+function processMetNorwayForecastData(weatherData) {
+    const series = weatherData && weatherData.properties && weatherData.properties.timeseries;
+    if (!Array.isArray(series) || series.length === 0) {
+        return null;
+    }
+
+    const grouped = {};
+    series.forEach(function(point) {
+        const date = String(point.time || "").slice(0, 10);
+        if (!date) return;
+
+        const details = point?.data?.instant?.details || {};
+        const tempC = Number(details.air_temperature);
+        if (!grouped[date]) {
+            grouped[date] = { tempsF: [], entries: [] };
+        }
+
+        if (Number.isFinite(tempC)) {
+            grouped[date].tempsF.push(convertTemperature(tempC, "c", "f"));
+        }
+
+        grouped[date].entries.push({
+            time: point.time,
+            symbol: point?.data?.next_1_hours?.summary?.symbol_code
+                || point?.data?.next_6_hours?.summary?.symbol_code
+                || point?.data?.next_12_hours?.summary?.symbol_code
+                || "cloudy",
+        });
+    });
+
+    const dates = Object.keys(grouped).sort().slice(0, 4);
+    return dates.map(function(date) {
+        const dayData = grouped[date];
+        const tempsF = dayData.tempsF.length ? dayData.tempsF : [32, 32];
+        const representative = dayData.entries.reduce(function(best, entry) {
+            if (!best) return entry;
+            const bestHour = parseInt(String(best.time).slice(11, 13), 10);
+            const currentHour = parseInt(String(entry.time).slice(11, 13), 10);
+            return Math.abs(currentHour - 12) < Math.abs(bestHour - 12) ? entry : best;
+        }, null);
+
+        const iconCode = mapMetNoSymbolToWeatherCode(representative ? representative.symbol : "cloudy");
+        return {
+            day: new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }),
+            tempMin: Math.min.apply(null, tempsF),
+            tempMax: Math.max.apply(null, tempsF),
+            icon: iconCode,
+        };
+    });
+}
+
 function getWeatherDataForLocation(locationData, callback) {
     if (!locationData || locationData.lat === undefined || locationData.lon === undefined) {
         callback(null, null);
@@ -88,8 +284,31 @@ function getWeatherDataForLocation(locationData, callback) {
     }
     const latitude = locationData.lat;
     const longitude = locationData.lon;
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m,apparent_temperature,precipitation_probability,wind_direction_10m`;
+    const provider = getWeatherProvider();
 
+    if (provider === "metnorway") {
+        const weatherUrl = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${latitude}&lon=${longitude}`;
+        $.get(weatherUrl, function (weatherData) {
+            console.log("API Response (Current Weather / MET Norway):", weatherData);
+            const currentWeather = processMetNorwayWeatherData(weatherData);
+            if (currentWeather) {
+                $('#errorMessage').fadeOut(350);
+                callback(currentWeather, locationData);
+            } else {
+                console.error("Unexpected MET Norway API response:", weatherData);
+                $("#locationLoader").attr("class", "loader").html("&#10005;");
+                callback(null, locationData);
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.error("MET Norway API request failed:", textStatus, errorThrown);
+            console.error("Response Text:", jqXHR && jqXHR.responseText);
+            showError('Network error. Please try again.');
+            callback(null, locationData);
+        });
+        return;
+    }
+
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m,apparent_temperature,precipitation_probability,wind_direction_10m`;
     $.get(weatherUrl, function (weatherData) {
         console.log("API Response (Current Weather):", weatherData); // Log the API response for debugging
 
@@ -162,6 +381,29 @@ function getWeeklyForecast(locationData, callback) {
     }
     const latitude = locationData.lat;
     const longitude = locationData.lon;
+    const provider = getWeatherProvider();
+
+    if (provider === "metnorway") {
+        const forecastUrl = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${latitude}&lon=${longitude}`;
+        $.get(forecastUrl, function (forecastData) {
+            console.log("API Response (Weekly Forecast / MET Norway):", forecastData);
+            const dailyForecasts = processMetNorwayForecastData(forecastData);
+            if (dailyForecasts && dailyForecasts.length) {
+                callback(dailyForecasts);
+            } else {
+                console.error("Unexpected MET Norway API response:", forecastData);
+                showError('Invalid data received from the weather API.');
+                callback(null);
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.error("MET Norway API request failed:", textStatus, errorThrown);
+            console.error("Response Text:", jqXHR && jqXHR.responseText);
+            showError('Network error. Please try again.');
+            callback(null);
+        });
+        return;
+    }
+
     const forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_min,temperature_2m_max,weathercode&temperature_unit=fahrenheit&timezone=auto`;
 
     $.get(forecastUrl, function (forecastData) {
@@ -254,6 +496,7 @@ function fetchAndCacheWeather(cityName, callback) {
                 currentWeather: currentWeather,
                 locationData: compactLocationData(locationData),
                 weeklyData: weeklyData,
+                provider: getWeatherProvider(),
                 timestamp: Date.now()
             };
             saveWeatherCache();
@@ -270,14 +513,8 @@ function getTemperatureUnit() {
     return localStorage.typhoon_measurement || "f";
 }
 
-function convertTemperatureFromFahrenheit(tempF, unit) {
-    if (unit === "c") return (tempF - 32) * 5 / 9;
-    if (unit === "k") return (tempF - 32) * 5 / 9 + 273.15;
-    return tempF;
-}
-
 function formatTemperatureValue(tempF, unit, spaced) {
-    const value = Math.round(convertTemperatureFromFahrenheit(tempF, unit));
+    const value = Math.round(convertTemperature(tempF, "f", unit));
     if (unit === "k") {
         return spaced ? `${value} K` : `${value}K`;
     }
@@ -285,15 +522,9 @@ function formatTemperatureValue(tempF, unit, spaced) {
     return spaced ? `${value} ${suffix}` : `${value}${suffix}`;
 }
 
-function convertWindSpeedFromMph(speedMph, unit) {
-    if (unit === "kph") return Math.round(speedMph * 1.609344);
-    if (unit === "ms") return Math.round(speedMph * 4.4704) / 10;
-    return speedMph;
-}
-
 function formatForecastRange(minTempF, maxTempF, unit) {
-    const min = Math.round(convertTemperatureFromFahrenheit(minTempF, unit));
-    const max = Math.round(convertTemperatureFromFahrenheit(maxTempF, unit));
+    const min = Math.round(convertTemperature(minTempF, "f", unit));
+    const max = Math.round(convertTemperature(maxTempF, "f", unit));
     const degree = unit === "k" ? "" : "°";
     return `${min}${degree} / ${max}${degree} ${unit.toUpperCase()}`;
 }
@@ -303,9 +534,10 @@ function render(cityName) {
     $('.border .sync').addClass('busy');
     $(".border .settings").show();
     pruneWeatherCache();
+    const provider = getWeatherProvider();
 
     // Check if we have cached data for instant display
-    if (weatherCache[cityName]) {
+    if (weatherCache[cityName] && weatherCache[cityName].provider === provider) {
         const cached = weatherCache[cityName];
         // Keep spinner running while fresh data is fetched in background.
         displayCachedWeather(cached.currentWeather, cached.locationData, cached.weeklyData, true);
@@ -335,7 +567,7 @@ function displayCachedWeather(currentWeather, locationData, weeklyData, preserve
     const codeClass = "w" + currentWeather.weathercode;
     $("#code").text(iconChar).attr("class", codeClass + (iconChar === "/" ? " moon-large" : ""));
     const tempUnit = getTemperatureUnit();
-    const displayedTemp = Math.round(convertTemperatureFromFahrenheit(currentWeather.temperature, tempUnit));
+    const displayedTemp = Math.round(convertTemperature(currentWeather.temperature, "f", tempUnit));
 
     if (currentWeather.temperature < 32) {
             $("#thermometer").text("_");
@@ -359,7 +591,8 @@ function displayCachedWeather(currentWeather, locationData, weeklyData, preserve
         }
 
         const speedUnit = localStorage.typhoon_speed || "mph";
-        const windSpeed = convertWindSpeedFromMph(currentWeather.windspeed, speedUnit);
+        const rawWindSpeed = convertSpeed(currentWeather.windspeed, "mph", speedUnit);
+        const windSpeed = speedUnit === "ms" ? Math.round(rawWindSpeed * 10) / 10 : Math.round(rawWindSpeed);
         $("#windSpeed").text(windSpeed);
         $("#windUnit").text(speedUnit === "ms" ? "m/s" : (speedUnit === "kph" ? "km/h" : speedUnit));
         
@@ -833,7 +1066,8 @@ function saveWeatherCache() {
 // Display location using only cached data - no network calls
 function displayCachedLocationOnly(cityName) {
     pruneWeatherCache();
-    if (!weatherCache[cityName]) {
+    const provider = getWeatherProvider();
+    if (!weatherCache[cityName] || weatherCache[cityName].provider !== provider) {
         return; // No cached data available, don't display anything
     }
     
@@ -846,6 +1080,9 @@ function hasFreshCache(cityName) {
         return false;
     }
     const entry = weatherCache[cityName];
+    if (entry.provider !== getWeatherProvider()) {
+        return false;
+    }
     const config = getCacheConfig();
     const now = Date.now();
     if (!entry.timestamp || (now - entry.timestamp) > config.ttlMs) {
@@ -1077,7 +1314,7 @@ $(document).ready(function() {
 
 function init_settings() {
     // Prevents Dragging on certain elements
-    $('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationLoader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img, #locationNav, #locationModal .slider-switch, #customColorPanel, #customColorPanel *').mouseover(function() {
+    $('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .toggleswitch span, #locationLoader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img, #locationNav, #locationModal .slider-switch, #customColorPanel, #customColorPanel *').mouseover(function() {
         document.title = "disabledrag";
     }).mouseout(function() {
         document.title = "enabledrag";
@@ -1153,6 +1390,7 @@ function init_settings() {
     // Sets up localstorage
     localStorage.typhoon_measurement = localStorage.typhoon_measurement || "c";
     localStorage.typhoon_speed = localStorage.typhoon_speed || "kph";
+    localStorage.typhoon_provider = localStorage.typhoon_provider || "openmeteo";
     localStorage.typhoon_color = localStorage.typhoon_color || "gradient";
     localStorage.typhoon_launcher = localStorage.typhoon_launcher || "checked";
 
@@ -1161,9 +1399,13 @@ function init_settings() {
 
     //Sets up the Toggle Switches
     $('#locationModal .toggleswitch span').click(function() {
-        $(this).parent().children().removeClass('selected')
-        localStorage.setItem("typhoon_" + $(this).parent().attr("class").replace("toggleswitch ", ""), $(this).addClass('selected').attr("data-type"))
-        $(".border .settings").hide()
+        const settingKey = $(this).parent().attr("class").replace("toggleswitch ", "");
+        const settingValue = $(this).attr("data-type");
+        $(this).parent().children().removeClass('selected');
+        $(this).addClass('selected');
+        localStorage.setItem("typhoon_" + settingKey, settingValue);
+        $(".border .settings").hide();
+
     })
 
     //Color thing
@@ -1227,6 +1469,20 @@ function init_settings() {
         } else {
             localStorage.typhoon_controls_position = 'left';
             $('.border').removeClass('controls-right');
+        }
+    });
+
+    // Weather provider switch
+    $('#providertoggle').prop('checked', getWeatherProvider() === 'metnorway');
+    $('#providertoggle').click(function() {
+        localStorage.typhoon_provider = $(this).prop('checked') ? 'metnorway' : 'openmeteo';
+        weatherCache = {};
+        saveWeatherCache();
+        $(".border .settings").hide();
+        if (currentLocations.length > 0) {
+            render(currentLocations[currentLocationIndex]);
+            updateLocationNav();
+            warmCacheForAllLocations(currentLocations[currentLocationIndex]);
         }
     });
 

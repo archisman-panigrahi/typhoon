@@ -422,6 +422,9 @@ p, span, div {
     gap: 4px;
     margin-top: -8px;
 }
+#providerSwitch {
+    margin-top: 10px;
+}
 .switch-title {
     font-family: "Ubuntu Condensed";
     font-size: 16px;
