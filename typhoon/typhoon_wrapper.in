@@ -11,4 +11,4 @@ if [[ -z "${QT_QPA_PLATFORM:-}" ]]; then
   fi
 fi
 
-python3 @script@
+@python@ @script@
