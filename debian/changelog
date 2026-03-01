@@ -1,3 +1,9 @@
+typhoon (1.7.2) noble; urgency=medium
+
+  * Reduced time to load weather of a different location
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sat, 28 Feb 2026 20:26:25 -0500
+
 typhoon (1.7.1) noble; urgency=medium
 
   * Fix CORS policy block which prevented app from running

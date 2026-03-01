@@ -80,6 +80,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.7.2" date="2026-02-28">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.7.2</url>
+      <description>
+        <ul>
+          <li>Reduced time to load weather of a different location</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.7.1" date="2026-02-24">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.7.1</url>
       <description>
