@@ -74,11 +74,14 @@ On **Windows**, download the prebuilt installers from [GitHub releases](https://
 Linux-specific integrations (`dbus-python`, `python-gobject`, `libportal`) are optional on Windows.
 
 
-## Blur in KDE
+## Blur
 
 <img src="./assets/screenshots/blur_kde_screenshot.png" align="center" alt="Typhoon with KDE blur effect">
 
-Typhoon supports background blur effects on KDE Plasma. To activate blur, install KVantum and enable blur option for transparent windows in KVantum settings. Alternatively use https://github.com/can1357/kde-blur if you don't want to install KVantum.
+By default, Typhoon supports transparency in nearly all desktop environments. However, thanks to Qt, you can also make the background blur with the following methods:
+- GNOME: Use [Blur my Shell](https://extensions.gnome.org/extension/3193/blur-my-shell/) extension.
+- KDE Plasma: Install KVantum and enable blur option for transparent windows in KVantum settings. Alternatively use [kde-blur](https://github.com/can1357/kde-blur) effect for KWin if you don't want to install KVantum.
+- Cinnamon: Install the [Blur Cinnamon](https://cinnamon-spices.linuxmint.com/extensions/view/104) extension.
 
 
 ## Build System
