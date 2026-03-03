@@ -67,7 +67,7 @@ Typhoon is available on [Flathub](https://flathub.org) and the [Snap Store](http
     <img height='55' alt="Get it from the Snap Store" src=https://snapcraft.io/en/dark/install.svg />
 </a>
 
-*Note that the chameleonic background does not work in the flatpak and snap packages. To use this feature, use the native packages instead.*
+*Note that the wallpaper based chameleonic background does not work in the flatpak and snap packages due to confinement. They fall back to the accent color instead. To use wallpaper based chameleonic background feature, use the native packages instead.*
 
 On **Windows**, download the prebuilt installers from [GitHub releases](https://github.com/archisman-panigrahi/typhoon/releases).
 
