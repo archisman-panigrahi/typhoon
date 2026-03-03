@@ -49,7 +49,8 @@ layout:
 parts:
   launcher:
     plugin: dump
-    source: snap/local/
+    source: local/
+    source-type: local
     organize:
       typhoon-launcher: bin/typhoon-launcher
   icon:
@@ -58,9 +59,9 @@ parts:
     override-build: |
       # Create both themed .svg and extensionless copy for snapcraft linter
       mkdir -p $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/
-      cp $CRAFT_PART_SRC/typhoon/io.github.archisman_panigrahi.typhoon.svg \
+      cp $CRAFT_PART_SRC/snap/gui/io.github.archisman_panigrahi.typhoon.svg \
          $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/io.github.archisman_panigrahi.typhoon.svg
-      cp $CRAFT_PART_SRC/typhoon/io.github.archisman_panigrahi.typhoon.svg \
+      cp $CRAFT_PART_SRC/snap/gui/io.github.archisman_panigrahi.typhoon.svg \
          $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/io.github.archisman_panigrahi.typhoon
   typhoon:
     after: [launcher, icon]
