@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Typhoon
+Comment=A stylish weather app based on Stormcloud
+Exec=typhoon
+Icon=${SNAP}/meta/gui/io.github.archisman_panigrahi.typhoon.svg
+Terminal=false
+Type=Application
+Keywords=Weather;Stormcloud;Cumulus;Rain;Wind;Sun;Cloud;
+Categories=Utility;
+StartupWMClass=typhoon_window.py

@@ -11,11 +11,4 @@ if [[ -z "${QT_QPA_PLATFORM:-}" ]]; then
   fi
 fi
 
-if [[ -n "${SNAP:-}" ]]; then
-  flags=" ${QTWEBENGINE_CHROMIUM_FLAGS:-} "
-  if [[ "$flags" != *" --disable-dev-shm-usage "* ]]; then
-    export QTWEBENGINE_CHROMIUM_FLAGS="${QTWEBENGINE_CHROMIUM_FLAGS:+$QTWEBENGINE_CHROMIUM_FLAGS }--disable-dev-shm-usage"
-  fi
-fi
-
-@python@ @script@
+exec python3 "$SNAP/usr/share/typhoon/typhoon/typhoon_window.py" "$@"
