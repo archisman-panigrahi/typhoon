@@ -87,6 +87,11 @@ else:
 
 logger = logging.getLogger(__name__)
 
+LAUNCHER_DESKTOP_IDS = (
+    "io.github.archisman_panigrahi.typhoon.desktop",
+    "typhoon_typhoon.desktop",
+)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(message)s",
@@ -455,27 +460,39 @@ class TyphoonWindow(QWidget):
         self.webview.setUrl(QUrl.fromLocalFile(html_path))
 
     def _setup_dbus_launcher(self):
-        self.launcher = None
+        self.launchers = []
         self.launcher_service = None
+
         if dbus is None or Service is None:
             return
+
         if Unity is not None:
-            try:
-                self.launcher = Unity.LauncherEntry.get_for_desktop_id(
-                    "io.github.archisman_panigrahi.typhoon.desktop"
-                )
-                self.launcher.set_property("count_visible", False)
-            except Exception as e:
-                logger.warning("Could not initialize Unity launcher entry: %s", e)
+            for desktop_id in LAUNCHER_DESKTOP_IDS:
+                try:
+                    launcher_entry = Unity.LauncherEntry.get_for_desktop_id(desktop_id)
+                    launcher_entry.set_property("count_visible", False)
+                    self.launchers.append(launcher_entry)
+                except Exception as e:
+                    logger.warning(
+                        "Could not initialize Unity launcher entry for %s: %s",
+                        desktop_id,
+                        e,
+                    )
 
         try:
             self.launcher_service = Service()
         except Exception as e:
             logger.warning("Could not initialize launcher D-Bus service: %s", e)
             return
-        self.launcher_service.Update(
-            "application://io.github.archisman_panigrahi.typhoon.desktop", {}
-        )
+        for desktop_id in LAUNCHER_DESKTOP_IDS:
+            try:
+                self.launcher_service.Update(f"application://{desktop_id}", {})
+            except Exception as e:
+                logger.warning(
+                    "Could not initialize launcher D-Bus state for %s: %s",
+                    desktop_id,
+                    e,
+                )
 
     def _setup_notification_tray(self):
         if not IS_WINDOWS:
@@ -737,23 +754,31 @@ class TyphoonWindow(QWidget):
             logger.info("D-Bus unavailable; skipping Linux notification backend")
             return
         try:
+            # Use snap desktop ID when running in snap environment
+            desktop_id = "typhoon_typhoon" if os.environ.get("SNAP") else "io.github.archisman_panigrahi.typhoon"
+            
             bus = dbus.SessionBus()
             notify_obj = bus.get_object(
-                "org.freedesktop.Notifications", "/org/freedesktop/Notifications"
+                "org.freedesktop.Notifications",
+                "/org/freedesktop/Notifications",
+                introspect=False,
             )
-            notify_interface = dbus.Interface(
-                notify_obj, "org.freedesktop.Notifications"
+            hints = dbus.Dictionary(
+                {
+                    "desktop-entry": dbus.String(desktop_id)
+                },
+                signature="sv",
             )
-            hints = {"desktop-entry": dbus.String("io.github.archisman_panigrahi.typhoon")}
-            notify_interface.Notify(
+            notify_obj.Notify(
                 "Weather Alert",
-                0,
-                "io.github.archisman_panigrahi.typhoon",
+                dbus.UInt32(0),
+                desktop_id,
                 message,
                 "Take care and stay safe.",
                 dbus.Array([], signature="s"),
                 hints,
-                -1,
+                dbus.Int32(-1),
+                dbus_interface="org.freedesktop.Notifications",
             )
         except Exception as e:
             logger.error("Failed to send D-Bus notification: %s", e)
@@ -834,41 +859,57 @@ class TyphoonWindow(QWidget):
 
     def _toggle_unity_launcher(self, title):
         visible = title == "enable_launcher"
-        if self.launcher is not None:
+
+        for launcher_entry in getattr(self, "launchers", []):
             try:
-                self.launcher.set_property("count_visible", visible)
+                launcher_entry.set_property("count_visible", visible)
             except Exception as e:
                 logger.warning("Failed to toggle Unity launcher visibility: %s", e)
 
         if not self.launcher_service:
             return
-        try:
-            self.launcher_service.Update(
-                "application://io.github.archisman_panigrahi.typhoon.desktop",
-                {"count-visible": visible},
-            )
-        except Exception as e:
-            logger.warning("Failed to toggle launcher visibility: %s", e)
+
+        for desktop_id in LAUNCHER_DESKTOP_IDS:
+            try:
+                self.launcher_service.Update(
+                    f"application://{desktop_id}",
+                    {"count-visible": visible},
+                )
+            except Exception as e:
+                logger.warning(
+                    "Failed to toggle launcher visibility for %s: %s",
+                    desktop_id,
+                    e,
+                )
 
     def _update_unity_count(self, title):
-        if self.launcher is not None:
+        try:
+            count = int(title)
+        except ValueError:
+            return
+
+        for launcher_entry in getattr(self, "launchers", []):
             try:
-                self.launcher.set_property("count", int(title))
+                launcher_entry.set_property("count", count)
             except Exception as e:
                 logger.warning("Failed to update Unity launcher count: %s", e)
 
         if not self.launcher_service:
             return
-        try:
-            count = int(title)
-            self.launcher_service.Update(
-                "application://io.github.archisman_panigrahi.typhoon.desktop",
-                {"count": dbus.Int64(count) if dbus is not None else count},
-            )
-        except ValueError:
-            pass
-        except Exception as e:
-            logger.warning("Failed to update launcher count: %s", e)
+
+        count_payload = dbus.Int64(count) if dbus is not None else count
+        for desktop_id in LAUNCHER_DESKTOP_IDS:
+            try:
+                self.launcher_service.Update(
+                    f"application://{desktop_id}",
+                    {"count": count_payload},
+                )
+            except Exception as e:
+                logger.warning(
+                    "Failed to update launcher count for %s: %s",
+                    desktop_id,
+                    e,
+                )
 
     def _get_config_dir(self):
         if IS_WINDOWS:

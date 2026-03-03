@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Default to XWayland on Wayland sessions so manual window positioning works.
+if [[ -z "${QT_QPA_PLATFORM:-}" ]]; then
+  if [[ "${XDG_SESSION_TYPE:-}" == "wayland" || -n "${WAYLAND_DISPLAY:-}" ]]; then
+    if [[ "${TYPHOON_WINDOW_POSITION_BACKEND:-xwayland}" != "native" \
+       && "${TYPHOON_WINDOW_POSITION_BACKEND:-xwayland}" != "wayland" \
+       && -n "${DISPLAY:-}" ]]; then
+      export QT_QPA_PLATFORM=xcb
+    fi
+  fi
+fi
+
+exec python3 "$SNAP/usr/share/typhoon/typhoon/typhoon_window.py" "$@"

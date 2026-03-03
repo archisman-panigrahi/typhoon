@@ -1,9 +1,31 @@
 name: typhoon
 base: core24
-adopt-info: typhoon
+version: '1.7.2'
+title: Typhoon
+summary: Check the weather with style
+icon: snap/gui/io.github.archisman_panigrahi.typhoon.svg
+description: |
+  Typhoon is a beautiful weather application that provides real-time weather 
+  updates and forecasts in a highly configurable and colorful widget inspired 
+  by the Metro interface in Windows 8.
+  
+  Originally based on Stormcloud by Jono Cooper, Typhoon is powered by 
+  Open-Meteo, OpenStreetMap and ipapi.
+license: GPL-3.0-or-later
+website: https://archisman-panigrahi.github.io/typhoon
+source-code: https://github.com/archisman-panigrahi/typhoon
+issues: https://github.com/archisman-panigrahi/typhoon/issues
+contact: https://github.com/archisman-panigrahi/typhoon/issues
 grade: stable
 confinement: strict
 compression: lzo
+
+slots:
+  dbus-typhoon:
+
+    interface: dbus
+    bus: session
+    name: io.github.archisman_panigrahi.typhoon
 
 plugs:
   lxqt-support:
@@ -11,19 +33,39 @@ plugs:
     interface: content
     target: $SNAP/lxqt-support
     default-provider: lxqt-support
+  notifications:
+    interface: dbus
+    bus: session
+    name: org.freedesktop.Notifications
 
 layout:
   /usr/share/color-schemes:
     symlink: $SNAP/lxqt-support/usr/share/color-schemes
   /usr/share/Kvantum:
     symlink: $SNAP/lxqt-support/usr/share/Kvantum
+  /usr/share/icons:
+    bind: $SNAP/usr/share/icons
 
 parts:
+  launcher:
+    plugin: dump
+    source: snap/local/
+    organize:
+      typhoon-launcher: bin/typhoon-launcher
+  icon:
+    plugin: dump
+    source: .
+    override-build: |
+      # Create both themed .svg and extensionless copy for snapcraft linter
+      mkdir -p $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/
+      cp $CRAFT_PART_SRC/typhoon/io.github.archisman_panigrahi.typhoon.svg \
+         $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/io.github.archisman_panigrahi.typhoon.svg
+      cp $CRAFT_PART_SRC/typhoon/io.github.archisman_panigrahi.typhoon.svg \
+         $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/io.github.archisman_panigrahi.typhoon
   typhoon:
+    after: [launcher, icon]
     plugin: meson
-    source: https://github.com/archisman-panigrahi/typhoon.git
-    source-branch: master
-    source-depth: 1
+    source: .
     build-packages:
       - meson
       - ninja-build
@@ -36,16 +78,14 @@ parts:
       - python3-gi
       - gir1.2-xdp-1.0
       - python3-cairosvg
+      - hicolor-icon-theme
     meson-parameters:
-      - --prefix=/snap/typhoon/current/usr
+      - --prefix=/usr
       - -Dbuildtype=release
-    organize:
-      snap/typhoon/current: .
-    parse-info: [usr/share/metainfo/io.github.archisman_panigrahi.typhoon.metainfo.xml]
 
 apps:
   typhoon:
-    command: usr/bin/typhoon
+    command: bin/typhoon-launcher
     extensions: [kde-neon-6]
     desktop: usr/share/applications/io.github.archisman_panigrahi.typhoon.desktop
     environment:
@@ -56,7 +96,13 @@ apps:
       LD_LIBRARY_PATH: $SNAP/lxqt-support/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$LD_LIBRARY_PATH
       QT_PLUGIN_PATH: $SNAP/lxqt-support/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins:$QT_PLUGIN_PATH
     plugs:
+      - desktop
+      - desktop-legacy
+      - wayland
       - x11
       - unity7
       - network
       - network-status
+      - notifications
+    slots:
+      - dbus-typhoon
