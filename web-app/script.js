@@ -414,6 +414,7 @@ function displayCachedWeather(currentWeather, locationData, weeklyData, preserve
                 // Determine if weathercode indicates snow/thunderstorm/extreme
                 const code = parseInt(currentWeather.weathercode, 10);
                 const isSnow = [71, 73, 75, 77, 85, 86].includes(code);
+                const isFreezingRain = [66, 67].includes(code);
                 const isThunder = (code >= 95 && code <= 99);
 
                 const rainPct = Number(currentWeather.rain_percentage) || 0;
@@ -422,6 +423,7 @@ function displayCachedWeather(currentWeather, locationData, weeklyData, preserve
                 const buildMessage = () => {
                     if (isThunder) return `Thunderstorm warning for ${city}. Precipitation chance ${Math.round(rainPct)}%`;
                     if (isSnow) return `Snow expected (${Math.round(rainPct)}% chance) in ${city}.`;
+                    if (isFreezingRain) return `Freezing rain expected (${Math.round(rainPct)}% chance) in ${city}.`;
                     if (rainPct >= notifyThreshold) return `Rain expected (${Math.round(rainPct)}% chance) in ${city}.`;
                     return null;
                 };
