@@ -68,7 +68,7 @@ parts:
   typhoon:
     after: [launcher, icon]
     plugin: meson
-    source: .
+    source: ..
     build-packages:
       - meson
       - ninja-build
