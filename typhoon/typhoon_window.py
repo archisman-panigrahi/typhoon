@@ -1019,12 +1019,18 @@ class TyphoonWindow(QWidget):
                 for line in file:
                     if line.strip().startswith("Image="):
                         wallpaper = line.strip().split("=", 1)[1]
-                        if wallpaper.endswith("/"):
-                            images_dir = os.path.join(wallpaper, "contents", "images")
-                            for candidate in os.listdir(images_dir):
-                                if candidate.lower().endswith((".jpg", ".png")):
-                                    wallpaper = os.path.join(images_dir, candidate)
-                                    break
+                        parsed = urlparse(wallpaper)
+                        if parsed.scheme == "file":
+                            wallpaper = unquote(parsed.path)
+                        if os.path.isdir(wallpaper):
+                            images_dir = wallpaper
+                            if os.path.basename(os.path.normpath(images_dir)) != "images":
+                                images_dir = os.path.join(wallpaper, "contents", "images")
+                            if os.path.isdir(images_dir):
+                                for candidate in os.listdir(images_dir):
+                                    if candidate.lower().endswith((".jpg", ".jpeg", ".png", ".webp", ".bmp")):
+                                        wallpaper = os.path.join(images_dir, candidate)
+                                        break
                         break
         elif "lxde" in de or "labwc:wlroots" in de:
             config_pattern = os.path.expanduser(

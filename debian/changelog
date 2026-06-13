@@ -1,3 +1,9 @@
+typhoon (1.7.3) noble; urgency=medium
+
+  * Fix chameleonic background for image directories in KDE
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Sat, 13 Jun 2026 17:20:13 -0400
+
 typhoon (1.7.2) noble; urgency=medium
 
   * Reduced time to load weather of a different location
