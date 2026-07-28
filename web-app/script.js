@@ -298,6 +298,20 @@ function formatForecastRange(minTempF, maxTempF, unit) {
     return `${min}${degree} / ${max}${degree} ${unit.toUpperCase()}`;
 }
 
+function formatLocationLabel(locationData) {
+    const name = String(locationData.name || '').trim();
+    const displayParts = String(locationData.display_name || '')
+        .split(',')
+        .map(part => part.trim())
+        .filter(Boolean);
+    const country = displayParts.length ? displayParts[displayParts.length - 1] : '';
+    const normalize = value => value.toLocaleLowerCase().replace(/\s+/g, ' ');
+
+    if (!name) return country || 'Unknown Location';
+    if (!country || normalize(name) === normalize(country)) return name;
+    return `${name}, ${country}`;
+}
+
 // Update the render function to use Open-Meteo data
 function render(cityName) {
     $('.border .sync').addClass('busy');
@@ -328,9 +342,8 @@ function render(cityName) {
 function displayCachedWeather(currentWeather, locationData, weeklyData, preserveBusy) {
     // Update the city div with a hyperlink
     const mapUrl = `https://www.openstreetmap.org/?mlat=${locationData.lat}&mlon=${locationData.lon}#map=10/${locationData.lat}/${locationData.lon}`;
-    const countryName = locationData.display_name.split(',').pop().trim() || "Unknown Country";
-    
-    $('#city span').html(`<a href="${mapUrl}">${locationData.name}, ${countryName}</a>`);
+    const locationLink = $('<a>').attr('href', mapUrl).text(formatLocationLabel(locationData));
+    $('#city span').empty().append(locationLink);
     const iconChar = weather_code(currentWeather.weathercode, currentWeather.is_day);
     const codeClass = "w" + currentWeather.weathercode;
     $("#code").text(iconChar).attr("class", codeClass + (iconChar === "/" ? " moon-large" : ""));
@@ -469,14 +482,15 @@ function renderWeeklyForecast(weeklyData) {
     // Render the weekly forecast in the "week" div
     weeklyData.forEach((day, index) => {
         const tempElement = $(`#${index} .temp`);
-        tempElement.css("font-size", unit === "k" ? "0.85em" : "1em");
+        const temperatureRange = formatForecastRange(day.tempMin, day.tempMax, unit);
+        tempElement.css("font-size", unit === "k" || temperatureRange.length > 11 ? "0.85em" : "1em");
 
         // Update the DOM with the converted temperatures and Climacons icon
         $(`#${index} .day`).text(day.day);
         $(`#${index} .code`)
             .text(weather_code(day.icon, 1))
             .attr("class", `code w${day.icon}`);
-        tempElement.text(formatForecastRange(day.tempMin, day.tempMax, unit));
+        tempElement.text(temperatureRange);
     });
 }
 
