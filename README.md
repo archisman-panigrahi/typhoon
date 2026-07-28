@@ -15,6 +15,7 @@ Originally based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by 
 ### Features
 
 - Real-time weather updates and forecasts for up to four days
+- Interactive 24-hour forecast with chart and list views for hourly rain probability and temperature
 - Customizable units of measurement
 - Displays current temperature as launcher count
 - Displays precipitation warning within app

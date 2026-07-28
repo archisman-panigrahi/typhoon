@@ -80,6 +80,15 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.8.0" date="2026-07-28">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.8.0</url>
+      <description>
+        <ul>
+          <li>Add an interactive 24-hour forecast for rain probability and temperature</li>
+          <li>Exit gracefully when Ctrl+C is pressed in a terminal</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.7.4" date="2026-07-27">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.7.4</url>
       <description>

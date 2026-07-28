@@ -1,5 +1,5 @@
 Name:           typhoon
-Version:        1.7.4
+Version:        1.8.0
 Release:        1%{?dist}
 Summary:        Check the weather with style
 

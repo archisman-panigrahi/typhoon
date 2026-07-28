@@ -1,3 +1,10 @@
+typhoon (1.8.0) noble; urgency=medium
+
+  * Add an interactive 24-hour rain probability and temperature forecast.
+  * Exit gracefully when Ctrl+C is pressed in a terminal.
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Tue, 28 Jul 2026 00:48:32 -0400
+
 typhoon (1.7.4) noble; urgency=medium
 
   * Use smaller font in forecast for extremely low temeperature, even for C and F units
