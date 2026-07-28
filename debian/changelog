@@ -1,3 +1,9 @@
+typhoon (1.7.4) noble; urgency=medium
+
+  * Use smaller font in forecast for extremely low temeperature, even for C and F units
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Mon, 27 Jul 2026 23:20:04 -0400
+
 typhoon (1.7.3) noble; urgency=medium
 
   * Fix chameleonic background for image directories in KDE

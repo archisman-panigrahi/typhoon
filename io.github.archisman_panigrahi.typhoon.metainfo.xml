@@ -80,6 +80,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.7.4" date="2026-07-27">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.7.4</url>
+      <description>
+        <ul>
+          <li>Use smaller font in forecast for extremely low temeperature, even for C and F units</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.7.3" date="2026-06-13">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.7.3</url>
       <description>

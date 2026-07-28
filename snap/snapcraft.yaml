@@ -1,6 +1,6 @@
 name: typhoon
 base: core24
-version: '1.7.3'
+version: '1.7.4'
 title: Typhoon
 summary: Check the weather with style
 icon: snap/gui/io.github.archisman_panigrahi.typhoon.svg
