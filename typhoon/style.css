@@ -953,9 +953,9 @@ input[type="range"]::-webkit-slider-thumb:active {
 .rain-forecast-rows::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.38); border-radius: 6px; }
 .rain-forecast-rows::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.62); }
 .rain-forecast-row {
-    min-height: 38px;
+    min-height: 34px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.09);
-    font-size: 19px;
+    font-size: 16px;
 }
 .rain-forecast-row:first-child { background: rgba(255, 255, 255, 0.09); }
 .rain-chance { color: #8ed8ff; }
