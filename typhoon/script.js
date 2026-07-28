@@ -10,6 +10,7 @@ var NAVIGATION_REFRESH_DELAY = 3000; // Wait 3 seconds after manual navigation b
 var navigationRefreshTimeout = null;
 const NAVIGATION_REFRESH_DEBOUNCE_MS = 2000; // 2 seconds after navigation/delete to trigger refresh
 var displayedHourlyForecast = null;
+var hourlyForecastView = localStorage.typhoon_hourly_view === 'list' ? 'list' : 'chart';
 function initOpaqueTooltips() {
     if ($('#typhoonTooltip').length === 0) {
         $('body').append('<div id="typhoonTooltip" aria-hidden="true"></div>');
@@ -479,7 +480,7 @@ function displayCachedWeather(currentWeather, locationData, weeklyData, preserve
     background(currentWeather.temperature);
 
     // Show Icon
-    $('.border .sync, .border .settings, #locationNav .nav-remove, #locationNav .nav-arrow').css("opacity", "0.8");
+    $('.border .sync, .border .settings, .border .hourly-forecast, #locationNav .nav-remove, #locationNav .nav-arrow').css("opacity", "0.8");
     $('#actualWeather').fadeIn(500);
     $("#humidityIcon").css("opacity", "1");
     $("#locationModal").fadeOut(500);
@@ -523,31 +524,99 @@ function formatHourlyForecastTime(time, index) {
     return label;
 }
 
-function renderRainForecast() {
-    const hours = $('#rainForecastHours').empty();
+function renderRainChart() {
+    const chart = $('#rainForecastChart').empty();
+    chart.removeClass('list-view');
     const unit = getTemperatureUnit();
 
     if (!displayedHourlyForecast || !displayedHourlyForecast.time.length) {
-        hours.append($('<div class="rain-forecast-empty">').text('Hourly forecast is not available yet. Refresh to try again.'));
+        chart.append($('<div class="rain-forecast-empty">').text('Hourly forecast is not available yet. Refresh to try again.'));
         return;
     }
 
+    const width = 720, height = 235, left = 40, right = 50, top = 18, bottom = 30;
+    const plotWidth = width - left - right;
+    const plotHeight = height - top - bottom;
+    const rain = displayedHourlyForecast.rain.map(value => Math.max(0, Math.min(100, Number(value) || 0)));
+    const temperatures = displayedHourlyForecast.temperature.map(value => convertTemperatureFromFahrenheit(Number(value), unit));
+    const minTemp = Math.floor(Math.min(...temperatures) - 2);
+    const maxTemp = Math.ceil(Math.max(...temperatures) + 2);
+    const tempSuffix = unit === 'k' ? ' K' : '°';
+    const tempRange = Math.max(1, maxTemp - minTemp);
+    const step = plotWidth / rain.length;
+    const pointCoordinates = temperatures.map(function(temp, index) {
+        const x = left + index * step + step / 2;
+        const y = top + (maxTemp - temp) / tempRange * plotHeight;
+        return { x: x.toFixed(1), y: y.toFixed(1) };
+    });
+    const points = pointCoordinates.map(point => `${point.x},${point.y}`).join(' ');
+    const bars = rain.map(function(chance, index) {
+        const barHeight = chance / 100 * plotHeight;
+        const time = formatHourlyForecastTime(displayedHourlyForecast.time[index], index);
+        return `<rect class="rain-chart-bar" data-series="rain" data-index="${index}" tabindex="0" role="button" aria-label="${time}: ${Math.round(chance)}% rain" x="${(left + index * step + 2).toFixed(1)}" y="${(top + plotHeight - barHeight).toFixed(1)}" width="${Math.max(1, step - 4).toFixed(1)}" height="${barHeight.toFixed(1)}"/>`;
+    }).join('');
+    const temperaturePoints = pointCoordinates.map(function(point, index) {
+        const time = formatHourlyForecastTime(displayedHourlyForecast.time[index], index);
+        const temperature = formatTemperatureValue(displayedHourlyForecast.temperature[index], unit, false);
+        return `<circle class="temp-chart-point" data-series="temperature" data-index="${index}" tabindex="0" role="button" aria-label="${time}: ${temperature}" cx="${point.x}" cy="${point.y}" r="2"/>`;
+    }).join('');
+    const labels = [0, 3, 6, 9, 12, 15, 18, 21, rain.length - 1].map(function(index) {
+        const x = left + index * step + step / 2;
+        const label = index === 0 ? 'Now' : formatHourlyForecastTime(displayedHourlyForecast.time[index], index).replace(/^.*· /, '');
+        return `<text x="${x.toFixed(1)}" y="229" text-anchor="middle">${label}</text>`;
+    }).join('');
+
+    const scroller = $('<div class="rain-chart-scroller">').html(`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Temperature line and rain probability bars for the next 24 hours">
+        <defs><linearGradient id="temperatureFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd08a" stop-opacity=".32"/><stop offset="1" stop-color="#ffd08a" stop-opacity="0"/></linearGradient></defs>
+        <g class="rain-chart-grid"><line x1="${left}" y1="${top}" x2="${width - right}" y2="${top}"/><line x1="${left}" y1="${top + plotHeight / 2}" x2="${width - right}" y2="${top + plotHeight / 2}"/><line x1="${left}" y1="${top + plotHeight}" x2="${width - right}" y2="${top + plotHeight}"/></g>
+        ${bars}
+        <polygon class="temp-chart-area" points="${left + step / 2},${top + plotHeight} ${points} ${width - right - step / 2},${top + plotHeight}"/>
+        <polyline class="temp-chart-line" points="${points}"/>
+        ${temperaturePoints}
+        <g class="rain-chart-labels">${labels}</g>
+    </svg>`);
+    const rainAxis = $('<div class="rain-chart-axis rain-axis">').append('<span>100%</span><span>50%</span><span>0%</span>');
+    const tempAxis = $('<div class="rain-chart-axis temp-axis">').append(
+        $('<span>').text(`${maxTemp}${tempSuffix}`),
+        $('<span>').text(`${Math.round(maxTemp - tempRange / 3)}${tempSuffix}`),
+        $('<span>').text(`${Math.round(maxTemp - tempRange * 2 / 3)}${tempSuffix}`),
+        $('<span>').text(`${minTemp}${tempSuffix}`)
+    );
+    chart.append(scroller, rainAxis, tempAxis, '<div id="rainChartValue" role="status"></div>');
+    scroller.on('scroll', function() { $('#rainChartValue').removeClass('visible'); });
+    scroller.scrollLeft(0);
+}
+
+function renderRainList() {
+    const content = $('#rainForecastChart').empty().addClass('list-view');
+    if (!displayedHourlyForecast || !displayedHourlyForecast.time.length) {
+        content.append($('<div class="rain-forecast-empty">').text('Hourly forecast is not available yet. Refresh to try again.'));
+        return;
+    }
+
+    const unit = getTemperatureUnit();
     const rows = displayedHourlyForecast.time.map(function(time, index) {
         const rain = displayedHourlyForecast.rain[index];
         const temp = displayedHourlyForecast.temperature[index];
-        const probability = rain != null && Number.isFinite(Number(rain))
-            ? `${Math.round(Number(rain))}%`
-            : '--%';
-        const temperature = temp != null && Number.isFinite(Number(temp))
-            ? formatTemperatureValue(Number(temp), unit, false)
-            : '--';
-        const row = $('<div class="rain-forecast-row">');
-        row.append($('<span class="rain-hour">').text(formatHourlyForecastTime(time, index)));
-        row.append($('<span class="rain-chance">').text(probability));
-        row.append($('<span class="rain-temp">').text(temperature));
-        return row;
+        return $('<div class="rain-forecast-row">').append(
+            $('<span>').text(formatHourlyForecastTime(time, index)),
+            $('<span class="rain-chance">').text(rain == null ? '--%' : `${Math.round(Number(rain))}%`),
+            $('<span>').text(temp == null ? '--' : formatTemperatureValue(Number(temp), unit, false))
+        );
     });
-    hours.append(rows);
+    content.append(
+        $('<div class="rain-forecast-columns">').append('<span>Time</span><span>Rain</span><span>Temp</span>'),
+        $('<div class="rain-forecast-rows">').append(rows)
+    );
+}
+
+function renderRainForecast() {
+    const showList = hourlyForecastView === 'list';
+    $('.rain-forecast-legend').toggle(!showList);
+    $('#rainForecastViewToggle')
+        .text(showList ? 'Chart' : 'List')
+        .attr('aria-label', showList ? 'Show hourly forecast as a chart' : 'Show hourly forecast as a list');
+    if (showList) renderRainList(); else renderRainChart();
 }
 
 function openRainForecast() {
@@ -1040,11 +1109,12 @@ function scheduleNavigationRefresh() {
 
 // Update location navigation UI
 function updateLocationNav() {
+    $('#locationNav').show();
     if (currentLocations.length > 1) {
-        $('#locationNav').show();
+        $('#locationNav .location-switch-control').show();
         $('#locationCounter').text(`${currentLocationIndex + 1} of ${currentLocations.length}`);
     } else {
-        $('#locationNav').hide();
+        $('#locationNav .location-switch-control').hide();
     }
 }
 
@@ -1060,6 +1130,36 @@ $(document).ready(function() {
         }
     });
     $('#rainForecastClose').on('click', closeRainForecast);
+    $('#rainForecastViewToggle').on('click', function() {
+        hourlyForecastView = hourlyForecastView === 'chart' ? 'list' : 'chart';
+        localStorage.typhoon_hourly_view = hourlyForecastView;
+        renderRainForecast();
+    });
+    $('#rainForecastChart')
+        .on('click', '.rain-chart-bar, .temp-chart-point', function(event) {
+            event.stopPropagation();
+            const index = Number($(this).attr('data-index'));
+            const time = formatHourlyForecastTime(displayedHourlyForecast.time[index], index);
+            const value = $(this).attr('data-series') === 'rain'
+                ? `Rain: ${Math.round(Number(displayedHourlyForecast.rain[index]))}%`
+                : `Temperature: ${formatTemperatureValue(displayedHourlyForecast.temperature[index], getTemperatureUnit(), false)}`;
+            const chartRect = document.getElementById('rainForecastChart').getBoundingClientRect();
+            const targetRect = this.getBoundingClientRect();
+            const popup = $('#rainChartValue').text(`${time} · ${value}`).addClass('visible');
+            const x = (event.clientX || targetRect.left + targetRect.width / 2) - chartRect.left;
+            const y = (event.clientY || targetRect.top) - chartRect.top;
+            popup.css({
+                left: Math.max(4, Math.min(chartRect.width - popup.outerWidth() - 4, x - popup.outerWidth() / 2)),
+                top: Math.max(4, y - popup.outerHeight() - 10)
+            });
+        })
+        .on('keydown', '.rain-chart-bar, .temp-chart-point', function(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                $(this).trigger('click');
+            }
+        })
+        .on('click', function() { $('#rainChartValue').removeClass('visible'); });
     $(document).on('keydown', function(event) {
         if (event.key === 'Escape') closeRainForecast();
     });
@@ -1376,7 +1476,7 @@ function show_settings(amount) {
     .on('click.typhoonCreditsBack', function() {
         $("#locationModal .credits").fadeOut(350)
         if(currentLocations.length===1) {
-            $("#locationModal .input, #locationModal .full, .settings, .sync").fadeIn(350)
+            $("#locationModal .input, #locationModal .full, .settings, .sync, #locationNav").fadeIn(350)
         } else {
             $("#locationModal .input, #locationModal .full, .settings, .sync, #locationNav").fadeIn(350)
         }

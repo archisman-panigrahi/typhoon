@@ -11,10 +11,11 @@
             <div class="close">&#10005;</div>
             <div class="minimize">&#150;</div>
             <div id="locationNav">
-                <span id="prevLocation" class="nav-arrow" title="Previous location">‹</span>
-                <span id="removeLocation" class="nav-remove" title="Remove this location">×</span>
-                <span id="nextLocation" class="nav-arrow" title="Next location">›</span>
+                <span id="prevLocation" class="nav-arrow location-switch-control" title="Previous location">‹</span>
+                <span id="removeLocation" class="nav-remove location-switch-control" title="Remove this location">×</span>
+                <span id="nextLocation" class="nav-arrow location-switch-control" title="Next location">›</span>
             </div>
+            <div id="hourlyForecastButton" class="hourly-forecast hourly-forecast-trigger" title="Show 24-hour forecast" role="button" tabindex="0" aria-label="Show hourly rain and temperature forecast" aria-haspopup="dialog" aria-controls="rainForecastPanel"><img src="clock-exclamation-svgrepo-com.svg" alt=""></div>
             <div class="settings"><img src="settings.svg"></div>
             <div class="sync"><img src="sync.svg"></div>
         </div>
@@ -35,7 +36,7 @@
             </div>
             <div class="additional-info hidden">
                 <div class="info-left" id="feelsLike">Feels Like: --°</div>
-                <div class="info-right hourly-forecast-trigger" id="rainPercentage" title="Click for the next 24 hours" role="button" tabindex="0" aria-label="Show hourly rain and temperature forecast" aria-haspopup="dialog" aria-controls="rainForecastPanel">
+                <div class="info-right hourly-forecast-trigger" id="rainPercentage" title="Precipitation probability" role="button" tabindex="0" aria-label="Show hourly rain and temperature forecast" aria-haspopup="dialog" aria-controls="rainForecastPanel">
                     <span style="font-family: 'ClimaconsRegular';">{</span> --%
                 </div>
             </div>
@@ -73,12 +74,16 @@
                     <div id="rainForecastTitle">Next 24 hours</div>
                     <div id="rainForecastLocation"></div>
                 </div>
-                <button id="rainForecastClose" type="button" aria-label="Close hourly forecast">&#10005;</button>
+                <div class="rain-forecast-actions">
+                    <button id="rainForecastViewToggle" type="button" aria-label="Show hourly forecast as a list">List</button>
+                    <button id="rainForecastClose" type="button" aria-label="Close hourly forecast">&#10005;</button>
+                </div>
             </div>
-            <div class="rain-forecast-columns" aria-hidden="true">
-                <span>Time</span><span>Rain</span><span>Temp</span>
+            <div class="rain-forecast-legend" aria-hidden="true">
+                <span><i class="rain-legend-swatch"></i>Rain (0–100%)</span>
+                <span><i class="temp-legend-swatch"></i>Temperature</span>
             </div>
-            <div id="rainForecastHours"></div>
+            <div id="rainForecastChart"></div>
         </div>
     </div>
     <div id="locationModal">
