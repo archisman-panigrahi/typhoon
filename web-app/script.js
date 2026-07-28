@@ -1123,10 +1123,16 @@ $(document).ready(function() {
     scaleContent();
     initOpaqueTooltips();
 
-    $('.hourly-forecast-trigger').on('click', openRainForecast).on('keydown', function(event) {
+    $('.hourly-forecast-trigger').on('click', function() {
+        if (this.id === 'hourlyForecastButton' && $('#rainForecastPanel').hasClass('visible')) {
+            closeRainForecast();
+        } else {
+            openRainForecast();
+        }
+    }).on('keydown', function(event) {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
-            openRainForecast();
+            $(this).trigger('click');
         }
     });
     $('#rainForecastClose').on('click', closeRainForecast);
