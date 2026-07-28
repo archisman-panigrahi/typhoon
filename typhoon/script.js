@@ -9,6 +9,7 @@ var NAVIGATION_REFRESH_DELAY = 3000; // Wait 3 seconds after manual navigation b
 // Debounce mechanism for navigation/delete button refresh
 var navigationRefreshTimeout = null;
 const NAVIGATION_REFRESH_DEBOUNCE_MS = 2000; // 2 seconds after navigation/delete to trigger refresh
+var displayedHourlyForecast = null;
 function initOpaqueTooltips() {
     if ($('#typhoonTooltip').length === 0) {
         $('body').append('<div id="typhoonTooltip" aria-hidden="true"></div>');
@@ -88,7 +89,7 @@ function getWeatherDataForLocation(locationData, callback) {
     }
     const latitude = locationData.lat;
     const longitude = locationData.lon;
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&hourly=relative_humidity_2m,apparent_temperature,precipitation_probability,wind_direction_10m`;
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation_probability,wind_direction_10m`;
 
     $.get(weatherUrl, function (weatherData) {
         console.log("API Response (Current Weather):", weatherData); // Log the API response for debugging
@@ -96,8 +97,11 @@ function getWeatherDataForLocation(locationData, callback) {
         if (weatherData && weatherData.current_weather && weatherData.hourly) {
             console.log("Total Rain Probability Data:", weatherData.hourly.precipitation_probability); // Log rain probability data
             const currentWeather = weatherData.current_weather;
-            const currentTime = new Date().toISOString(); // Current time in ISO format (GMT)
-            const timeIndex = weatherData.hourly.time.findIndex(hour => hour === currentTime.slice(0, 13) + ":00");
+            const currentHour = String(currentWeather.time || '').slice(0, 13) + ":00";
+            let timeIndex = weatherData.hourly.time.findIndex(hour => hour === currentHour);
+            if (timeIndex === -1) {
+                timeIndex = weatherData.hourly.time.findIndex(hour => hour >= currentHour);
+            }
 
             console.log("Time Index:", timeIndex);
 
@@ -105,9 +109,9 @@ function getWeatherDataForLocation(locationData, callback) {
                 const previousHours = timeIndex === 0
                     ? [weatherData.hourly.precipitation_probability[timeIndex]]
                     : weatherData.hourly.precipitation_probability.slice(Math.max(0, timeIndex - 1), timeIndex);
-                const currentHour = [weatherData.hourly.precipitation_probability[timeIndex]];
+                const currentHourRain = [weatherData.hourly.precipitation_probability[timeIndex]];
                 const nextHours = weatherData.hourly.precipitation_probability.slice(timeIndex + 1, timeIndex + 6);
-                const combinedHours = [...previousHours, ...currentHour, ...nextHours];
+                const combinedHours = [...previousHours, ...currentHourRain, ...nextHours];
                 const rainPercentage = combinedHours.length > 0 ? Math.max(...combinedHours) : 0;
 
                 console.log("Current Rain Probability Data:", combinedHours);
@@ -116,6 +120,11 @@ function getWeatherDataForLocation(locationData, callback) {
                 currentWeather.relative_humidity_2m = weatherData.hourly.relative_humidity_2m[timeIndex];
                 currentWeather.feels_like = weatherData.hourly.apparent_temperature[timeIndex];
                 currentWeather.wind_direction_10m = weatherData.hourly.wind_direction_10m[timeIndex];
+                currentWeather.hourly_forecast = {
+                    time: weatherData.hourly.time.slice(timeIndex, timeIndex + 24),
+                    rain: weatherData.hourly.precipitation_probability.slice(timeIndex, timeIndex + 24),
+                    temperature: weatherData.hourly.temperature_2m.slice(timeIndex, timeIndex + 24)
+                };
 
                 console.log("Current Humidity:", currentWeather.relative_humidity_2m);
                 console.log("Feels Like Temperature:", currentWeather.feels_like);
@@ -344,6 +353,13 @@ function displayCachedWeather(currentWeather, locationData, weeklyData, preserve
     const mapUrl = `https://www.openstreetmap.org/?mlat=${locationData.lat}&mlon=${locationData.lon}#map=10/${locationData.lat}/${locationData.lon}`;
     const locationLink = $('<a>').attr('href', mapUrl).text(formatLocationLabel(locationData));
     $('#city span').empty().append(locationLink);
+    displayedHourlyForecast = currentWeather.hourly_forecast
+        && Array.isArray(currentWeather.hourly_forecast.time)
+        && Array.isArray(currentWeather.hourly_forecast.rain)
+        && Array.isArray(currentWeather.hourly_forecast.temperature)
+        ? currentWeather.hourly_forecast
+        : null;
+    $('#rainForecastLocation').text(formatLocationLabel(locationData));
     const iconChar = weather_code(currentWeather.weathercode, currentWeather.is_day);
     const codeClass = "w" + currentWeather.weathercode;
     $("#code").text(iconChar).attr("class", codeClass + (iconChar === "/" ? " moon-large" : ""));
@@ -492,6 +508,56 @@ function renderWeeklyForecast(weeklyData) {
             .attr("class", `code w${day.icon}`);
         tempElement.text(temperatureRange);
     });
+}
+
+function formatHourlyForecastTime(time, index) {
+    // Open-Meteo returns wall-clock time in the requested location's timezone.
+    // Treat it as UTC while formatting so the host machine does not shift it again.
+    const date = new Date(`${time}Z`);
+    if (Number.isNaN(date.getTime())) return time;
+    const label = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' });
+    if (index === 0) return `Now · ${label}`;
+    if (date.getUTCHours() === 0) {
+        return `${date.toLocaleDateString([], { weekday: 'short', timeZone: 'UTC' })} · ${label}`;
+    }
+    return label;
+}
+
+function renderRainForecast() {
+    const hours = $('#rainForecastHours').empty();
+    const unit = getTemperatureUnit();
+
+    if (!displayedHourlyForecast || !displayedHourlyForecast.time.length) {
+        hours.append($('<div class="rain-forecast-empty">').text('Hourly forecast is not available yet. Refresh to try again.'));
+        return;
+    }
+
+    const rows = displayedHourlyForecast.time.map(function(time, index) {
+        const rain = displayedHourlyForecast.rain[index];
+        const temp = displayedHourlyForecast.temperature[index];
+        const probability = rain != null && Number.isFinite(Number(rain))
+            ? `${Math.round(Number(rain))}%`
+            : '--%';
+        const temperature = temp != null && Number.isFinite(Number(temp))
+            ? formatTemperatureValue(Number(temp), unit, false)
+            : '--';
+        const row = $('<div class="rain-forecast-row">');
+        row.append($('<span class="rain-hour">').text(formatHourlyForecastTime(time, index)));
+        row.append($('<span class="rain-chance">').text(probability));
+        row.append($('<span class="rain-temp">').text(temperature));
+        return row;
+    });
+    hours.append(rows);
+}
+
+function openRainForecast() {
+    renderRainForecast();
+    $('#rainForecastPanel').attr('aria-hidden', 'false').addClass('visible');
+    $('#rainForecastClose').focus();
+}
+
+function closeRainForecast() {
+    $('#rainForecastPanel').attr('aria-hidden', 'true').removeClass('visible');
 }
 
 function background(temp) {
@@ -935,6 +1001,7 @@ function warmCacheForAllLocations(excludeCityName) {
 
 function navigateToLocation(index) {
     if (index >= 0 && index < currentLocations.length) {
+        closeRainForecast();
         currentLocationIndex = index;
         lastManualNavigationTime = Date.now(); // Record time of manual navigation
         saveLocations();
@@ -985,6 +1052,17 @@ $(document).ready(function() {
     // Set the size
     scaleContent();
     initOpaqueTooltips();
+
+    $('.hourly-forecast-trigger').on('click', openRainForecast).on('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openRainForecast();
+        }
+    });
+    $('#rainForecastClose').on('click', closeRainForecast);
+    $(document).on('keydown', function(event) {
+        if (event.key === 'Escape') closeRainForecast();
+    });
 
     // Initialize locations
     initLocations();
@@ -1093,7 +1171,7 @@ $(document).ready(function() {
 
 function init_settings() {
     // Prevents Dragging on certain elements
-    $('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationLoader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img, #locationNav, #locationModal .slider-switch, #customColorPanel, #customColorPanel *').mouseover(function() {
+    $('.border .settings, .border .sync, .border .close, .border .minimize, #locationModal input, #locationModal .measurement span, #locationModal .speed span, #locationLoader, #locationModal a, #locationModal .color, #locationModal .btn, #errorMessage .btn, #city span, #locationModal img, #locationNav, #locationModal .slider-switch, #customColorPanel, #customColorPanel *, .hourly-forecast-trigger, .hourly-forecast-trigger *, #rainForecastPanel, #rainForecastPanel *').mouseover(function() {
         document.title = "disabledrag";
     }).mouseout(function() {
         document.title = "enabledrag";
@@ -1179,6 +1257,7 @@ function init_settings() {
     $('#locationModal .toggleswitch span').click(function() {
         $(this).parent().children().removeClass('selected')
         localStorage.setItem("typhoon_" + $(this).parent().attr("class").replace("toggleswitch ", ""), $(this).addClass('selected').attr("data-type"))
+        if ($('#rainForecastPanel').hasClass('visible')) renderRainForecast();
         $(".border .settings").hide()
     })
 

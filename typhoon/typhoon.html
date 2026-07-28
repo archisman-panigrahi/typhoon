@@ -35,12 +35,12 @@
             </div>
             <div class="additional-info hidden">
                 <div class="info-left" id="feelsLike">Feels Like: --°</div>
-                <div class="info-right" id="rainPercentage" title="Precipitation Probability">
+                <div class="info-right hourly-forecast-trigger" id="rainPercentage" title="Click for the next 24 hours" role="button" tabindex="0" aria-label="Show hourly rain and temperature forecast" aria-haspopup="dialog" aria-controls="rainForecastPanel">
                     <span style="font-family: 'ClimaconsRegular';">{</span> --%
                 </div>
             </div>
             <div class="week">
-                <div id="0" title="Today's overall forecast">
+                <div id="0" class="hourly-forecast-trigger" title="Click for today's hourly forecast" role="button" tabindex="0" aria-label="Show today's hourly rain and temperature forecast" aria-haspopup="dialog" aria-controls="rainForecastPanel">
                     <span class="day"></span>
                     <span class="codeweek"><span class="code"></span></span>
                     <span class="temp"></span>
@@ -66,6 +66,19 @@
                     <span class="temp"></span>
                 </div> -->
             </div>
+        </div>
+        <div id="rainForecastPanel" role="dialog" aria-modal="true" aria-labelledby="rainForecastTitle" aria-hidden="true">
+            <div class="rain-forecast-header">
+                <div>
+                    <div id="rainForecastTitle">Next 24 hours</div>
+                    <div id="rainForecastLocation"></div>
+                </div>
+                <button id="rainForecastClose" type="button" aria-label="Close hourly forecast">&#10005;</button>
+            </div>
+            <div class="rain-forecast-columns" aria-hidden="true">
+                <span>Time</span><span>Rain</span><span>Temp</span>
+            </div>
+            <div id="rainForecastHours"></div>
         </div>
     </div>
     <div id="locationModal">
