@@ -454,7 +454,7 @@ p, span, div {
 .switch {
     position: relative;
     display: inline-block;
-    width: 40px;
+    width: 34px;
     height: 20px;
 }
 
@@ -884,29 +884,29 @@ input[type="range"]::-webkit-slider-thumb:active {
 .rain-chart-labels {
     fill: rgba(255, 255, 255, 0.75);
     font-family: "Ubuntu Condensed";
-    font-size: 14px;
+    font-size: 15px;
 }
 .rain-chart-axis {
     position: absolute;
     z-index: 2;
     top: 18px;
-    bottom: 40px;
+    bottom: 42px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     font-family: "Ubuntu Condensed";
-    font-size: 13px;
+    font-size: 16px;
     pointer-events: none;
 }
 .rain-axis {
     left: 0;
-    width: 38px;
+    width: 34px;
     color: #8ed8ff;
     background: linear-gradient(to right, rgba(35, 35, 35, 0.96) 65%, transparent);
 }
 .temp-axis {
     right: 0;
-    width: 48px;
+    width: 46px;
     align-items: flex-end;
     color: #ffd08a;
     background: linear-gradient(to left, rgba(35, 35, 35, 0.96) 65%, transparent);
@@ -921,7 +921,7 @@ input[type="range"]::-webkit-slider-thumb:active {
     color: #fff;
     background: rgba(20, 20, 20, 0.95);
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-    font-size: 14px;
+    font-size: 17px;
     white-space: nowrap;
     pointer-events: none;
 }
@@ -953,9 +953,9 @@ input[type="range"]::-webkit-slider-thumb:active {
 .rain-forecast-rows::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.38); border-radius: 6px; }
 .rain-forecast-rows::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.62); }
 .rain-forecast-row {
-    min-height: 34px;
+    min-height: 38px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.09);
-    font-size: 16px;
+    font-size: 19px;
 }
 .rain-forecast-row:first-child { background: rgba(255, 255, 255, 0.09); }
 .rain-chance { color: #8ed8ff; }

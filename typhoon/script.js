@@ -534,7 +534,7 @@ function renderRainChart() {
         return;
     }
 
-    const width = 720, height = 235, left = 40, right = 50, top = 18, bottom = 30;
+    const width = 720, height = 235, left = 34, right = 46, top = 18, bottom = 32;
     const plotWidth = width - left - right;
     const plotHeight = height - top - bottom;
     const rain = displayedHourlyForecast.rain.map(value => Math.max(0, Math.min(100, Number(value) || 0)));
@@ -563,7 +563,7 @@ function renderRainChart() {
     const labels = [0, 3, 6, 9, 12, 15, 18, 21, rain.length - 1].map(function(index) {
         const x = left + index * step + step / 2;
         const label = index === 0 ? 'Now' : formatHourlyForecastTime(displayedHourlyForecast.time[index], index).replace(/^.*· /, '');
-        return `<text x="${x.toFixed(1)}" y="229" text-anchor="middle">${label}</text>`;
+        return `<text x="${x.toFixed(1)}" y="228" text-anchor="middle">${label}</text>`;
     }).join('');
 
     const scroller = $('<div class="rain-chart-scroller">').html(`<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Temperature line and rain probability bars for the next 24 hours">
