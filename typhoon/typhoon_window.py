@@ -4,6 +4,7 @@ import configparser
 import glob
 import logging
 import os
+import signal
 import subprocess
 import sys
 import threading
@@ -36,7 +37,7 @@ else:
 
 QT_MAJOR = 6
 try:
-    from PyQt6.QtCore import QEvent, QPoint, Qt, QUrl
+    from PyQt6.QtCore import QEvent, QPoint, Qt, QTimer, QUrl
     from PyQt6.QtGui import QDesktopServices, QIcon, QImage, QPainter
     from PyQt6.QtWebEngineCore import (
         QWebEnginePage,
@@ -47,7 +48,7 @@ try:
     from PyQt6.QtWidgets import QApplication, QMenu, QStyle, QSystemTrayIcon, QWidget
 except ImportError:
     QT_MAJOR = 5
-    from PyQt5.QtCore import QEvent, QPoint, Qt, QUrl
+    from PyQt5.QtCore import QEvent, QPoint, Qt, QTimer, QUrl
     from PyQt5.QtGui import QDesktopServices, QIcon, QImage, QPainter
     from PyQt5.QtWebEngineWidgets import (
         QWebEnginePage,
@@ -1231,6 +1232,14 @@ def main():
         app.setDesktopFileName("io.github.archisman_panigrahi.typhoon")
     window = TyphoonWindow()
     window.show()
+
+    # Let Python process SIGINT while Qt owns the event loop, then use Qt's
+    # normal shutdown path so WebEngine and other application objects clean up.
+    signal.signal(signal.SIGINT, lambda *_: app.quit())
+    signal_timer = QTimer()
+    signal_timer.timeout.connect(lambda: None)
+    signal_timer.start(200)
+
     if hasattr(app, "exec"):
         sys.exit(app.exec())
     sys.exit(app.exec_())
