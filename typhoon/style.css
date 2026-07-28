@@ -45,7 +45,7 @@ p, span, div {
 }
 .border.controls-right .sync {
     right: auto;
-    left: 8px;
+    left: 11px;
 }
 @-webkit-keyframes busy-spinning {
     from {
@@ -74,7 +74,7 @@ p, span, div {
 }
 .border.controls-right .settings {
     right: auto;
-    left: 30px;
+    left: 37px;
 }
 .border .hourly-forecast {
     position: absolute;
@@ -88,7 +88,7 @@ p, span, div {
 }
 .border.controls-right .hourly-forecast {
     right: auto;
-    left: 57px;
+    left: 64px;
 }
 .border .sync:hover, .border .settings:hover, .border .hourly-forecast:hover, .border .hourly-forecast:focus {
     opacity: 1 !important;
@@ -217,7 +217,8 @@ p, span, div {
     -webkit-transition: 200ms ease left, 200ms ease right;
 }
 .border.controls-right #locationNav {
-    left: 78px;
+    right: 155px;
+    left: auto;
 }
 #locationNav .nav-arrow {
     cursor: default;
