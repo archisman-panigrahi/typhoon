@@ -1463,6 +1463,11 @@ function guessLocation(callback) {
 }
 
 function show_settings(amount) {
+    function updateForecastIconVisibility() {
+        const settingsOpen = $('#locationModal').is(':visible');
+        const creditsOpen = $('#locationModal .credits').is(':visible');
+        $('.border .hourly-forecast').toggle(!(settingsOpen || creditsOpen));
+    }
 
     if (amount == 'all') {
         $("#locationModal .full").show()
@@ -1476,6 +1481,7 @@ function show_settings(amount) {
     .on('click.typhoonCredits', function() {
         $("#locationModal .input, #locationModal .full, .settings, .sync, #locationNav").hide()
         $("#locationModal .credits").fadeIn(500)
+        updateForecastIconVisibility()
     })
     $('#locationModal .credits img')
     .off('click.typhoonCreditsBack')
@@ -1486,9 +1492,10 @@ function show_settings(amount) {
         } else {
             $("#locationModal .input, #locationModal .full, .settings, .sync, #locationNav").fadeIn(350)
         }
+        updateForecastIconVisibility()
     })
     //Show the Modal
-    $("#locationModal").fadeToggle(350)
+    $("#locationModal").fadeToggle(350, updateForecastIconVisibility)
     if (amount != "noweather") {
         $("#actualWeather").fadeToggle(350)
     }
