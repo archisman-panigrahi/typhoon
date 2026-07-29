@@ -1,3 +1,9 @@
+typhoon (1.9.0) noble; urgency=medium
+
+  * Tray Icon support
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Wed, 29 Jul 2026 10:34:01 -0400
+
 typhoon (1.8.1) noble; urgency=medium
 
   * matched style of forecast area to the settings page
