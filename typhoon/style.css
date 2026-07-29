@@ -793,7 +793,7 @@ input[type="range"]::-webkit-slider-thumb:active {
     margin-top: 4px;
     max-width: 205px;
     overflow: hidden;
-    color: rgba(255, 255, 255, 0.72);
+    color: #fff;
     font-size: 15px;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -826,8 +826,8 @@ input[type="range"]::-webkit-slider-thumb:active {
     justify-content: center;
     gap: 12px;
     margin: 7px 0 2px;
-    color: rgba(255, 255, 255, 0.72);
-    font-size: 14px;
+    color: #fff;
+    font-size: 15px;
 }
 .rain-forecast-legend i {
     display: inline-block;
@@ -871,7 +871,7 @@ input[type="range"]::-webkit-slider-thumb:active {
 .temp-chart-point { fill: #ffe1b3; cursor: pointer; }
 .temp-chart-point:hover, .temp-chart-point:focus { stroke: #fff; stroke-width: 2; outline: none; }
 .rain-chart-labels {
-    fill: rgba(255, 255, 255, 0.75);
+    fill: #fff;
     font-family: "Ubuntu Condensed";
     font-size: 15px;
 }
@@ -926,7 +926,7 @@ input[type="range"]::-webkit-slider-thumb:active {
 .rain-forecast-columns {
     height: 28px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.25);
-    color: rgba(255, 255, 255, 0.72);
+    color: #fff;
     font-size: 13px;
     text-transform: uppercase;
 }
@@ -950,7 +950,7 @@ input[type="range"]::-webkit-slider-thumb:active {
 .rain-chance { color: #8ed8ff; }
 .rain-forecast-empty {
     padding: 24px 8px;
-    color: rgba(255, 255, 255, 0.75);
+    color: #fff;
     text-align: center;
     font-size: 15px;
 }
