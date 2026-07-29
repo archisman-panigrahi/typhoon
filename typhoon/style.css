@@ -500,6 +500,38 @@ p, span, div {
 #locationModal .launcher {
     margin-top: 10px;
 }
+#locationModal .checkbox-row,
+#locationModal .tray-control-row {
+    display: flex;
+    align-items: center;
+}
+#locationModal .checkbox-row {
+    gap: 10px;
+}
+#locationModal .tray-control-row {
+    justify-content: flex-start;
+    gap: 12px;
+    margin-top: 8px;
+}
+#locationModal .tray-option,
+#locationModal .switch-container {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+#locationModal .switch-container {
+    gap: 1px;
+    margin-top: 0;
+}
+#locationModal .switch-title {
+    margin-right: 0;
+}
+#locationModal .switch-label {
+    margin: 0 1px;
+}
+#locationModal .switch-container .switch {
+    margin-left: 0;
+}
 #locationModal label {
     margin-left: 5px;
     vertical-align: top;
