@@ -1476,12 +1476,22 @@ function guessLocation(callback) {
     });
 }
 
+function setForecastIconVisible(visible) {
+    $('.border .hourly-forecast').toggleClass('settings-hidden', !visible);
+}
+
+function updateForecastIconVisibility() {
+    const settingsOpen = $('#locationModal').is(':visible');
+    const creditsOpen = $('#locationModal .credits').is(':visible');
+    setForecastIconVisible(!(settingsOpen || creditsOpen));
+}
+
 function show_settings(amount) {
-    function updateForecastIconVisibility() {
-        const settingsOpen = $('#locationModal').is(':visible');
-        const creditsOpen = $('#locationModal .credits').is(':visible');
-        $('.border .hourly-forecast').toggle(!(settingsOpen || creditsOpen));
-    }
+    const settingsOpening = !$('#locationModal').is(':visible');
+
+    // Let one CSS transition own the opacity animation. Mixing fadeIn/fadeOut
+    // with the icon's CSS transition causes competing intermediate values.
+    setForecastIconVisible(!settingsOpening);
 
     if (amount == 'all') {
         $("#locationModal .full").show()
@@ -1509,7 +1519,7 @@ function show_settings(amount) {
         updateForecastIconVisibility()
     })
     //Show the Modal
-    $("#locationModal").fadeToggle(350, updateForecastIconVisibility)
+    $("#locationModal").fadeToggle(350)
     if (amount != "noweather") {
         $("#actualWeather").fadeToggle(350)
     }

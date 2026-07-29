@@ -83,8 +83,9 @@ p, span, div {
     width: 32px;
     height: 32px;
     opacity: 0;
+    visibility: visible;
     z-index: 20;
-    transition: opacity 0.2s, transform 0.15s, left 0.2s, right 0.2s;
+    transition: opacity 0.35s, visibility 0s, transform 0.15s, left 0.2s, right 0.2s;
 }
 .border.controls-right .hourly-forecast {
     right: auto;
@@ -93,6 +94,12 @@ p, span, div {
 .border .sync:hover, .border .settings:hover, .border .hourly-forecast:hover, .border .hourly-forecast:focus {
     opacity: 1 !important;
     outline: none;
+}
+.border .hourly-forecast.settings-hidden {
+    opacity: 0 !important;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.35s, visibility 0s linear 0.35s, transform 0.15s, left 0.2s, right 0.2s;
 }
 .border .sync img, .border .settings img, .border .hourly-forecast img {
     width: 32px;
@@ -499,6 +506,38 @@ p, span, div {
 
 #locationModal .launcher {
     margin-top: 10px;
+}
+#locationModal .checkbox-row,
+#locationModal .tray-control-row {
+    display: flex;
+    align-items: center;
+}
+#locationModal .checkbox-row {
+    gap: 10px;
+}
+#locationModal .tray-control-row {
+    justify-content: flex-start;
+    gap: 12px;
+    margin-top: 8px;
+}
+#locationModal .tray-option,
+#locationModal .switch-container {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+#locationModal .switch-container {
+    gap: 1px;
+    margin-top: 0;
+}
+#locationModal .switch-title {
+    margin-right: 0;
+}
+#locationModal .switch-label {
+    margin: 0 1px;
+}
+#locationModal .switch-container .switch {
+    margin-left: 0;
 }
 #locationModal label {
     margin-left: 5px;
