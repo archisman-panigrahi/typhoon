@@ -366,6 +366,7 @@ function displayCachedWeather(currentWeather, locationData, weeklyData, preserve
     $("#code").text(iconChar).attr("class", codeClass + (iconChar === "/" ? " moon-large" : ""));
     const tempUnit = getTemperatureUnit();
     const displayedTemp = Math.round(convertTemperatureFromFahrenheit(currentWeather.temperature, tempUnit));
+    const trayTemp = displayedTemp + (tempUnit === "k" ? "K" : "°" + tempUnit.toUpperCase());
 
     if (currentWeather.temperature < 32) {
             $("#thermometer").text("_");
@@ -386,6 +387,9 @@ function displayCachedWeather(currentWeather, locationData, weeklyData, preserve
             setTimeout(function() {
                 document.title = displayedTemp;
             }, 25); // Delay to allow "enable_launcher" title to be registered first
+        }
+        if (localStorage.typhoon_tray === "checked") {
+            document.title = "tray_temperature=" + trayTemp;
         }
 
         const speedUnit = localStorage.typhoon_speed || "mph";
@@ -1355,6 +1359,7 @@ function init_settings() {
     localStorage.typhoon_speed = localStorage.typhoon_speed || "kph";
     localStorage.typhoon_color = localStorage.typhoon_color || "gradient";
     localStorage.typhoon_launcher = localStorage.typhoon_launcher || "checked";
+    localStorage.typhoon_tray = localStorage.typhoon_tray || "unchecked";
 
     $('#locationModal .measurement [data-type=' + localStorage.typhoon_measurement + ']').addClass('selected');
     $('#locationModal .speed [data-type=' + localStorage.typhoon_speed + ']').addClass('selected');
@@ -1413,6 +1418,15 @@ function init_settings() {
     $('#notificationswitch').click(function() {
         TYPHOON_NOTIFICATIONS_ENABLED = $('#notificationswitch').prop('checked');
         localStorage.typhoon_notifications = TYPHOON_NOTIFICATIONS_ENABLED ? 'enabled' : 'disabled';
+    });
+
+    // System tray switch. The host switches this back off if the desktop does
+    // not provide a usable tray (common on some Linux shell configurations).
+    $('#trayswitch').prop('checked', localStorage.typhoon_tray === 'checked');
+    document.title = localStorage.typhoon_tray === 'checked' ? 'enable_tray' : 'disable_tray';
+    $('#trayswitch').click(function() {
+        localStorage.typhoon_tray = $(this).prop('checked') ? 'checked' : 'unchecked';
+        document.title = localStorage.typhoon_tray === 'checked' ? 'enable_tray' : 'disable_tray';
     });
 
     // Window control position switch
@@ -1525,6 +1539,17 @@ function opacity() {
         document.title = "o" + newOpacity; // Update the title dynamically
         localStorage.app_opacity = newOpacity; // Save the new value to localStorage
     });
+}
+
+function setSystemTrayAvailable(available) {
+    if (available) return;
+    localStorage.typhoon_tray = 'unchecked';
+    $('#trayswitch').prop('checked', false);
+}
+
+function setSystemTrayEnabled(enabled) {
+    localStorage.typhoon_tray = enabled ? 'checked' : 'unchecked';
+    $('#trayswitch').prop('checked', enabled);
 }
 
 function setWindowAlpha(alpha) {
