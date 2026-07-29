@@ -777,7 +777,7 @@ input[type="range"]::-webkit-slider-thumb:active {
     max-height: 390px;
     padding: 14px 12px 12px;
     color: #fff;
-    background: rgba(35, 35, 35, 0.96);
+    background: #444;
     border: 1px solid rgba(255, 255, 255, 0.28);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
 }
@@ -815,18 +815,7 @@ input[type="range"]::-webkit-slider-thumb:active {
     gap: 5px;
 }
 #rainForecastViewToggle {
-    padding: 4px 7px;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    border-radius: 4px;
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-    font-family: "Ubuntu Condensed";
-    font-size: 14px;
-    cursor: pointer;
-}
-#rainForecastViewToggle:hover, #rainForecastViewToggle:focus {
-    background: rgba(255, 255, 255, 0.22);
-    outline: none;
+    margin-top: 4px;
 }
 #rainForecastClose:hover, #rainForecastClose:focus {
     background: rgba(255, 255, 255, 0.15);
@@ -902,14 +891,14 @@ input[type="range"]::-webkit-slider-thumb:active {
     left: 0;
     width: 34px;
     color: #8ed8ff;
-    background: linear-gradient(to right, rgba(35, 35, 35, 0.96) 65%, transparent);
+    background: #444;
 }
 .temp-axis {
     right: 0;
     width: 46px;
     align-items: flex-end;
     color: #ffd08a;
-    background: linear-gradient(to left, rgba(35, 35, 35, 0.96) 65%, transparent);
+    background: #444;
 }
 #rainChartValue {
     position: absolute;
