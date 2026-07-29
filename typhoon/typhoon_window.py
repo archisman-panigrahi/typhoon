@@ -38,7 +38,7 @@ else:
 QT_MAJOR = 6
 try:
     from PyQt6.QtCore import QEvent, QPoint, Qt, QTimer, QUrl
-    from PyQt6.QtGui import QDesktopServices, QIcon, QImage, QPainter
+    from PyQt6.QtGui import QColor, QDesktopServices, QFont, QIcon, QImage, QPainter, QPixmap
     from PyQt6.QtWebEngineCore import (
         QWebEnginePage,
         QWebEngineProfile,
@@ -49,7 +49,7 @@ try:
 except ImportError:
     QT_MAJOR = 5
     from PyQt5.QtCore import QEvent, QPoint, Qt, QTimer, QUrl
-    from PyQt5.QtGui import QDesktopServices, QIcon, QImage, QPainter
+    from PyQt5.QtGui import QColor, QDesktopServices, QFont, QIcon, QImage, QPainter, QPixmap
     from PyQt5.QtWebEngineWidgets import (
         QWebEnginePage,
         QWebEngineProfile,
@@ -131,7 +131,6 @@ if QT_MAJOR == 6:
     QT_COLOR_TRANSPARENT = Qt.GlobalColor.transparent
     QT_TRAY_INFO = QSystemTrayIcon.MessageIcon.Information
     QT_TRAY_TRIGGER = QSystemTrayIcon.ActivationReason.Trigger
-    QT_TRAY_DOUBLECLICK = QSystemTrayIcon.ActivationReason.DoubleClick
     QT_STYLE_INFO_ICON = QStyle.StandardPixmap.SP_MessageBoxInformation
 else:
     QT_NAV_LINK_CLICKED = QWebEnginePage.NavigationTypeLinkClicked
@@ -166,7 +165,6 @@ else:
     QT_COLOR_TRANSPARENT = Qt.transparent
     QT_TRAY_INFO = QSystemTrayIcon.Information
     QT_TRAY_TRIGGER = QSystemTrayIcon.Trigger
-    QT_TRAY_DOUBLECLICK = QSystemTrayIcon.DoubleClick
     QT_STYLE_INFO_ICON = QStyle.SP_MessageBoxInformation
 
 
@@ -342,9 +340,15 @@ class TyphoonWindow(QWidget):
         self._prefer_per_pixel_alpha = self._is_wayland_platform()
         self._notification_tray = None
         self._tray_menu = None
+        self._tray_enabled = False
+        self._tray_temperature = None
+        self._rendered_tray_temperature = None
 
         self._initialize_window()
-        self._setup_notification_tray()
+        # Windows notifications use QSystemTrayIcon as their backend, so it
+        # must remain present for the entire lifetime of the application.
+        if IS_WINDOWS:
+            self._setup_notification_tray()
         self._setup_webview()
         self._setup_dbus_launcher()
         self._restore_size_and_position()
@@ -496,28 +500,104 @@ class TyphoonWindow(QWidget):
                 )
 
     def _setup_notification_tray(self):
-        if not IS_WINDOWS:
+        """Create the Qt tray icon on platforms whose desktop provides a tray."""
+        if self._notification_tray is not None:
+            if not self._notification_tray.isVisible():
+                self._notification_tray.show()
+            self._tray_enabled = True
+            return True
+
+        try:
+            if not QSystemTrayIcon.isSystemTrayAvailable():
+                logger.info("System tray unavailable; disabling the tray setting")
+                return False
+
+            icon = self.windowIcon()
+            if icon.isNull():
+                icon = QApplication.style().standardIcon(QT_STYLE_INFO_ICON)
+
+            tray = QSystemTrayIcon(icon, self)
+            tray.setToolTip("Typhoon")
+            tray.activated.connect(self._on_tray_activated)
+            self._tray_menu = QMenu(self)
+            quit_action = self._tray_menu.addAction("Quit")
+            quit_action.triggered.connect(self._quit_from_tray)
+            tray.setContextMenu(self._tray_menu)
+            tray.show()
+            if not tray.isVisible():
+                tray.deleteLater()
+                self._tray_menu.deleteLater()
+                self._tray_menu = None
+                logger.info("System tray icon could not be shown; disabling the tray setting")
+                return False
+
+            self._notification_tray = tray
+            self._tray_enabled = True
+            self._update_tray_icon(force=True)
+            return True
+        except Exception as error:
+            # Tray support differs considerably between Linux desktop shells.
+            # A missing host/plugin must never prevent the weather window opening.
+            logger.warning("Could not create system tray icon: %s", error)
+            self._notification_tray = None
+            self._tray_menu = None
+            self._tray_enabled = False
+            return False
+
+    def _set_tray_enabled(self, enabled):
+        if IS_WINDOWS:
+            # The setting is meaningful on Linux. Windows requires its tray
+            # icon for notifications, so attempts to turn it off are ignored.
+            self._setup_notification_tray()
+            if not enabled and hasattr(self, "webview"):
+                self.webview.page().runJavaScript(
+                    "if (window.setSystemTrayEnabled) setSystemTrayEnabled(true);"
+                )
             return
 
-        if not QSystemTrayIcon.isSystemTrayAvailable():
-            logger.info("System tray unavailable; Qt tray notifications disabled")
+        if enabled:
+            if self._setup_notification_tray():
+                return
+            self.webview.page().runJavaScript(
+                "if (window.setSystemTrayAvailable) setSystemTrayAvailable(false);"
+            )
             return
 
-        icon = self.windowIcon()
-        if icon.isNull():
-            icon = QApplication.style().standardIcon(QT_STYLE_INFO_ICON)
+        if self._tray_enabled and self._notification_tray is not None:
+            self._notification_tray.hide()
+        self._tray_enabled = False
 
-        self._notification_tray = QSystemTrayIcon(icon, self)
-        self._notification_tray.setToolTip("Typhoon")
-        self._notification_tray.activated.connect(self._on_tray_activated)
-        self._tray_menu = QMenu(self)
-        exit_action = self._tray_menu.addAction("Exit")
-        exit_action.triggered.connect(self._exit_from_tray)
-        self._notification_tray.setContextMenu(self._tray_menu)
-        self._notification_tray.show()
+    def _update_tray_icon(self, force=False):
+        if self._notification_tray is None or not self._tray_enabled:
+            return
+        if not force and self._tray_temperature == self._rendered_tray_temperature:
+            return
+        if not self._tray_temperature:
+            self._notification_tray.setIcon(self.windowIcon())
+            self._notification_tray.setToolTip("Typhoon")
+            self._rendered_tray_temperature = self._tray_temperature
+            return
+
+        # A painted icon is the only portable way to show text in Qt trays.
+        pixmap = QPixmap(64, 64)
+        pixmap.fill(QT_COLOR_TRANSPARENT)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QT_TEXT_ANTIALIAS, True)
+        painter.setPen(QT_COLOR_WHITE)
+        painter.setBrush(QColor("#575591"))
+        painter.drawRoundedRect(1, 1, 62, 62, 14, 14)
+        font = QFont()
+        font.setBold(True)
+        font.setPixelSize(22 if len(self._tray_temperature) <= 4 else 18)
+        painter.setFont(font)
+        painter.drawText(pixmap.rect(), QT_ALIGN_CENTER, self._tray_temperature)
+        painter.end()
+        self._notification_tray.setIcon(QIcon(pixmap))
+        self._notification_tray.setToolTip("Typhoon: " + self._tray_temperature)
+        self._rendered_tray_temperature = self._tray_temperature
 
     def _send_qt_notification(self, message):
-        if self._notification_tray is None:
+        if self._notification_tray is None or not self._tray_enabled:
             return False
         if not self._notification_tray.isVisible():
             self._notification_tray.show()
@@ -529,20 +609,24 @@ class TyphoonWindow(QWidget):
         )
         return True
 
-    def _exit_from_tray(self):
-        app = QApplication.instance()
-        if app is not None:
-            app.quit()
-
     def _on_tray_activated(self, reason):
-        if reason not in (QT_TRAY_TRIGGER, QT_TRAY_DOUBLECLICK):
+        if reason != QT_TRAY_TRIGGER:
             return
-        if self.isMinimized():
+        if self.isVisible() and not self.isMinimized():
+            self.hide()
+        elif self.isMinimized():
             self.showNormal()
         else:
             self.show()
-        self.raise_()
-        self.activateWindow()
+        if self.isVisible():
+            self.raise_()
+            self.activateWindow()
+
+    def _quit_from_tray(self):
+        self._toggle_unity_launcher("disable_launcher")
+        app = QApplication.instance()
+        if app is not None:
+            app.quit()
 
     def _restore_size_and_position(self):
         last_width, last_height = self._get_last_window_size()
@@ -816,9 +900,23 @@ class TyphoonWindow(QWidget):
                 logger.warning("Invalid height value in title: %s", title)
             return
 
+        if title == "enable_tray":
+            self._set_tray_enabled(True)
+            return
+        if title == "disable_tray":
+            self._set_tray_enabled(False)
+            return
+        if title.startswith("tray_temperature="):
+            self._tray_temperature = title.split("=", 1)[1][:8]
+            self._update_tray_icon()
+            return
+
         if title == "close":
-            self._toggle_unity_launcher("disable_launcher")
-            self.close()
+            if not IS_WINDOWS and self._tray_enabled:
+                self.hide()
+            else:
+                self._toggle_unity_launcher("disable_launcher")
+                self.close()
         elif title == "minimize":
             self.showMinimized()
         elif title == "disabledrag":
