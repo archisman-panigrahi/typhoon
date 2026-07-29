@@ -578,19 +578,25 @@ class TyphoonWindow(QWidget):
             self._rendered_tray_temperature = self._tray_temperature
             return
 
-        # A painted icon is the only portable way to show text in Qt trays.
-        pixmap = QPixmap(64, 64)
-        pixmap.fill(QT_COLOR_TRANSPARENT)
+        # Keep Typhoon recognizable and paint the temperature as a badge over
+        # the lower part of its normal application icon.
+        base_icon = self.windowIcon()
+        if base_icon.isNull():
+            base_icon = QApplication.style().standardIcon(QT_STYLE_INFO_ICON)
+        pixmap = base_icon.pixmap(64, 64)
+        if pixmap.isNull():
+            pixmap = QPixmap(64, 64)
+            pixmap.fill(QT_COLOR_TRANSPARENT)
         painter = QPainter(pixmap)
         painter.setRenderHint(QT_TEXT_ANTIALIAS, True)
         painter.setPen(QT_COLOR_WHITE)
-        painter.setBrush(QColor("#575591"))
-        painter.drawRoundedRect(1, 1, 62, 62, 14, 14)
+        painter.setBrush(QColor(32, 32, 40, 225))
+        painter.drawRoundedRect(1, 27, 62, 36, 9, 9)
         font = QFont()
         font.setBold(True)
-        font.setPixelSize(22 if len(self._tray_temperature) <= 4 else 18)
+        font.setPixelSize(23 if len(self._tray_temperature) <= 4 else 19)
         painter.setFont(font)
-        painter.drawText(pixmap.rect(), QT_ALIGN_CENTER, self._tray_temperature)
+        painter.drawText(1, 27, 62, 36, QT_ALIGN_CENTER, self._tray_temperature)
         painter.end()
         self._notification_tray.setIcon(QIcon(pixmap))
         self._notification_tray.setToolTip("Typhoon: " + self._tray_temperature)
