@@ -340,6 +340,7 @@ class TyphoonWindow(QWidget):
         self._prefer_per_pixel_alpha = self._is_wayland_platform()
         self._notification_tray = None
         self._tray_menu = None
+        self._tray_visibility_action = None
         self._tray_enabled = False
         self._tray_temperature = None
         self._rendered_tray_temperature = None
@@ -520,6 +521,13 @@ class TyphoonWindow(QWidget):
             tray.setToolTip("Typhoon")
             tray.activated.connect(self._on_tray_activated)
             self._tray_menu = QMenu(self)
+            self._tray_visibility_action = self._tray_menu.addAction("Hide")
+            self._tray_visibility_action.triggered.connect(
+                self._toggle_window_visibility
+            )
+            self._tray_menu.aboutToShow.connect(
+                self._update_tray_visibility_action
+            )
             quit_action = self._tray_menu.addAction("Quit")
             quit_action.triggered.connect(self._quit_from_tray)
             tray.setContextMenu(self._tray_menu)
@@ -528,6 +536,7 @@ class TyphoonWindow(QWidget):
                 tray.deleteLater()
                 self._tray_menu.deleteLater()
                 self._tray_menu = None
+                self._tray_visibility_action = None
                 logger.info("System tray icon could not be shown; disabling the tray setting")
                 return False
 
@@ -541,6 +550,7 @@ class TyphoonWindow(QWidget):
             logger.warning("Could not create system tray icon: %s", error)
             self._notification_tray = None
             self._tray_menu = None
+            self._tray_visibility_action = None
             self._tray_enabled = False
             return False
 
@@ -618,6 +628,14 @@ class TyphoonWindow(QWidget):
     def _on_tray_activated(self, reason):
         if reason != QT_TRAY_TRIGGER:
             return
+        self._toggle_window_visibility()
+
+    def _update_tray_visibility_action(self):
+        self._tray_visibility_action.setText(
+            "Hide" if self.isVisible() and not self.isMinimized() else "Show"
+        )
+
+    def _toggle_window_visibility(self):
         if self.isVisible() and not self.isMinimized():
             self.hide()
         elif self.isMinimized():
