@@ -16,6 +16,7 @@
       <li>Real-time weather updates and forecasts for up to four days</li>
       <li>Customizable units of measurement</li>
       <li>Displays current temperature as launcher count</li>
+      <li>Displays hourly weather forecast for 24 hours</li>
       <li>Displays precipitation warning within app</li>
       <li>Displays system notifications for rain, snow or thunderstorm</li>
       <li>Configurable widget opacity and color</li>
@@ -48,7 +49,7 @@
   <screenshots>
     <screenshot type="default">
       <caption>Main window showing weather forecast</caption>
-      <image>https://raw.githubusercontent.com/archisman-panigrahi/typhoon/2afb4bdc0430193f7fe14dc300a4bd69c0351345/assets/screenshots/typhoon.png</image>
+      <image>https://raw.githubusercontent.com/archisman-panigrahi/typhoon/8c4174bec3f7ee933bdb469648744b5b350fce23/assets/screenshots/typhoon.png</image>
     </screenshot>
     <screenshot>
       <caption>Default settings</caption>
@@ -69,6 +70,15 @@
     <screenshot>
       <caption>Settings window</caption>
       <image>https://raw.githubusercontent.com/archisman-panigrahi/typhoon/2afb4bdc0430193f7fe14dc300a4bd69c0351345/assets/screenshots/typhoon-settings.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Forecast chart view</caption>
+      <image>https://raw.githubusercontent.com/archisman-panigrahi/typhoon/8c4174bec3f7ee933bdb469648744b5b350fce23/assets/screenshots/typhoon-prediction-chart.png</image>
+    </screenshot>
+    <screenshot>
+    <screenshot>
+      <caption>Forecast list view</caption>
+      <image>https://raw.githubusercontent.com/archisman-panigrahi/typhoon/8c4174bec3f7ee933bdb469648744b5b350fce23/assets/screenshots/typhoon-prediction-list.png</image>
     </screenshot>
     <screenshot>
       <caption>Initial Setup</caption>
