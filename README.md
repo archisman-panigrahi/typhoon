@@ -4,7 +4,7 @@
 
 > Stylish weather application, powered by [Open-Meteo](https://open-meteo.com/), [OpenStreetMap](https://www.openstreetmap.org/) and [ipapi](https://ipapi.co/).
 
-<img src="https://archisman-panigrahi.github.io/typhoon/assets/img/typhoon.png" align="left" width="240" height="400"> <br>
+<img src="./assets/screenshots/typhoon.png" align="left" width="240" height="400"> <br>
 <img src="./assets/screenshots/typhoon_animation.gif" align="center" width="180" height="300">
 <img src="./assets/screenshots/typhoon-left-right.gif" align="center" width="180" height="300">
 
