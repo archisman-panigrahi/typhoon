@@ -1132,7 +1132,7 @@ class TyphoonWindow(QWidget):
                 raise RuntimeError("Could not detect primary monitor for XFCE")
             key = f"/backdrop/screen0/monitor{primary_monitor}/workspace0/last-image"
             wallpaper = subprocess.check_output(
-                f'xfconf-query -c xfce4-desktop -p "{key}"', shell=True, text=True
+                ["xfconf-query", "-c", "xfce4-desktop", "-p", key], text=True
             ).strip()
         elif "kde" in de:
             config_file = os.path.expanduser(
