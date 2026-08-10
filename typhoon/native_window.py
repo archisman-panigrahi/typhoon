@@ -20,6 +20,7 @@ from PyQt6.QtGui import (
     QPainter,
     QPainterPath,
     QPen,
+    QPixmap,
 )
 from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PyQt6.QtWidgets import (
@@ -44,6 +45,9 @@ from PyQt6.QtWidgets import (
     QSlider,
     QSizeGrip,
     QStackedWidget,
+    QStyle,
+    QStyleOptionButton,
+    QStylePainter,
     QSystemTrayIcon,
     QVBoxLayout,
     QWidget,
@@ -57,7 +61,8 @@ except ImportError:
     dbus = None
 
 
-APP_ID = "io.github.archisman_panigrahi.typhoon"
+APP_ID = "io.github.archisman_panigrahi.typhoon-native-python"
+APP_ICON = "io.github.archisman_panigrahi.typhoon.svg"
 USER_AGENT = "Typhoon Weather App (https://github.com/archisman-panigrahi/typhoon)"
 DAY_ICONS = {
     0: "v", 1: "1", 2: "d", 3: "`", 45: "h", 48: "g", 51: "0",
@@ -147,12 +152,73 @@ class ToolButton(QPushButton):
         super().__init__(text, parent)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setFlat(True)
+        self._base_icon = QIcon(resource(icon)) if icon else QIcon()
         if icon:
-            self.setIcon(QIcon(resource(icon)))
-            self.setIconSize(QSize(19, 19))
+            self.setIcon(self._base_icon)
+            self.setIconSize(QSize(16, 16))
         self.setObjectName("toolButton")
         self.setFixedSize(30, 30)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self._uses_hover_opacity = False
+        self._paint_opacity = 1.0
+        self._spin_angle = 0
+        self._spin_timer = QTimer(self)
+        self._spin_timer.setInterval(40)
+        self._spin_timer.timeout.connect(self._advance_spin)
+
+    def start_spinning(self):
+        if self._base_icon.isNull():
+            return
+        self.setText("")
+        self._advance_spin()
+        self._spin_timer.start()
+
+    def stop_spinning(self, clear=False):
+        self._spin_timer.stop()
+        self._spin_angle = 0
+        self.setIcon(QIcon() if clear else self._base_icon)
+
+    def _advance_spin(self):
+        size = self.iconSize()
+        source = self._base_icon.pixmap(size)
+        rotated = QPixmap(size)
+        rotated.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(rotated)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        painter.translate(size.width() / 2, size.height() / 2)
+        painter.rotate(self._spin_angle)
+        painter.translate(-size.width() / 2, -size.height() / 2)
+        painter.drawPixmap(0, 0, source)
+        painter.end()
+        self.setIcon(QIcon(rotated))
+        self._spin_angle = (self._spin_angle + 18) % 360
+
+    def enable_hover_opacity(self):
+        self._uses_hover_opacity = True
+        self._paint_opacity = .8
+        self.update()
+
+    def paintEvent(self, event):
+        if not self._uses_hover_opacity:
+            super().paintEvent(event)
+            return
+        option = QStyleOptionButton()
+        self.initStyleOption(option)
+        painter = QStylePainter(self)
+        painter.setOpacity(self._paint_opacity)
+        painter.drawControl(QStyle.ControlElement.CE_PushButton, option)
+
+    def enterEvent(self, event):
+        if self._uses_hover_opacity:
+            self._paint_opacity = 1.0
+            self.update()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        if self._uses_hover_opacity:
+            self._paint_opacity = .8
+            self.update()
+        super().leaveEvent(event)
 
 
 class GlyphLabel(QLabel):
@@ -382,6 +448,11 @@ class TyphoonWindow(QWidget):
         self.locations = self._json_setting("locations", [])
         self.location_index = min(int(self.settings.value("location_index", 0)), max(0, len(self.locations) - 1))
         self.weather = None
+        self._refresh_generation = 0
+        self._refresh_spin_stop_timer = QTimer(self)
+        self._refresh_spin_stop_timer.setSingleShot(True)
+        self._refresh_spin_stop_timer.setInterval(2000)
+        self._refresh_spin_stop_timer.timeout.connect(lambda: self._set_refresh_spinning(False))
         self.drag_origin = None
         self.drag_enabled = True
         self._canvas_dragging = False
@@ -418,7 +489,7 @@ class TyphoonWindow(QWidget):
 
     def _setup_window(self):
         self.setWindowTitle("Typhoon")
-        self.setWindowIcon(QIcon(resource(f"{APP_ID}.svg")))
+        self.setWindowIcon(QIcon(resource(APP_ICON)))
         self.setWindowFlags(Qt.WindowType.Window | Qt.WindowType.FramelessWindowHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setMinimumSize(210, 350)
@@ -477,7 +548,8 @@ class TyphoonWindow(QWidget):
         location_input = QLineEdit()
         location_input.setFixedSize(215, 29)
         location_input.setPlaceholderText("Location" if first_run else "Location: e.g. Boston, Kolkata, …")
-        status = QPushButton("")
+        status = ToolButton(icon="sync.svg")
+        status.stop_spinning(clear=True)
         status.setObjectName("locationStatus")
         status.setFixedSize(29, 29)
         status.setToolTip("Type a location to validate it")
@@ -530,13 +602,49 @@ class TyphoonWindow(QWidget):
             bar.addWidget(button)
         else:
             close = ToolButton("×")
+            close.setObjectName("windowToolButton")
             close.clicked.connect(self.close_or_hide)
             minimize = ToolButton("−")
+            minimize.setObjectName("windowToolButton")
             minimize.clicked.connect(self.showMinimized)
             bar.addWidget(close)
             bar.addWidget(minimize)
         bar.addStretch()
         return bar
+
+    def _location_nav(self, page, settings_page=False):
+        nav = QWidget(page)
+        nav.setGeometry(145, -2, 54, 30)
+        layout = QHBoxLayout(nav)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(6)
+        previous = ToolButton("‹")
+        remove = ToolButton("×")
+        next_location = ToolButton("›")
+        previous.setObjectName("navArrow")
+        remove.setObjectName("navRemove")
+        next_location.setObjectName("navArrow")
+        previous.setFixedSize(14, 30)
+        remove.setFixedSize(14, 30)
+        next_location.setFixedSize(14, 30)
+        for button in (previous, remove, next_location):
+            button.enable_hover_opacity()
+        previous.clicked.connect(lambda: self.navigate(-1))
+        remove.clicked.connect(self.remove_location)
+        next_location.clicked.connect(lambda: self.navigate(1))
+        layout.addWidget(previous)
+        layout.addWidget(remove)
+        layout.addWidget(next_location)
+        nav.raise_()
+        if settings_page:
+            self.settings_previous_button = previous
+            self.settings_remove_button = remove
+            self.settings_next_button = next_location
+        else:
+            self.previous_button = previous
+            self.remove_button = remove
+            self.next_button = next_location
+        return nav
 
     def _build_weather_page(self):
         page = QWidget()
@@ -545,31 +653,27 @@ class TyphoonWindow(QWidget):
         top_widget.setGeometry(0, 0, 300, 30)
         top = self._top_bar()
         top_widget.setLayout(top)
-        self.previous_button = ToolButton("‹")
-        self.remove_button = ToolButton("×")
-        self.next_button = ToolButton("›")
-        self.previous_button.clicked.connect(lambda: self.navigate(-1))
-        self.remove_button.clicked.connect(self.remove_location)
-        self.next_button.clicked.connect(lambda: self.navigate(1))
-        for button in (self.previous_button, self.remove_button, self.next_button):
-            top.addWidget(button)
-        top.addStretch()
         hourly = ToolButton(icon="clock-exclamation-svgrepo-com.svg")
+        hourly.enable_hover_opacity()
         hourly.setToolTip("Next 24 hours")
         hourly.clicked.connect(lambda: self.stack.setCurrentWidget(self.hourly_page))
         settings = ToolButton(icon="settings.svg")
+        settings.enable_hover_opacity()
         settings.clicked.connect(lambda: self.stack.setCurrentWidget(self.settings_page))
         sync = ToolButton(icon="sync.svg")
+        sync.enable_hover_opacity()
         sync.clicked.connect(self.refresh)
+        self.weather_sync_button = sync
         top.addWidget(hourly)
         top.addWidget(settings)
         top.addWidget(sync)
+        self.weather_location_nav = self._location_nav(page)
         self.city = QPushButton("ADD A LOCATION", page)
         self.city.setFlat(True)
         self.city.setCursor(Qt.CursorShape.PointingHandCursor)
         self.city.clicked.connect(self.open_map)
         self.city.setObjectName("city")
-        self.city.setGeometry(0, 30, 300, 41)
+        self.city.setGeometry(0, 30, 300, 50)
         self.weather_icon = GlyphLabel("`", page)
         self.weather_icon.setObjectName("weatherIcon")
         initial_weather_font = QFont(self.climacon_font)
@@ -668,23 +772,18 @@ class TyphoonWindow(QWidget):
         outer = QVBoxLayout(page)
         outer.setContentsMargins(0, 0, 0, 0)
         top = self._top_bar()
-        previous = ToolButton("‹")
-        self.settings_remove_button = ToolButton("×")
-        next_location = ToolButton("›")
-        previous.clicked.connect(lambda: self.navigate(-1))
-        self.settings_remove_button.clicked.connect(self.remove_location)
-        next_location.clicked.connect(lambda: self.navigate(1))
-        top.addWidget(previous)
-        top.addWidget(self.settings_remove_button)
-        top.addWidget(next_location)
         close_settings = ToolButton(icon="settings.svg")
+        close_settings.enable_hover_opacity()
         close_settings.setToolTip("Close settings")
         close_settings.clicked.connect(lambda: self.stack.setCurrentWidget(self.weather_page))
         refresh = ToolButton(icon="sync.svg")
+        refresh.enable_hover_opacity()
         refresh.clicked.connect(lambda: (self.stack.setCurrentWidget(self.weather_page), self.refresh()))
+        self.settings_sync_button = refresh
         top.addWidget(close_settings)
         top.addWidget(refresh)
         outer.addLayout(top)
+        self.settings_location_nav = self._location_nav(page, settings_page=True)
         outer.addSpacing(29)
         scroll = QScrollArea()
         scroll.setObjectName("settingsScroll")
@@ -852,8 +951,13 @@ class TyphoonWindow(QWidget):
             QWidget {{ color: white; }}
             QPushButton {{ border: 1px solid rgba(20,20,20,.65); background: rgba(30,30,30,.28); padding: 5px; }}
             QPushButton:hover, QPushButton:checked {{ background: rgba(255,255,255,.18); }}
-            #toolButton {{ border: none; background: rgba(0,0,0,.045); padding: 0; font-size: 24px; font-weight: bold; }}
-            #toolButton:hover {{ background: rgba(0,0,0,.18); }}
+            #toolButton, #windowToolButton, #navArrow, #navRemove {{ border: none; padding: 0; }}
+            #toolButton {{ background: transparent; font-size: 24px; }}
+            #windowToolButton {{ background: rgba(0,0,0,.045); font-size: 24px; font-weight: bold; }}
+            #navArrow {{ background: transparent; font-size: 32px; font-weight: normal; }}
+            #navRemove {{ background: transparent; font-size: 28px; font-weight: normal; }}
+            #toolButton:hover, #navArrow:hover, #navRemove:hover {{ background: transparent; }}
+            #windowToolButton:hover {{ background: rgba(0,0,0,.18); }}
             QLineEdit {{ color: #222; background: white; border: 2px solid #333; padding: 6px; }}
             QScrollArea, QScrollArea > QWidget > QWidget {{ background: transparent; }}
             #settingsPage {{ background: transparent; }}
@@ -880,7 +984,7 @@ class TyphoonWindow(QWidget):
             #opacitySlider::handle:horizontal {{ width: 26px; margin: -10px 0; border-radius: 13px; background: white; }}
             #settingsHint {{ font-size: 13px; }}
             #hourlyPage {{ background: #444; }}
-            #city {{ border: none; background: transparent; font-size: 22px; letter-spacing: -1px; padding-top: 20px; }}
+            #city {{ border: none; background: transparent; font-size: 24px; letter-spacing: -2px; padding-top: 15px; }}
             #weatherIcon {{ background: transparent; }}
             #temperature {{ font-size: 65px; letter-spacing: -5px; padding-right: 12px; }}
             #details {{ font-size: 25px; letter-spacing: -2px; }}
@@ -931,6 +1035,7 @@ class TyphoonWindow(QWidget):
 
     def _schedule_location_validation(self, location_input, status):
         self._validated_locations.pop(location_input, None)
+        status.stop_spinning(clear=True)
         status.setText("")
         status.setToolTip("Type a location to validate it")
         timer = self._location_validation_timers.get(location_input)
@@ -955,7 +1060,7 @@ class TyphoonWindow(QWidget):
         query = location_input.text().strip()
         if not query:
             return
-        status.setText("|")
+        status.start_spinning()
         status.setToolTip("Checking location…")
         url = "https://nominatim.openstreetmap.org/search?" + urlencode({"q": query, "format": "jsonv2", "limit": 1})
 
@@ -964,12 +1069,14 @@ class TyphoonWindow(QWidget):
                 return
             if error or not data:
                 self._validated_locations.pop(location_input, None)
+                status.stop_spinning(clear=True)
                 status.setText("×")
                 status.setToolTip("Location not found")
                 return
             item = data[0]
             location = {"name": item.get("name") or item.get("display_name", query).split(",")[0], "display_name": item.get("display_name", query), "lat": float(item["lat"]), "lon": float(item["lon"])}
             self._validated_locations[location_input] = (query, location)
+            status.stop_spinning(clear=True)
             status.setText("✓")
             status.setToolTip("Load weather for this location")
 
@@ -1004,8 +1111,14 @@ class TyphoonWindow(QWidget):
 
     def refresh(self):
         if not self.locations:
+            self._refresh_spin_stop_timer.stop()
+            self._set_refresh_spinning(False)
             self.stack.setCurrentWidget(self.first_location_page)
             return
+        self._refresh_generation += 1
+        request_generation = self._refresh_generation
+        self._refresh_spin_stop_timer.stop()
+        self._set_refresh_spinning(True)
         location = self.locations[self.location_index]
         params = {
             "latitude": location["lat"], "longitude": location["lon"], "timezone": "auto",
@@ -1015,19 +1128,25 @@ class TyphoonWindow(QWidget):
             "daily": "weather_code,temperature_2m_max,temperature_2m_min",
             "forecast_days": 7,
         }
-        self.city.setText("REFRESHING…")
-
         def complete(data, error):
+            if request_generation != self._refresh_generation:
+                return
+            self._refresh_spin_stop_timer.start()
             current = self._current_weather_from_web_response(data) if data else None
             if error or not current:
                 self.show_error("Could not connect to the weather service.")
-                self.city.setText(location["name"].upper())
                 return
             data["current"] = current
             self.weather = data
             self.render_weather()
 
         self.network.get_json("https://api.open-meteo.com/v1/forecast?" + urlencode(params), complete)
+
+    def _set_refresh_spinning(self, spinning):
+        for name in ("weather_sync_button", "settings_sync_button"):
+            button = getattr(self, name, None)
+            if button:
+                button.start_spinning() if spinning else button.stop_spinning()
 
     @classmethod
     def _current_weather_from_web_response(cls, data):
@@ -1169,7 +1288,9 @@ class TyphoonWindow(QWidget):
         self.previous_button.setVisible(multiple)
         self.next_button.setVisible(multiple)
         self.remove_button.setVisible(multiple)
+        self.settings_previous_button.setVisible(multiple)
         self.settings_remove_button.setVisible(multiple)
+        self.settings_next_button.setVisible(multiple)
 
     def open_map(self):
         if self.locations:
@@ -1407,7 +1528,7 @@ class TyphoonWindow(QWidget):
 def main():
     app = QApplication(sys.argv)
     app.setOrganizationName(APP_ID)
-    app.setApplicationName("typhoon")
+    app.setApplicationName("typhoon-native-python")
     app.setQuitOnLastWindowClosed(True)
     if hasattr(app, "setDesktopFileName") and not sys.platform.startswith("win"):
         app.setDesktopFileName(APP_ID)
