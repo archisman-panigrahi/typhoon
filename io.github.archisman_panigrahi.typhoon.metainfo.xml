@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>io.github.archisman_panigrahi.typhoon</id>
+  <id>io.github.archisman_panigrahi.typhoon-native-python</id>
   <name>Typhoon</name>
   <summary>Check the weather with style</summary>
   <metadata_license>CC0-1.0</metadata_license>
@@ -41,7 +41,7 @@
     <control>keyboard</control>
     <control>touch</control>
   </supports>
-  <launchable type="desktop-id">io.github.archisman_panigrahi.typhoon.desktop</launchable>
+  <launchable type="desktop-id">io.github.archisman_panigrahi.typhoon-native-python.desktop</launchable>
   <categories>
     <category>Utility</category>
     <category>Network</category>

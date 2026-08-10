@@ -1,4 +1,4 @@
-project('typhoon', meson_version: '>=0.59.0')
+project('typhoon-native-python', meson_version: '>=0.59.0')
 
 py3 = import('python')
 gnome = import('gnome')
@@ -7,7 +7,7 @@ gnome = import('gnome')
 python = py3.find_installation()
 
 # Define data directory
-data_dir = join_paths(get_option('prefix'), 'share', 'typhoon')
+data_dir = join_paths(get_option('prefix'), 'share', 'typhoon-native-python')
 
 # Install only the files used by the native Qt Widgets frontend. The legacy
 # HTML/CSS/JavaScript WebEngine frontend is intentionally not packaged.
@@ -41,10 +41,10 @@ install_data(
 # Create a wrapper script in /usr/bin
 configure_file(
   input: 'typhoon/typhoon_wrapper.in',
-  output: 'typhoon',
+  output: 'typhoon-native-python',
   configuration: {
     'python': python.full_path(),
-    'script': join_paths(data_dir, 'typhoon/native_window.py')
+    'script': join_paths(data_dir, 'native_window.py')
   },
   install: true,
   install_mode: 'rwxr-xr-x',  # Ensure the file is executable
@@ -74,15 +74,30 @@ if dfv_exe.found()
   )
 endif
 
-# Install the desktop file
-install_data('io.github.archisman_panigrahi.typhoon.desktop', install_dir: join_paths(get_option('prefix'), 'share', 'applications'))
+# Install the desktop file under the native app's distinct desktop ID.
+configure_file(
+  input: 'io.github.archisman_panigrahi.typhoon.desktop',
+  output: 'io.github.archisman_panigrahi.typhoon-native-python.desktop',
+  copy: true,
+  install: true,
+  install_dir: join_paths(get_option('prefix'), 'share', 'applications')
+)
 
-# Install the icon to the hicolor directory
-install_data('typhoon/io.github.archisman_panigrahi.typhoon.svg', install_dir: join_paths(get_option('prefix'), 'share', 'icons/hicolor/scalable/apps'))
+# Install the icon under a distinct theme name.
+configure_file(
+  input: 'typhoon/io.github.archisman_panigrahi.typhoon.svg',
+  output: 'io.github.archisman_panigrahi.typhoon-native-python.svg',
+  copy: true,
+  install: true,
+  install_dir: join_paths(get_option('prefix'), 'share', 'icons/hicolor/scalable/apps')
+)
 
-# Install the metainfo file
-install_data(
-  'io.github.archisman_panigrahi.typhoon.metainfo.xml',
+# Install AppStream metadata under the native app's distinct component ID.
+configure_file(
+  input: 'io.github.archisman_panigrahi.typhoon.metainfo.xml',
+  output: 'io.github.archisman_panigrahi.typhoon-native-python.metainfo.xml',
+  copy: true,
+  install: true,
   install_dir: join_paths(get_option('datadir'), 'metainfo')
 )
 

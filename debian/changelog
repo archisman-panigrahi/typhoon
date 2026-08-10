@@ -1,3 +1,9 @@
+typhoon-native-python (1.9.0-1) noble; urgency=medium
+
+  * Package the native PyQt6 frontend separately from the HTML frontend.
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Mon, 10 Aug 2026 12:00:00 -0400
+
 typhoon (1.9.0) noble; urgency=medium
 
   * Tray Icon support

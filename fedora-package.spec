@@ -1,4 +1,4 @@
-Name:           typhoon
+Name:           typhoon-native-python
 Version:        1.9.0
 Release:        1%{?dist}
 Summary:        Check the weather with style
@@ -31,7 +31,7 @@ always will be free.
 
 %global debug_package %{nil}
 %prep
-%autosetup -n %{name}-master
+%autosetup -n typhoon-master
 
 %build
 %meson
@@ -43,11 +43,11 @@ always will be free.
 %files
 %license COPYING
 %doc README.md
-%{_bindir}/typhoon
-%{_datadir}/typhoon/
-%{_datadir}/applications/io.github.archisman_panigrahi.typhoon.desktop
-%{_datadir}/icons/hicolor/scalable/apps/io.github.archisman_panigrahi.typhoon.svg
-%{_datadir}/metainfo/io.github.archisman_panigrahi.typhoon.metainfo.xml
+%{_bindir}/typhoon-native-python
+%{_datadir}/typhoon-native-python/
+%{_datadir}/applications/io.github.archisman_panigrahi.typhoon-native-python.desktop
+%{_datadir}/icons/hicolor/scalable/apps/io.github.archisman_panigrahi.typhoon-native-python.svg
+%{_datadir}/metainfo/io.github.archisman_panigrahi.typhoon-native-python.metainfo.xml
 
 %changelog
 * Mon Apr 28 2025 Archisman Panigrahi <apandada1@gmail.com> - 0.9.87-1

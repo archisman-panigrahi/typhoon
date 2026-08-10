@@ -1,11 +1,11 @@
-Source: typhoon
+Source: typhoon-native-python
 Section: python
 Priority: extra
 Build-Depends: debhelper-compat (=10), meson, python3-setuptools, dh-make, desktop-file-utils, gtk-update-icon-cache
 Maintainer: Archisman Panigrahi <apandada1@gmail.com>
 Standards-Version: 4.5.0
 
-Package: typhoon
+Package: typhoon-native-python
 Architecture: all
 Depends: ${misc:Depends},
  python3-pyqt6 (>=6.7.9),
