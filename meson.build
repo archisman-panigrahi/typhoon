@@ -9,8 +9,34 @@ python = py3.find_installation()
 # Define data directory
 data_dir = join_paths(get_option('prefix'), 'share', 'typhoon')
 
-# Install the entire media directory (recursively)
-install_subdir('typhoon', install_dir: data_dir)
+# Install only the files used by the native Qt Widgets frontend. The legacy
+# HTML/CSS/JavaScript WebEngine frontend is intentionally not packaged.
+install_data(
+  'typhoon/native_window.py',
+  'typhoon/chameleon-svgrepo-com.svg',
+  'typhoon/clock-exclamation-svgrepo-com.svg',
+  'typhoon/dropper-svgrepo-com.svg',
+  'typhoon/humidity.svg',
+  'typhoon/settings.svg',
+  'typhoon/sync.svg',
+  install_dir: data_dir
+)
+
+# Keep a runtime copy beside native_window.py while also installing the same
+# icon into the hicolor theme below.
+configure_file(
+  input: 'typhoon/io.github.archisman_panigrahi.typhoon.svg',
+  output: 'io.github.archisman_panigrahi.typhoon.svg',
+  copy: true,
+  install: true,
+  install_dir: data_dir
+)
+
+install_data(
+  'typhoon/fonts/Climacons.ttf',
+  'typhoon/fonts/ubuntu.ttf',
+  install_dir: join_paths(data_dir, 'fonts')
+)
 
 # Create a wrapper script in /usr/bin
 configure_file(
