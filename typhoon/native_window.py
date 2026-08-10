@@ -23,6 +23,7 @@ from PyQt6.QtGui import (
     QImage,
     QPainter,
     QPainterPath,
+    QPalette,
     QPen,
     QPixmap,
 )
@@ -32,6 +33,7 @@ from PyQt6.QtWidgets import (
     QAbstractScrollArea,
     QAbstractSlider,
     QApplication,
+    QBoxLayout,
     QButtonGroup,
     QCheckBox,
     QColorDialog,
@@ -270,6 +272,23 @@ class GlyphLabel(QLabel):
         x = (self.width() - bounds.width()) / 2 - bounds.x() + self._glyph_offset.x()
         y = (self.height() - bounds.height()) / 2 - bounds.y() + self._glyph_offset.y()
         painter.drawText(round(x), round(y), self.text())
+
+
+class ToggleSwitch(QCheckBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedSize(34, 20)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+
+    def paintEvent(self, _event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(QPen(QColor("#222"), 2))
+        painter.setBrush(QColor("#444") if self.underMouse() else QColor("#333"))
+        painter.drawRoundedRect(QRectF(1, 1, 32, 18), 9, 9)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(Qt.GlobalColor.white)
+        painter.drawEllipse(QRectF(16 if self.isChecked() else 3, 3, 14, 14))
 
 
 class CompassWidget(QWidget):
@@ -558,12 +577,14 @@ class TyphoonWindow(QWidget):
         card_layout = QVBoxLayout(self.card)
         card_layout.setContentsMargins(0, 0, 0, 0)
         card_layout.setSpacing(0)
+        self._top_bars = []
         self.stack = QStackedWidget()
         self.weather_page = self._build_weather_page()
         self.first_location_page = self._build_first_location_page()
         self.settings_page = self._build_settings_page()
+        self.credits_page = self._build_credits_page()
         self.hourly_page = self._build_hourly_page()
-        for page in (self.weather_page, self.first_location_page, self.settings_page, self.hourly_page):
+        for page in (self.weather_page, self.first_location_page, self.settings_page, self.credits_page, self.hourly_page):
             self.stack.addWidget(page)
         card_layout.addWidget(self.stack)
         self.size_grip = QSizeGrip(self)
@@ -571,6 +592,7 @@ class TyphoonWindow(QWidget):
         self.size_grip.raise_()
         self.setFont(QFont(self.ui_font, 11))
         self.card.setStyleSheet(self._stylesheet("#575591"))
+        self._apply_controls_position()
 
     def _location_entry_row(self, first_run=False):
         row = QHBoxLayout()
@@ -579,6 +601,9 @@ class TyphoonWindow(QWidget):
         location_input = QLineEdit()
         location_input.setFixedSize(215, 29)
         location_input.setPlaceholderText("Location" if first_run else "Location: e.g. Boston, Kolkata, …")
+        input_palette = location_input.palette()
+        input_palette.setColor(QPalette.ColorRole.PlaceholderText, QColor("#383838"))
+        location_input.setPalette(input_palette)
         status = ToolButton(icon="sync.svg")
         status.stop_spinning(clear=True)
         status.setObjectName("locationStatus")
@@ -641,11 +666,13 @@ class TyphoonWindow(QWidget):
             bar.addWidget(close)
             bar.addWidget(minimize)
         bar.addStretch()
+        if back is None:
+            self._top_bars.append(bar)
         return bar
 
     def _location_nav(self, page, settings_page=False):
         nav = QWidget(page)
-        nav.setGeometry(145, -2, 54, 30)
+        nav.setGeometry(155, -1, 54, 30)
         layout = QHBoxLayout(nav)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(6)
@@ -802,6 +829,7 @@ class TyphoonWindow(QWidget):
         page.setObjectName("settingsPage")
         outer = QVBoxLayout(page)
         outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
         top = self._top_bar()
         close_settings = ToolButton(icon="settings.svg")
         close_settings.enable_hover_opacity()
@@ -823,15 +851,18 @@ class TyphoonWindow(QWidget):
         content = QWidget()
         content.setObjectName("settingsContent")
         form = QVBoxLayout(content)
-        form.setContentsMargins(25, 26, 25, 16)
+        form.setContentsMargins(25, 25, 25, 16)
         form.setSpacing(9)
         entry_row, self.location_input, self.location_status = self._location_entry_row()
         form.addLayout(entry_row)
+        form.addSpacing(3)
         actions = QHBoxLayout()
         guess = QPushButton("Guess Location")
+        guess.setObjectName("settingsAction")
         guess.setFixedSize(102, 29)
         guess.clicked.connect(lambda: self.guess_location(self.location_input))
         report = QPushButton("Report Bugs")
+        report.setObjectName("settingsAction")
         report.setFixedSize(89, 29)
         report.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://github.com/archisman-panigrahi/typhoon/issues")))
         actions.addWidget(guess)
@@ -842,25 +873,25 @@ class TyphoonWindow(QWidget):
         form.addLayout(unit_row)
         self.speed_group, speed_row = self._choice_row((("mph", "mph"), ("km/h", "kph"), ("m/s", "ms")), "speed", "kph")
         form.addLayout(speed_row)
-        form.addSpacing(4)
+        form.addSpacing(6)
         colors = QHBoxLayout()
         colors.setSpacing(1)
         gradient = QPushButton()
         gradient.setObjectName("gradientSwatch")
         gradient.setToolTip("Temperature-based color")
-        gradient.setFixedSize(21, 21)
+        gradient.setFixedSize(22, 22)
         gradient.clicked.connect(lambda: self.set_color("gradient"))
         chameleon = QPushButton()
         chameleon.setToolTip("Chameleonic color")
         chameleon.setIcon(QIcon(resource("chameleon-svgrepo-com.svg")))
         chameleon.setIconSize(QSize(17, 17))
-        chameleon.setFixedSize(21, 21)
+        chameleon.setFixedSize(22, 22)
         chameleon.clicked.connect(lambda: self.set_color("chameleonic"))
         custom = QPushButton()
         custom.setToolTip("Pick a custom color")
         custom.setIcon(QIcon(resource("dropper-svgrepo-com.svg")))
         custom.setIconSize(QSize(17, 17))
-        custom.setFixedSize(21, 21)
+        custom.setFixedSize(22, 22)
         custom.clicked.connect(self.pick_color)
         colors.addWidget(gradient)
         colors.addWidget(chameleon)
@@ -868,7 +899,7 @@ class TyphoonWindow(QWidget):
         for index, color in enumerate(PALETTE):
             button = QPushButton()
             button.setToolTip(color)
-            button.setFixedSize(17, 21)
+            button.setFixedSize(17, 22)
             button.setStyleSheet(f"background:{color}; border:2px solid #292929; padding:0")
             button.clicked.connect(lambda _checked=False, value=color: self.set_color(value))
             colors.addWidget(button)
@@ -892,7 +923,7 @@ class TyphoonWindow(QWidget):
         tray_controls.addWidget(self.tray_check)
         tray_controls.addStretch()
         tray_controls.addWidget(QLabel("Control: Left"))
-        self.position_toggle = QCheckBox()
+        self.position_toggle = ToggleSwitch()
         self.position_toggle.setObjectName("positionToggle")
         self.position_toggle.setChecked(str(self.settings.value("controls_position", "left")) == "right")
         self.position_toggle.toggled.connect(lambda checked: self.preference_changed("controls_position", "right" if checked else "left"))
@@ -902,33 +933,38 @@ class TyphoonWindow(QWidget):
         form.addSpacing(7)
         opacity_row = QHBoxLayout()
         opacity_row.addWidget(QLabel("Opacity"))
-        opacity_row.addSpacing(13)
+        opacity_row.addSpacing(9)
         self.opacity_slider = QSlider(Qt.Orientation.Horizontal)
         self.opacity_slider.setObjectName("opacitySlider")
         self.opacity_slider.setRange(10, 100)
-        self.opacity_slider.setFixedWidth(153)
+        self.opacity_slider.setFixedWidth(170)
         self.opacity_slider.setValue(round(float(self.settings.value("opacity", .8)) * 100))
         self.opacity_slider.valueChanged.connect(self.change_opacity)
         opacity_row.addWidget(self.opacity_slider, 1)
         opacity_row.addStretch()
         form.addLayout(opacity_row)
-        form.addSpacing(5)
+        form.addSpacing(2)
         footer = QHBoxLayout()
-        footer.setSpacing(8)
+        footer.setContentsMargins(9, 0, 0, 0)
+        footer.setSpacing(7)
         credits = QPushButton("CREDITS")
-        credits.setFixedSize(71, 28)
+        credits.setObjectName("settingsAction")
+        credits.setFixedSize(68, 30)
         credits.clicked.connect(self.show_credits)
         homepage = QPushButton("HOMEPAGE")
-        homepage.setFixedSize(86, 28)
+        homepage.setObjectName("settingsAction")
+        homepage.setFixedSize(90, 30)
         homepage.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://archisman-panigrahi.github.io/typhoon")))
         reset = QPushButton("RESET")
-        reset.setFixedSize(62, 28)
+        reset.setObjectName("settingsAction")
+        reset.setFixedSize(59, 30)
         reset.clicked.connect(self.reset_settings)
         footer.addWidget(credits)
         footer.addWidget(homepage)
         footer.addWidget(reset)
         footer.addStretch()
         form.addLayout(footer)
+        form.addSpacing(6)
         hint = QLabel("Add multiple locations by typing a new\nlocation in the searchbox above!")
         hint.setObjectName("settingsHint")
         hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -936,6 +972,81 @@ class TyphoonWindow(QWidget):
         form.addStretch()
         scroll.setWidget(content)
         outer.addWidget(scroll)
+        return page
+
+    def _build_credits_page(self):
+        page = QWidget()
+        page.setObjectName("creditsPage")
+        outer = QVBoxLayout(page)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.setSpacing(0)
+        outer.addLayout(self._top_bar())
+        outer.addSpacing(29)
+
+        body = QWidget()
+        body.setObjectName("creditsBody")
+        layout = QVBoxLayout(body)
+        layout.setContentsMargins(25, 18, 25, 10)
+        layout.setSpacing(0)
+
+        back = ToolButton(icon="back.svg")
+        back.setObjectName("creditsBack")
+        back.setIconSize(QSize(20, 20))
+        back.clicked.connect(lambda: self.stack.setCurrentWidget(self.settings_page))
+        layout.addWidget(back, 0, Qt.AlignmentFlag.AlignLeft)
+        layout.addSpacing(6)
+
+        title = QLabel("Typhoon 1.9.0")
+        title.setObjectName("creditsTitle")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title.setFixedHeight(36)
+        layout.addWidget(title)
+
+        intro = QLabel(
+            "Typhoon is a stylish weather application for\n"
+            "GNU/Linux. It is and always will be free.\n"
+            "Source code is released under GPL-3."
+        )
+        intro.setObjectName("creditsText")
+        intro.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        intro.setFixedHeight(60)
+        layout.addWidget(intro)
+        layout.addSpacing(10)
+
+        credits = QLabel(
+            "•  Based on Stormcloud 1.1 by Jono Cooper.\n"
+            "•  Currently developed and maintained by\n"
+            "   Archisman Panigrahi and ChatGPT :)\n"
+            "•  Icons (Climacons) by Adam Whitcroft.\n"
+            "•  Powered by Open Meteo, OpenStreetMap\n"
+            "   and ipapi."
+        )
+        credits.setObjectName("creditsText")
+        credits.setFixedHeight(96)
+        layout.addWidget(credits)
+
+        heading = QLabel("Significant Contributors:")
+        heading.setObjectName("creditsHeading")
+        heading.setFixedHeight(24)
+        layout.addWidget(heading)
+
+        contributors = QLabel("•  Andy Van Pelt\n•  Soumyadeep Ghosh\n•  Zlatan Vasović")
+        contributors.setObjectName("creditsText")
+        contributors.setFixedHeight(58)
+        layout.addWidget(contributors)
+        layout.addStretch()
+
+        dedication = QLabel(
+            "To those whose warmth brings sunshine and\n"
+            "calm to every storm and whose light\n"
+            "brightens the sky 💖"
+        )
+        dedication.setObjectName("creditsText")
+        dedication.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        dedication.setFixedHeight(52)
+        layout.addWidget(dedication)
+
+        outer.addWidget(body)
         return page
 
     def _choice_row(self, choices, key, default):
@@ -977,6 +1088,7 @@ class TyphoonWindow(QWidget):
         return page
 
     def _stylesheet(self, color):
+        tick_path = resource("tick.svg").replace("\\", "/")
         return f"""
             #card {{ background: {color}; color: white; }}
             QWidget {{ color: white; }}
@@ -1000,20 +1112,25 @@ class TyphoonWindow(QWidget):
             #locationStatus {{ border: none; background: transparent; padding: 0; font-family: sans-serif; font-size: 22px; font-weight: bold; }}
             #locationStatus:hover {{ background: rgba(255,255,255,.14); }}
             #settingsScroll, #settingsContent {{ background: #444; }}
-            #settingsContent QPushButton {{ padding: 1px 4px; font-size: 13px; }}
-            #settingsContent QLineEdit {{ padding: 2px 9px; font-size: 13px; }}
-            #settingsContent QLabel {{ font-size: 13px; }}
-            #settingsContent QCheckBox {{ spacing: 6px; font-size: 14px; }}
-            #settingsContent QCheckBox::indicator {{ width: 18px; height: 18px; }}
+            #creditsBody {{ background: #444; }}
+            #creditsBack, #creditsBack:hover {{ border: none; background: transparent; padding: 0; }}
+            #creditsTitle {{ font-size: 28px; font-weight: bold; }}
+            #creditsText {{ font-size: 15px; }}
+            #creditsHeading {{ font-size: 18px; font-weight: bold; }}
+            #settingsContent QPushButton {{ border: 2px solid #222; background: #333; padding: 1px 4px; font-size: 16px; }}
+            #settingsContent QPushButton:hover, #settingsContent QPushButton:checked {{ background: #555; }}
+            #settingsContent #settingsAction {{ font-size: 17px; letter-spacing: -1px; }}
+            #settingsContent QLineEdit {{ padding: 2px 9px; font-size: 15px; }}
+            #settingsContent QLabel {{ font-size: 16px; }}
+            #settingsContent QCheckBox {{ spacing: 6px; font-size: 16px; }}
+            #settingsContent QCheckBox::indicator {{ width: 16px; height: 16px; border: 2px solid #222; background: #333; }}
+            #settingsContent QCheckBox::indicator:checked {{ image: url("{tick_path}"); }}
             #settingsContent #locationStatus {{ border: none; background: transparent; padding: 0; font-family: sans-serif; font-size: 22px; font-weight: bold; }}
             #gradientSwatch {{ background: qlineargradient(x1:0,y1:1,x2:0,y2:0, stop:0 #e44211, stop:.35 #f09609, stop:.7 #575591, stop:1 #1ba1e2); border:2px solid #292929; padding:0; }}
-            #positionToggle {{ spacing: 0; }}
-            #positionToggle::indicator {{ width: 39px; height: 21px; border-radius: 10px; border: 1px solid #292929; background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 white, stop:.43 white, stop:.44 #333, stop:1 #333); }}
-            #positionToggle::indicator:checked {{ background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #333, stop:.56 #333, stop:.57 white, stop:1 white); }}
             #opacitySlider::groove:horizontal {{ height: 5px; border-radius: 2px; background: #777; }}
             #opacitySlider::sub-page:horizontal {{ background: #aaa; }}
-            #opacitySlider::handle:horizontal {{ width: 26px; margin: -10px 0; border-radius: 13px; background: white; }}
-            #settingsHint {{ font-size: 13px; }}
+            #opacitySlider::handle:horizontal {{ width: 30px; margin: -8px 0; border-radius: 10px; background: white; }}
+            #settingsHint {{ font-size: 16px; }}
             #hourlyPage {{ background: #444; }}
             #city {{ border: none; background: transparent; font-size: 24px; letter-spacing: -2px; padding-top: 15px; }}
             #weatherIcon {{ background: transparent; }}
@@ -1035,11 +1152,30 @@ class TyphoonWindow(QWidget):
         self.card_proxy.setOpacity(float(self.settings.value("opacity", .8)))
         self._apply_background()
         self._update_tray_visibility()
+        self._apply_controls_position()
+
+    def _apply_controls_position(self):
+        right = str(self.settings.value("controls_position", "left")) == "right"
+        direction = (
+            QBoxLayout.Direction.RightToLeft
+            if right else QBoxLayout.Direction.LeftToRight
+        )
+        for bar in getattr(self, "_top_bars", []):
+            bar.setDirection(direction)
+            bar.setContentsMargins(5, 0, 0, 0) if right else bar.setContentsMargins(0, 0, 5, 0)
+
+        nav_x = 300 - 155 - 54 if right else 155
+        for name in ("weather_location_nav", "settings_location_nav"):
+            nav = getattr(self, name, None)
+            if nav is not None:
+                nav.move(nav_x, -1)
 
     def preference_changed(self, key, value):
         self.settings.setValue(key, value)
         if key == "tray":
             self._set_tray_enabled(bool(value))
+        elif key == "controls_position":
+            self._apply_controls_position()
         if self.weather and key in ("unit", "speed"):
             self.render_weather()
 
@@ -1530,13 +1666,7 @@ class TyphoonWindow(QWidget):
         QMessageBox.warning(self, "Typhoon", message)
 
     def show_credits(self):
-        QMessageBox.information(
-            self,
-            "Typhoon",
-            "Typhoon 1.9.0\n\nBased on Stormcloud 1.1 by Jono Cooper.\n"
-            "Weather data by Open-Meteo; maps and geocoding by OpenStreetMap.\n\n"
-            "Released under GPL-3.0.",
-        )
+        self.stack.setCurrentWidget(self.credits_page)
 
     def change_opacity(self, value):
         opacity = value / 100
@@ -1550,6 +1680,7 @@ class TyphoonWindow(QWidget):
         self.weather = None
         self._save_locations()
         self.resize(300, 500)
+        self.position_toggle.setChecked(False)
         self.stack.setCurrentWidget(self.first_location_page)
         self._apply_preferences()
 

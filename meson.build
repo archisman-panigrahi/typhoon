@@ -13,12 +13,14 @@ data_dir = join_paths(get_option('prefix'), 'share', 'typhoon-native-python')
 # HTML/CSS/JavaScript WebEngine frontend is intentionally not packaged.
 install_data(
   'typhoon/native_window.py',
+  'typhoon/back.svg',
   'typhoon/chameleon-svgrepo-com.svg',
   'typhoon/clock-exclamation-svgrepo-com.svg',
   'typhoon/dropper-svgrepo-com.svg',
   'typhoon/humidity.svg',
   'typhoon/settings.svg',
   'typhoon/sync.svg',
+  'typhoon/tick.svg',
   install_dir: data_dir
 )
 
