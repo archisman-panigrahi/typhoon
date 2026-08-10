@@ -50,7 +50,6 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QSlider,
-    QSizeGrip,
     QStackedWidget,
     QStyle,
     QStyleOptionButton,
@@ -291,6 +290,80 @@ class ToggleSwitch(QCheckBox):
         painter.drawEllipse(QRectF(16 if self.isChecked() else 3, 3, 14, 14))
 
 
+class CreditLinkLabel(QLabel):
+    """QLabel with browser-like external links and hover underlines."""
+
+    LINK_STYLE = "color:#fff; text-decoration:none"
+
+    def __init__(self, html, parent=None):
+        super().__init__(parent)
+        self._base_html = html
+        self._hovered_link = ""
+        self.setTextFormat(Qt.TextFormat.RichText)
+        self.setTextInteractionFlags(
+            Qt.TextInteractionFlag.LinksAccessibleByMouse
+            | Qt.TextInteractionFlag.LinksAccessibleByKeyboard
+        )
+        self.setOpenExternalLinks(False)
+        self.linkActivated.connect(lambda url: QDesktopServices.openUrl(QUrl(url)))
+        self.linkHovered.connect(self._show_link_hover)
+        self.setText(html)
+
+    def _show_link_hover(self, url):
+        if url == self._hovered_link:
+            return
+        self._hovered_link = url
+        html = self._base_html
+        if url:
+            html = html.replace(
+                f'style="{self.LINK_STYLE}" href="{url}"',
+                f'style="color:#fff; text-decoration:underline" href="{url}"',
+            )
+        self.setText(html)
+
+
+class ResizeHandle(QWidget):
+    """Invisible hit area for resizing the frameless window."""
+
+    _CURSORS = {
+        "left": Qt.CursorShape.SizeHorCursor,
+        "right": Qt.CursorShape.SizeHorCursor,
+        "bottom": Qt.CursorShape.SizeVerCursor,
+        "bottom-left": Qt.CursorShape.SizeBDiagCursor,
+        "bottom-right": Qt.CursorShape.SizeFDiagCursor,
+    }
+
+    def __init__(self, edge, owner):
+        super().__init__(owner)
+        self.edge = edge
+        self.owner = owner
+        self.setCursor(self._CURSORS[edge])
+        self.setToolTip("Resize")
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.owner._begin_resize(self.edge, event.globalPosition().toPoint())
+            self.grabMouse()
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if event.buttons() & Qt.MouseButton.LeftButton:
+            self.owner._continue_resize(event.globalPosition().toPoint())
+            event.accept()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.releaseMouse()
+            self.owner._finish_resize()
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+
 class CompassWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -508,7 +581,7 @@ class TyphoonWindow(QWidget):
         self._validated_locations = {}
         self._location_validation_timers = {}
         self.aspect_ratio = 3 / 5
-        self._resizing_guard = False
+        self._resize_state = None
         self.climacon_font = self._load_font("fonts/Climacons.ttf", "Sans Serif")
         self.ui_font = self._load_font("fonts/ubuntu.ttf", "Sans Serif")
         QApplication.instance().setFont(QFont(self.ui_font, 11))
@@ -587,9 +660,11 @@ class TyphoonWindow(QWidget):
         for page in (self.weather_page, self.first_location_page, self.settings_page, self.credits_page, self.hourly_page):
             self.stack.addWidget(page)
         card_layout.addWidget(self.stack)
-        self.size_grip = QSizeGrip(self)
-        self.size_grip.setToolTip("Resize")
-        self.size_grip.raise_()
+        self.resize_handles = {
+            edge: ResizeHandle(edge, self)
+            for edge in ("left", "right", "bottom", "bottom-left", "bottom-right")
+        }
+        self._position_resize_handles()
         self.setFont(QFont(self.ui_font, 11))
         self.card.setStyleSheet(self._stylesheet("#575591"))
         self._apply_controls_position()
@@ -707,15 +782,20 @@ class TyphoonWindow(QWidget):
     def _build_weather_page(self):
         page = QWidget()
         page.setObjectName("weatherPage")
+        self.actual_weather = QWidget(page)
+        self.actual_weather.setObjectName("actualWeather")
+        self.actual_weather.setGeometry(0, 0, 300, 500)
         top_widget = QWidget(page)
         top_widget.setGeometry(0, 0, 300, 30)
         top = self._top_bar()
         top_widget.setLayout(top)
         hourly = ToolButton(icon="clock-exclamation-svgrepo-com.svg")
+        self.weather_hourly_button = hourly
         hourly.enable_hover_opacity()
         hourly.setToolTip("Next 24 hours")
         hourly.clicked.connect(lambda: self.stack.setCurrentWidget(self.hourly_page))
         settings = ToolButton(icon="settings.svg")
+        self.weather_settings_button = settings
         settings.enable_hover_opacity()
         settings.clicked.connect(lambda: self.stack.setCurrentWidget(self.settings_page))
         sync = ToolButton(icon="sync.svg")
@@ -726,13 +806,13 @@ class TyphoonWindow(QWidget):
         top.addWidget(settings)
         top.addWidget(sync)
         self.weather_location_nav = self._location_nav(page)
-        self.city = QPushButton("ADD A LOCATION", page)
+        self.city = QPushButton("", self.actual_weather)
         self.city.setFlat(True)
         self.city.setCursor(Qt.CursorShape.PointingHandCursor)
         self.city.clicked.connect(self.open_map)
         self.city.setObjectName("city")
         self.city.setGeometry(0, 30, 300, 50)
-        self.weather_icon = GlyphLabel("`", page)
+        self.weather_icon = GlyphLabel("", self.actual_weather)
         self.weather_icon.setObjectName("weatherIcon")
         initial_weather_font = QFont(self.climacon_font)
         initial_weather_font.setPixelSize(200)
@@ -740,7 +820,7 @@ class TyphoonWindow(QWidget):
         self.weather_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.weather_icon.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.weather_icon.setGeometry(0, 71, 300, 241)
-        details_widget = QWidget(page)
+        details_widget = QWidget(self.actual_weather)
         details_widget.setGeometry(0, 266, 300, 64)
         details = QHBoxLayout(details_widget)
         details.setContentsMargins(10, 0, 5, 0)
@@ -754,7 +834,7 @@ class TyphoonWindow(QWidget):
         self.thermometer.setFont(thermometer_font)
         self.thermometer.set_glyph_offset(9, 0)
         self.thermometer.setGeometry(0, 0, 44, 64)
-        self.temperature = QLabel("--°", temperature_widget)
+        self.temperature = QLabel("", temperature_widget)
         self.temperature.setObjectName("temperature")
         self.temperature.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         # Give the degree/unit glyphs overhang space on both sides while
@@ -762,7 +842,7 @@ class TyphoonWindow(QWidget):
         # Keep the text anchored at the same point while leaving extra widget
         # space for the final C/F/K glyph's right-side overhang.
         self.temperature.setGeometry(34, 0, 126, 64)
-        self.wind = QLabel("-- km/h")
+        self.wind = QLabel("")
         self.wind.setObjectName("details")
         humidity_row = QHBoxLayout()
         humidity_row.setContentsMargins(0, 0, 0, 0)
@@ -770,7 +850,7 @@ class TyphoonWindow(QWidget):
         humidity_icon = QLabel()
         humidity_icon.setPixmap(QIcon(resource("humidity.svg")).pixmap(14, 19))
         humidity_icon.setFixedSize(15, 21)
-        self.humidity = QLabel("--%")
+        self.humidity = QLabel("")
         self.humidity.setObjectName("details")
         metrics_widget = QWidget(details_widget)
         metrics = QVBoxLayout(metrics_widget)
@@ -786,13 +866,13 @@ class TyphoonWindow(QWidget):
         details.addSpacing(2)
         details.addWidget(metrics_widget, 1)
         details.addWidget(self.compass_widget)
-        extra_widget = QWidget(page)
+        extra_widget = QWidget(self.actual_weather)
         extra_widget.setGeometry(0, 333, 300, 30)
         extra = QHBoxLayout(extra_widget)
         extra.setContentsMargins(20, 0, 59, 0)
-        self.feels = QLabel("Feels Like: --°")
+        self.feels = QLabel("")
         self.feels.setObjectName("feelsLike")
-        self.rain = QPushButton("☂  --%")
+        self.rain = QPushButton("")
         self.rain.setObjectName("rainButton")
         self.rain.setFlat(True)
         self.rain.setText("")
@@ -805,7 +885,7 @@ class TyphoonWindow(QWidget):
         rain_icon.setFont(rain_font)
         rain_icon.set_glyph_offset(-2, 0)
         rain_icon.setFixedWidth(23)
-        self.rain_value = QLabel("--%")
+        self.rain_value = QLabel("")
         self.rain_value.setObjectName("rainValue")
         self.rain_value.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         rain_layout.addWidget(rain_icon)
@@ -814,7 +894,7 @@ class TyphoonWindow(QWidget):
         extra.addWidget(self.feels)
         extra.addStretch()
         extra.addWidget(self.rain)
-        week_widget = QWidget(page)
+        week_widget = QWidget(self.actual_weather)
         week_widget.setGeometry(0, 381, 300, 111)
         week = QHBoxLayout(week_widget)
         week.setContentsMargins(0, 0, 0, 0)
@@ -822,6 +902,27 @@ class TyphoonWindow(QWidget):
         self.days = [ForecastDay(self.climacon_font) for _ in range(4)]
         for day in self.days:
             week.addWidget(day)
+
+        self.weather_error_panel = QWidget(page)
+        self.weather_error_panel.setObjectName("weatherErrorPanel")
+        self.weather_error_panel.setGeometry(0, 60, 300, 145)
+        error_layout = QVBoxLayout(self.weather_error_panel)
+        error_layout.setContentsMargins(25, 25, 25, 25)
+        error_layout.setSpacing(12)
+        error_text = QLabel(
+            "Could not connect to internet.<br>Check your internet connection."
+        )
+        error_text.setObjectName("weatherErrorText")
+        retry = QPushButton("TRY AGAIN")
+        retry.setObjectName("weatherRetryButton")
+        retry.setFixedSize(82, 30)
+        retry.clicked.connect(self._retry_weather)
+        error_layout.addWidget(error_text)
+        error_layout.addWidget(retry, 0, Qt.AlignmentFlag.AlignLeft)
+        self.weather_error_panel.hide()
+        self._set_weather_content_visible(False)
+        top_widget.raise_()
+        self.weather_location_nav.raise_()
         return page
 
     def _build_settings_page(self):
@@ -996,16 +1097,22 @@ class TyphoonWindow(QWidget):
         layout.addWidget(back, 0, Qt.AlignmentFlag.AlignLeft)
         layout.addSpacing(6)
 
-        title = QLabel("Typhoon 1.9.0")
+        link_style = CreditLinkLabel.LINK_STYLE
+        title = CreditLinkLabel(
+            f'<a style="{link_style}" href="https://archisman-panigrahi.github.io/typhoon">'
+            "Typhoon</a> 1.9.0"
+        )
         title.setObjectName("creditsTitle")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setFixedHeight(36)
         layout.addWidget(title)
 
-        intro = QLabel(
-            "Typhoon is a stylish weather application for\n"
-            "GNU/Linux. It is and always will be free.\n"
-            "Source code is released under GPL-3."
+        intro = CreditLinkLabel(
+            "Typhoon is a stylish weather application for<br>"
+            "GNU/Linux. It is and always will be free.<br>"
+            f'<a style="{link_style}" href="https://github.com/apandada1/typhoon/">'
+            "Source code</a> is released under "
+            f'<a style="{link_style}" href="http://www.gnu.org/licenses/gpl.html">GPL-3</a>.'
         )
         intro.setObjectName("creditsText")
         intro.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -1013,13 +1120,19 @@ class TyphoonWindow(QWidget):
         layout.addWidget(intro)
         layout.addSpacing(10)
 
-        credits = QLabel(
-            "•  Based on Stormcloud 1.1 by Jono Cooper.\n"
-            "•  Currently developed and maintained by\n"
-            "   Archisman Panigrahi and ChatGPT :)\n"
-            "•  Icons (Climacons) by Adam Whitcroft.\n"
-            "•  Powered by Open Meteo, OpenStreetMap\n"
-            "   and ipapi."
+        credits = CreditLinkLabel(
+            f'•&nbsp; Based on <a style="{link_style}" href="https://github.com/consindo/stormcloud/tree/'
+            'e7ef8e131466d477075e92337e502c3cac004ee2">Stormcloud 1.1</a> by '
+            f'<a style="{link_style}" href="https://github.com/consindo">Jono Cooper</a>.<br>'
+            "•&nbsp; Currently developed and maintained by<br>"
+            f'&nbsp;&nbsp;&nbsp;<a style="{link_style}" href="https://github.com/archisman-panigrahi">'
+            "Archisman Panigrahi</a> and ChatGPT :)<br>"
+            f'•&nbsp; Icons (<a style="{link_style}" href="https://web.archive.org/web/20160531215708/'
+            'http://adamwhitcroft.com/climacons/">Climacons</a>) by '
+            f'<a style="{link_style}" href="https://adamwhitcroft.com/">Adam Whitcroft</a>.<br>'
+            f'•&nbsp; Powered by <a style="{link_style}" href="https://open-meteo.com/">Open Meteo</a>, '
+            f'<a style="{link_style}" href="https://www.openstreetmap.org/">OpenStreetMap</a><br>'
+            f'&nbsp;&nbsp;&nbsp;and <a style="{link_style}" href="https://ipapi.co/">ipapi</a>.'
         )
         credits.setObjectName("creditsText")
         credits.setFixedHeight(96)
@@ -1030,10 +1143,17 @@ class TyphoonWindow(QWidget):
         heading.setFixedHeight(24)
         layout.addWidget(heading)
 
-        contributors = QLabel("•  Andy Van Pelt\n•  Soumyadeep Ghosh\n•  Zlatan Vasović")
+        contributors = CreditLinkLabel(
+            "•&nbsp; Andy Van Pelt<br>"
+            f'•&nbsp; <a style="{link_style}" href="https://github.com/soumyaDghosh">'
+            "Soumyadeep Ghosh</a><br>"
+            f'•&nbsp; <a style="{link_style}" href="https://github.com/zlatanvasovic">'
+            "Zlatan Vasović</a>"
+        )
         contributors.setObjectName("creditsText")
         contributors.setFixedHeight(58)
         layout.addWidget(contributors)
+
         layout.addStretch()
 
         dedication = QLabel(
@@ -1117,6 +1237,10 @@ class TyphoonWindow(QWidget):
             #creditsTitle {{ font-size: 28px; font-weight: bold; }}
             #creditsText {{ font-size: 15px; }}
             #creditsHeading {{ font-size: 18px; font-weight: bold; }}
+            #weatherErrorPanel {{ background: #444; }}
+            #weatherErrorText {{ font-size: 16px; }}
+            #weatherRetryButton {{ border: 2px solid #222; background: #333; padding: 1px 5px; font-size: 16px; }}
+            #weatherRetryButton:hover {{ background: #555; }}
             #settingsContent QPushButton {{ border: 2px solid #222; background: #333; padding: 1px 4px; font-size: 16px; }}
             #settingsContent QPushButton:hover, #settingsContent QPushButton:checked {{ background: #555; }}
             #settingsContent #settingsAction {{ font-size: 17px; letter-spacing: -1px; }}
@@ -1476,6 +1600,9 @@ class TyphoonWindow(QWidget):
             self._set_refresh_spinning(False)
             self.stack.setCurrentWidget(self.first_location_page)
             return
+        if self.weather is None:
+            self._set_weather_content_visible(False)
+        self.weather_error_panel.hide()
         self._refresh_generation += 1
         request_generation = self._refresh_generation
         self._refresh_spin_stop_timer.stop()
@@ -1495,13 +1622,29 @@ class TyphoonWindow(QWidget):
             self._refresh_spin_stop_timer.start()
             current = self._current_weather_from_web_response(data) if data else None
             if error or not current:
-                self.show_error("Could not connect to the weather service.")
+                self._show_weather_network_error()
                 return
             data["current"] = current
             self.weather = data
             self.render_weather()
 
         self.network.get_json("https://api.open-meteo.com/v1/forecast?" + urlencode(params), complete)
+
+    def _set_weather_content_visible(self, visible):
+        self.actual_weather.setVisible(visible)
+        self.weather_location_nav.setVisible(visible)
+        self.weather_hourly_button.setVisible(visible)
+        self.weather_settings_button.setVisible(visible)
+
+    def _show_weather_network_error(self):
+        self._set_weather_content_visible(False)
+        self.weather_error_panel.show()
+        self.weather_error_panel.raise_()
+
+    def _retry_weather(self):
+        self.weather_error_panel.hide()
+        self.weather = None
+        self.refresh()
 
     def _set_refresh_spinning(self, spinning):
         for name in ("weather_sync_button", "settings_sync_button"):
@@ -1613,6 +1756,8 @@ class TyphoonWindow(QWidget):
         self._update_tray_icon()
         if self.settings.value("launcher", True, type=bool):
             self._update_launcher(round(convert_temperature(current["temperature_2m"], unit)))
+        self.weather_error_panel.hide()
+        self._set_weather_content_visible(True)
         self._maybe_notify(round(rain_percentage), int(current.get("weather_code", 0)), location["name"])
 
     @staticmethod
@@ -1632,6 +1777,7 @@ class TyphoonWindow(QWidget):
         if self.locations:
             self.location_index = (self.location_index + offset) % len(self.locations)
             self._save_locations()
+            self.weather = None
             self.refresh()
 
     def remove_location(self):
@@ -1900,6 +2046,8 @@ class TyphoonWindow(QWidget):
         widget = self.card.childAt(card_point)
         interactive_types = (QAbstractButton, QAbstractSlider, QAbstractScrollArea, QLineEdit)
         while widget is not None and widget is not self.card:
+            if isinstance(widget, CreditLinkLabel):
+                return True
             if isinstance(widget, interactive_types):
                 return True
             widget = widget.parentWidget()
@@ -1966,34 +2114,72 @@ class TyphoonWindow(QWidget):
             height = round(width / self.aspect_ratio)
         return width, height
 
-    def resizeEvent(self, event):
-        if not self._resizing_guard:
-            new_size = event.size()
-            old_size = event.oldSize()
-            use_width = True
-            if old_size.isValid():
-                width_change = abs(new_size.width() - old_size.width())
-                height_change = abs(new_size.height() - old_size.height())
-                use_width = width_change >= height_change
-            target = (
-                self._aspect_size_from_width(new_size.width())
-                if use_width
-                else self._aspect_size_from_height(new_size.height())
+    def _begin_resize(self, edge, global_position):
+        self._resize_state = (edge, global_position, self.geometry())
+        self.disable_drag()
+
+    def _continue_resize(self, global_position):
+        if self._resize_state is None:
+            return
+        edge, origin, initial = self._resize_state
+        delta = global_position - origin
+
+        if edge == "bottom":
+            width, height = self._aspect_size_from_height(initial.height() + delta.y())
+        elif edge == "bottom-right":
+            # Project the pointer movement onto the fixed-ratio diagonal. This
+            # uses both axes without switching between them mid-drag.
+            height_delta = (self.aspect_ratio * delta.x() + delta.y()) / (
+                self.aspect_ratio ** 2 + 1
             )
-            if target != (new_size.width(), new_size.height()):
-                self._resizing_guard = True
-                self.resize(*target)
-                self._resizing_guard = False
+            width, height = self._aspect_size_from_height(initial.height() + height_delta)
+        elif edge == "bottom-left":
+            height_delta = (-self.aspect_ratio * delta.x() + delta.y()) / (
+                self.aspect_ratio ** 2 + 1
+            )
+            width, height = self._aspect_size_from_height(initial.height() + height_delta)
+        elif edge == "left":
+            width, height = self._aspect_size_from_width(initial.width() - delta.x())
+        else:
+            width, height = self._aspect_size_from_width(initial.width() + delta.x())
+
+        x = initial.x()
+        if edge in ("left", "bottom-left"):
+            x = initial.x() + initial.width() - width
+        self.setGeometry(x, initial.y(), width, height)
+
+    def _finish_resize(self):
+        self._resize_state = None
+        self.enable_drag()
+
+    def _position_resize_handles(self):
+        # Corners are deliberately larger than the edge strips so they remain
+        # easy to catch at every scale.
+        edge = 6
+        corner = 14
+        width = self.width()
+        height = self.height()
+        self.resize_handles["left"].setGeometry(0, 0, edge, max(0, height - corner))
+        self.resize_handles["right"].setGeometry(width - edge, 0, edge, max(0, height - corner))
+        self.resize_handles["bottom"].setGeometry(
+            corner, height - edge, max(0, width - 2 * corner), edge
+        )
+        self.resize_handles["bottom-left"].setGeometry(0, height - corner, corner, corner)
+        self.resize_handles["bottom-right"].setGeometry(
+            width - corner, height - corner, corner, corner
+        )
+        for handle in self.resize_handles.values():
+            handle.raise_()
+
+    def resizeEvent(self, event):
         super().resizeEvent(event)
         if hasattr(self, "canvas_view"):
             scale = self.width() / 300
             self.canvas_view.resetTransform()
             self.canvas_view.scale(scale, scale)
-        if hasattr(self, "size_grip"):
-            extent = 18
-            self.size_grip.setGeometry(self.width() - extent, self.height() - extent, extent, extent)
-            self.size_grip.raise_()
-        self.settings.setValue("window_size", event.size())
+        if hasattr(self, "resize_handles"):
+            self._position_resize_handles()
+        self.settings.setValue("window_size", self.size())
 
     def moveEvent(self, event):
         super().moveEvent(event)
