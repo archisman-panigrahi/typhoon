@@ -77,7 +77,6 @@ parts:
       - desktop-file-utils
     stage-packages:
       - python3-pyqt6
-      - python3-pyqt6.qtwebengine
       - python3-dbus
       - python3-gi
       - gir1.2-xdp-1.0
@@ -95,8 +94,6 @@ apps:
     environment:
       PYTHONPATH: $SNAP/usr/lib/python3/dist-packages:$PYTHONPATH
       QT_QPA_PLATFORMTHEME: xdgdesktopportal
-      QTWEBENGINE_DISABLE_SANDBOX: "1"
-      QTWEBENGINE_CHROMIUM_FLAGS: --no-sandbox --disable-dev-shm-usage
       LD_LIBRARY_PATH: $SNAP/lxqt-support/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$LD_LIBRARY_PATH
       QT_PLUGIN_PATH: $SNAP/lxqt-support/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins:$QT_PLUGIN_PATH
     plugs:

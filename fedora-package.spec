@@ -13,7 +13,6 @@ BuildRequires:  python3-setuptools
 BuildRequires:  dbus-devel
 BuildRequires:  python3-dbus
 BuildRequires:  python3-pyqt6
-BuildRequires:  python3-pyqt6-webengine
 BuildRequires:  libportal-devel
 BuildRequires:  python3-gobject-base
 BuildRequires:  desktop-file-utils
@@ -21,7 +20,6 @@ BuildRequires:  desktop-file-utils
 Requires:       dbus
 Requires:       python3-dbus
 Requires:       python3-pyqt6
-Requires:       python3-pyqt6-webengine
 Requires:       libportal
 Requires:       python3-gobject-base
 Recommends:     python3-cairosvg

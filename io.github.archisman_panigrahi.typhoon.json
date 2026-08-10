@@ -11,8 +11,7 @@
         "--socket=fallback-x11",
         "--socket=wayland",
         "--device=dri",
-        "--talk-name=org.freedesktop.Notifications",
-        "--env=QTWEBENGINEPROCESS_PATH=/app/lib/libexec/QtWebEngineProcess"
+        "--talk-name=org.freedesktop.Notifications"
     ],
     "cleanup": [
         "/include",

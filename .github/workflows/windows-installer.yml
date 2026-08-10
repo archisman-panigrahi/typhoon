@@ -23,7 +23,7 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller PyQt6 PyQt6-WebEngine
+          pip install pyinstaller PyQt6
 
       - name: Build Windows app bundle (PyInstaller)
         shell: pwsh
@@ -35,7 +35,7 @@ jobs:
             --name Typhoon `
             --icon windows_packaging/typhoon.ico `
             --add-data "typhoon;typhoon" `
-            typhoon/typhoon_window.py
+            typhoon/native_window.py
 
       - name: Install NSIS
         shell: pwsh

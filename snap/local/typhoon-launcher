@@ -11,4 +11,4 @@ if [[ -z "${QT_QPA_PLATFORM:-}" ]]; then
   fi
 fi
 
-exec python3 "$SNAP/usr/share/typhoon/typhoon/typhoon_window.py" "$@"
+exec python3 "$SNAP/usr/share/typhoon/typhoon/native_window.py" "$@"

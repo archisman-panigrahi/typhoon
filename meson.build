@@ -18,7 +18,7 @@ configure_file(
   output: 'typhoon',
   configuration: {
     'python': python.full_path(),
-    'script': join_paths(data_dir, 'typhoon/typhoon_window.py')
+    'script': join_paths(data_dir, 'typhoon/native_window.py')
   },
   install: true,
   install_mode: 'rwxr-xr-x',  # Ensure the file is executable
