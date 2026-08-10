@@ -1025,6 +1025,7 @@ class TyphoonWindow(QWidget):
             #rainValue {{ font-size: 22px; }}
             #forecastDay {{ font-size: 18px; }}
             #forecastTemp {{ font-size: 18px; }}
+            #forecastTemp[compact="true"] {{ font-size: 15px; }}
             #panelTitle {{ font-size: 22px; }}
             QCheckBox {{ spacing: 8px; }}
             QCheckBox::indicator {{ width: 18px; height: 18px; }}
@@ -1464,7 +1465,11 @@ class TyphoonWindow(QWidget):
             low = math.floor(convert_temperature(float(daily["temperature_2m_min"][index]), unit) + .5)
             high = math.floor(convert_temperature(float(daily["temperature_2m_max"][index]), unit) + .5)
             degree = "" if unit == "k" else "°"
-            widget.temp.setText(f"{low}{degree} / {high}{degree}{unit.upper()}")
+            temperature_range = f"{low}{degree} / {high}{degree}{unit.upper()}"
+            widget.temp.setText(temperature_range)
+            widget.temp.setProperty("compact", unit == "k" or len(temperature_range) > 11)
+            widget.temp.style().unpolish(widget.temp)
+            widget.temp.style().polish(widget.temp)
         self._apply_background()
         self._update_location_buttons()
         tray_temp = format_temperature(current["temperature_2m"], unit)
