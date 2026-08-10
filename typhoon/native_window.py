@@ -1,13 +1,16 @@
 #!/usr/bin/python3
 """Native, low-memory Qt Widgets frontend for Typhoon."""
 
+import configparser
+import glob
 import json
 import math
 import os
 import signal
+import subprocess
 import sys
 from datetime import datetime
-from urllib.parse import urlencode
+from urllib.parse import unquote, urlencode, urlparse
 
 from PyQt6.QtCore import QEvent, QPointF, QRectF, QSize, QSettings, Qt, QTimer, QUrl
 from PyQt6.QtGui import (
@@ -17,6 +20,7 @@ from PyQt6.QtGui import (
     QFontDatabase,
     QFontMetricsF,
     QIcon,
+    QImage,
     QPainter,
     QPainterPath,
     QPen,
@@ -38,6 +42,7 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QMenu,
     QMessageBox,
     QPushButton,
     QScrollArea,
@@ -59,6 +64,31 @@ try:
     import dbus.service
 except ImportError:
     dbus = None
+
+IS_WINDOWS = sys.platform.startswith("win")
+
+if IS_WINDOWS:
+    try:
+        import winreg
+    except ImportError:
+        winreg = None
+else:
+    winreg = None
+
+try:
+    import cairosvg
+except ImportError:
+    cairosvg = None
+
+if not IS_WINDOWS:
+    try:
+        import gi
+        gi.require_version("Xdp", "1.0")
+        from gi.repository import Xdp
+    except (ImportError, ValueError):
+        Xdp = None
+else:
+    Xdp = None
 
 
 APP_ID = "io.github.archisman_panigrahi.typhoon-native-python"
@@ -163,7 +193,7 @@ class ToolButton(QPushButton):
         self._paint_opacity = 1.0
         self._spin_angle = 0
         self._spin_timer = QTimer(self)
-        self._spin_timer.setInterval(40)
+        self._spin_timer.setInterval(25)
         self._spin_timer.timeout.connect(self._advance_spin)
 
     def start_spinning(self):
@@ -191,7 +221,7 @@ class ToolButton(QPushButton):
         painter.drawPixmap(0, 0, source)
         painter.end()
         self.setIcon(QIcon(rotated))
-        self._spin_angle = (self._spin_angle + 18) % 360
+        self._spin_angle = (self._spin_angle + 30) % 360
 
     def enable_hover_opacity(self):
         self._uses_hover_opacity = True
@@ -451,7 +481,7 @@ class TyphoonWindow(QWidget):
         self._refresh_generation = 0
         self._refresh_spin_stop_timer = QTimer(self)
         self._refresh_spin_stop_timer.setSingleShot(True)
-        self._refresh_spin_stop_timer.setInterval(2000)
+        self._refresh_spin_stop_timer.setInterval(1000)
         self._refresh_spin_stop_timer.timeout.connect(lambda: self._set_refresh_spinning(False))
         self.drag_origin = None
         self.drag_enabled = True
@@ -465,12 +495,13 @@ class TyphoonWindow(QWidget):
         QApplication.instance().setFont(QFont(self.ui_font, 11))
         self._setup_window()
         self._build_ui()
-        self._setup_tray()
+        self._initialize_tray()
         self._setup_launcher()
         self._apply_preferences()
         self._update_location_buttons()
         if not self.locations:
             self.stack.setCurrentWidget(self.first_location_page)
+        QTimer.singleShot(0, self._update_chameleonic_color)
         QTimer.singleShot(0, self.refresh)
         self.refresh_timer = QTimer(self)
         self.refresh_timer.timeout.connect(self.refresh)
@@ -1007,13 +1038,15 @@ class TyphoonWindow(QWidget):
     def preference_changed(self, key, value):
         self.settings.setValue(key, value)
         if key == "tray":
-            self._update_tray_visibility()
+            self._set_tray_enabled(bool(value))
         if self.weather and key in ("unit", "speed"):
             self.render_weather()
 
     def set_color(self, color):
         self.settings.setValue("color", color)
         self._apply_background()
+        if color == "chameleonic":
+            self._update_chameleonic_color()
 
     def pick_color(self):
         color = QColorDialog.getColor(QColor(str(self.settings.value("custom_color", "#575591"))), self)
@@ -1032,6 +1065,197 @@ class TyphoonWindow(QWidget):
         else:
             color = choice
         self.card.setStyleSheet(self._stylesheet(color))
+
+    def _set_chameleonic_color(self, color):
+        color = QColor(color)
+        if not color.isValid():
+            return
+        self.settings.setValue("special_color", color.name())
+        if str(self.settings.value("color", "gradient")) == "chameleonic":
+            self._apply_background()
+
+    def _update_chameleonic_color(self):
+        """Match master's wallpaper -> representative -> accent fallback chain."""
+        try:
+            color = self._extract_dominant_color(self.get_wallpaper_path())
+            if color:
+                self._set_chameleonic_color(color)
+                return
+        except Exception:
+            pass
+
+        if not IS_WINDOWS:
+            try:
+                output = subprocess.check_output(["xprop", "-root"], text=True)
+                line = next(
+                    line for line in output.splitlines()
+                    if "_GNOME_BACKGROUND_REPRESENTATIVE_COLORS" in line
+                )
+                rgb_string = line.split('"')[1].strip()
+                red, green, blue = (int(value) for value in rgb_string[4:-1].split(","))
+                self._set_chameleonic_color(QColor(red, green, blue))
+                return
+            except Exception:
+                pass
+
+        self._set_chameleonic_color(self._get_accent_color())
+
+    def _extract_dominant_color(self, wallpaper_path):
+        if not wallpaper_path:
+            return None
+        if wallpaper_path.lower().endswith(".svg"):
+            if cairosvg is None:
+                return None
+            image = QImage()
+            image.loadFromData(
+                cairosvg.svg2png(url=wallpaper_path, output_width=16, output_height=16),
+                "PNG",
+            )
+        else:
+            image = QImage(wallpaper_path)
+        if image.isNull():
+            return None
+        tiny = image.scaled(
+            1, 1,
+            Qt.AspectRatioMode.IgnoreAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        return tiny.pixelColor(0, 0).name() if not tiny.isNull() else None
+
+    def _get_accent_color(self):
+        if IS_WINDOWS:
+            return self._get_windows_accent_color()
+
+        if Xdp is not None:
+            try:
+                value = Xdp.Portal().get_settings().read_value(
+                    "org.freedesktop.appearance", "accent-color"
+                )
+                value = value.unpack() if hasattr(value, "unpack") else value
+                if value is not None and len(value) == 3:
+                    return QColor(*(round(float(channel) * 255) for channel in value))
+            except Exception:
+                pass
+
+        if dbus is not None:
+            try:
+                portal = dbus.SessionBus().get_object(
+                    "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop"
+                )
+                value = dbus.Interface(
+                    portal, "org.freedesktop.portal.Settings"
+                ).Read("org.freedesktop.appearance", "accent-color")
+                if value is not None and len(value) == 3:
+                    return QColor(*(round(float(channel) * 255) for channel in value))
+            except Exception:
+                pass
+        return QApplication.palette().highlight().color()
+
+    @staticmethod
+    def _windows_registry_dword(path, name):
+        if winreg is None:
+            return None
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, path) as key:
+                value, _kind = winreg.QueryValueEx(key, name)
+                return value if isinstance(value, int) else None
+        except Exception:
+            return None
+
+    def _get_windows_accent_color(self):
+        value = self._windows_registry_dword(
+            r"Software\Microsoft\Windows\DWM", "ColorizationColor"
+        )
+        if value is not None:
+            return QColor((value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff)
+        value = self._windows_registry_dword(
+            r"Software\Microsoft\Windows\CurrentVersion\Explorer\Accent",
+            "AccentColorMenu",
+        )
+        if value is not None:
+            return QColor(value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff)
+        return QApplication.palette().highlight().color()
+
+    def _get_primary_monitor(self):
+        try:
+            lines = subprocess.check_output(["xrandr", "--current"], text=True).splitlines()
+            connected = [line for line in lines if " connected" in line]
+            primary = next((line for line in connected if " primary " in line), None)
+            return (primary or connected[0]).split()[0] if connected else None
+        except Exception:
+            return None
+
+    def get_wallpaper_path(self):
+        if IS_WINDOWS:
+            if winreg is None:
+                raise RuntimeError("Windows registry support is unavailable")
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Control Panel\Desktop") as key:
+                wallpaper, _kind = winreg.QueryValueEx(key, "WallPaper")
+            if not str(wallpaper).strip():
+                raise RuntimeError("Windows wallpaper path is empty")
+            return str(wallpaper).strip()
+
+        if os.environ.get("FLATPAK_ID") or os.environ.get("SNAP"):
+            raise RuntimeError("Use the desktop portal inside a sandbox")
+        desktop = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
+        wallpaper = None
+        if "gnome" in desktop:
+            wallpaper = subprocess.check_output(
+                ["gsettings", "get", "org.gnome.desktop.background", "picture-uri"],
+                text=True,
+            ).strip().strip("'")
+        elif "cinnamon" in desktop:
+            wallpaper = subprocess.check_output(
+                ["gsettings", "get", "org.cinnamon.desktop.background", "picture-uri"],
+                text=True,
+            ).strip().strip("'")
+        elif "mate" in desktop:
+            wallpaper = subprocess.check_output(
+                ["gsettings", "get", "org.mate.background", "picture-filename"],
+                text=True,
+            ).strip().strip("'")
+        elif "xfce" in desktop:
+            monitor = self._get_primary_monitor()
+            if not monitor:
+                raise RuntimeError("Could not detect the primary monitor")
+            wallpaper = subprocess.check_output(
+                ["xfconf-query", "-c", "xfce4-desktop", "-p",
+                 f"/backdrop/screen0/monitor{monitor}/workspace0/last-image"],
+                text=True,
+            ).strip()
+        elif "kde" in desktop:
+            config_path = os.path.expanduser(
+                "~/.config/plasma-org.kde.plasma.desktop-appletsrc"
+            )
+            with open(config_path, encoding="utf-8") as config_file:
+                for line in config_file:
+                    if line.strip().startswith("Image="):
+                        wallpaper = line.strip().split("=", 1)[1]
+                        break
+            parsed = urlparse(wallpaper or "")
+            wallpaper = unquote(parsed.path) if parsed.scheme == "file" else wallpaper
+            if wallpaper and os.path.isdir(wallpaper):
+                images = wallpaper if os.path.basename(wallpaper) == "images" else os.path.join(wallpaper, "contents", "images")
+                candidates = glob.glob(os.path.join(images, "*"))
+                wallpaper = next((path for path in candidates if path.lower().endswith((".jpg", ".jpeg", ".png", ".webp", ".bmp"))), wallpaper)
+        elif "lxde" in desktop or "labwc:wlroots" in desktop:
+            files = glob.glob(os.path.expanduser("~/.config/pcmanfm/*/desktop-items-*.conf"))
+            monitor = self._get_primary_monitor()
+            if monitor:
+                files.sort(key=lambda path: 0 if monitor in path else 1)
+            for path in files:
+                config = configparser.ConfigParser()
+                config.read(path)
+                if config.has_option("*", "wallpaper"):
+                    wallpaper = config.get("*", "wallpaper")
+                    break
+        else:
+            raise RuntimeError(f"Unsupported desktop environment: {desktop}")
+
+        if not wallpaper:
+            raise RuntimeError("Could not determine the wallpaper path")
+        parsed = urlparse(wallpaper)
+        return unquote(parsed.path) if parsed.scheme == "file" else wallpaper
 
     def _schedule_location_validation(self, location_input, status):
         self._validated_locations.pop(location_input, None)
@@ -1244,8 +1468,8 @@ class TyphoonWindow(QWidget):
         self._apply_background()
         self._update_location_buttons()
         tray_temp = format_temperature(current["temperature_2m"], unit)
-        if self.tray:
-            self.tray.setToolTip(f"Typhoon: {tray_temp}")
+        self._tray_temperature = tray_temp[:8]
+        self._update_tray_icon()
         if self.settings.value("launcher", True, type=bool):
             self._update_launcher(round(convert_temperature(current["temperature_2m"], unit)))
         self._maybe_notify(round(rain_percentage), int(current.get("weather_code", 0)), location["name"])
@@ -1324,13 +1548,75 @@ class TyphoonWindow(QWidget):
         self.stack.setCurrentWidget(self.first_location_page)
         self._apply_preferences()
 
-    def _setup_tray(self):
+    def _initialize_tray(self):
         self.tray = None
-        if QSystemTrayIcon.isSystemTrayAvailable():
-            self.tray = QSystemTrayIcon(self.windowIcon(), self)
+        self.tray_menu = None
+        self.tray_visibility_action = None
+        self._tray_enabled = False
+        self._tray_temperature = None
+        self._rendered_tray_temperature = None
+        if IS_WINDOWS or self.settings.value("tray", False, type=bool):
+            self._set_tray_enabled(True)
+
+    def _setup_tray(self):
+        if self.tray is not None:
+            self.tray.show()
+            self._tray_enabled = True
+            return True
+        try:
+            if not QSystemTrayIcon.isSystemTrayAvailable():
+                return False
+            icon = self.windowIcon()
+            if icon.isNull():
+                icon = QApplication.style().standardIcon(
+                    QStyle.StandardPixmap.SP_MessageBoxInformation
+                )
+            self.tray = QSystemTrayIcon(icon, self)
             self.tray.setToolTip("Typhoon")
             self.tray.activated.connect(self._tray_activated)
-            self._update_tray_visibility()
+            self.tray_menu = QMenu(self)
+            self.tray_visibility_action = self.tray_menu.addAction("Hide")
+            self.tray_visibility_action.triggered.connect(self._toggle_window_visibility)
+            self.tray_menu.aboutToShow.connect(self._update_tray_visibility_action)
+            self.tray_menu.addAction("Quit").triggered.connect(self._quit_from_tray)
+            self.tray.setContextMenu(self.tray_menu)
+            self.tray.show()
+            if not self.tray.isVisible():
+                self.tray.deleteLater()
+                self.tray = None
+                self.tray_menu = None
+                self.tray_visibility_action = None
+                return False
+            self._tray_enabled = True
+            self._update_tray_icon(force=True)
+            return True
+        except Exception:
+            self.tray = None
+            self.tray_menu = None
+            self.tray_visibility_action = None
+            self._tray_enabled = False
+            return False
+
+    def _set_tray_checkbox(self, checked):
+        self.settings.setValue("tray", checked)
+        if hasattr(self, "tray_check"):
+            blocked = self.tray_check.blockSignals(True)
+            self.tray_check.setChecked(checked)
+            self.tray_check.blockSignals(blocked)
+
+    def _set_tray_enabled(self, enabled):
+        if IS_WINDOWS:
+            enabled = True
+        if enabled:
+            if self._setup_tray():
+                if IS_WINDOWS:
+                    self._set_tray_checkbox(True)
+                return
+            self._set_tray_checkbox(False)
+            return
+        if self.tray is not None:
+            self.tray.hide()
+        self._tray_enabled = False
 
     def _setup_launcher(self):
         self.launcher_service = None
@@ -1341,15 +1627,71 @@ class TyphoonWindow(QWidget):
                 pass
 
     def _update_tray_visibility(self):
-        if getattr(self, "tray", None):
-            self.tray.setVisible(self.settings.value("tray", False, type=bool))
+        self._set_tray_enabled(self.settings.value("tray", False, type=bool))
+
+    def _update_tray_icon(self, force=False):
+        if self.tray is None or not self._tray_enabled:
+            return
+        if not force and self._tray_temperature == self._rendered_tray_temperature:
+            return
+        if not self._tray_temperature:
+            self.tray.setIcon(self.windowIcon())
+            self.tray.setToolTip("Typhoon")
+            self._rendered_tray_temperature = self._tray_temperature
+            return
+        base = self.windowIcon()
+        if base.isNull():
+            base = QApplication.style().standardIcon(
+                QStyle.StandardPixmap.SP_MessageBoxInformation
+            )
+        pixmap = base.pixmap(64, 64)
+        if pixmap.isNull():
+            pixmap = QPixmap(64, 64)
+            pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.TextAntialiasing)
+        painter.setPen(Qt.GlobalColor.white)
+        painter.setBrush(QColor(32, 32, 40, 225))
+        painter.drawRoundedRect(QRectF(1, 27, 62, 36), 9, 9)
+        font = QFont(self.ui_font)
+        font.setBold(True)
+        font.setPixelSize(23 if len(self._tray_temperature) <= 4 else 19)
+        painter.setFont(font)
+        painter.drawText(
+            QRectF(1, 27, 62, 36), Qt.AlignmentFlag.AlignCenter,
+            self._tray_temperature,
+        )
+        painter.end()
+        self.tray.setIcon(QIcon(pixmap))
+        self.tray.setToolTip(f"Typhoon: {self._tray_temperature}")
+        self._rendered_tray_temperature = self._tray_temperature
 
     def _tray_activated(self, reason):
         if reason == QSystemTrayIcon.ActivationReason.Trigger:
-            self.setVisible(not self.isVisible())
+            self._toggle_window_visibility()
+
+    def _update_tray_visibility_action(self):
+        if self.tray_visibility_action is not None:
+            self.tray_visibility_action.setText(
+                "Hide" if self.isVisible() and not self.isMinimized() else "Show"
+            )
+
+    def _toggle_window_visibility(self):
+        if self.isVisible() and not self.isMinimized():
+            self.hide()
+        elif self.isMinimized():
+            self.showNormal()
+        else:
+            self.show()
+        if self.isVisible():
+            self.raise_()
+            self.activateWindow()
+
+    def _quit_from_tray(self):
+        QApplication.instance().quit()
 
     def close_or_hide(self):
-        if self.tray and self.tray.isVisible():
+        if self.tray is not None and self._tray_enabled:
             self.hide()
         else:
             self.close()
@@ -1367,11 +1709,8 @@ class TyphoonWindow(QWidget):
         now = int(datetime.now().timestamp())
         last = int(self.settings.value("last_notification", 0))
         if message and now - last >= int(self.settings.value("refresh_ms", 1_200_000)) / 1000:
-            if self.tray:
-                self.tray.show()
+            if self.tray is not None and self._tray_enabled:
                 self.tray.showMessage("Typhoon Weather Alert", message, QSystemTrayIcon.MessageIcon.Information, 5000)
-                if not self.settings.value("tray", False, type=bool):
-                    QTimer.singleShot(5500, lambda: self.tray.hide())
             elif dbus is not None and not sys.platform.startswith("win"):
                 try:
                     notifications = dbus.SessionBus().get_object(
