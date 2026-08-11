@@ -30,7 +30,7 @@ Originally based on [Stormcloud](http://github.com/consindo/stormcloud/) 1.1 by 
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=archisman-panigrahi/typhoon&type=date&legend=top-left)](https://www.star-history.com/#archisman-panigrahi/typhoon&type=date&legend=top-left)
+[![Star History Chart](https://star-history.dera.page/svg?repos=archisman-panigrahi/typhoon&type=date&legend=top-left)](https://www.star-history.com/#archisman-panigrahi/typhoon&type=date&legend=top-left)
 
 [![Stargazers repo roster for @archisman-panigrahi/typhoon](https://reporoster.com/stars/archisman-panigrahi/typhoon)](https://github.com/archisman-panigrahi/typhoon/stargazers)
 
