@@ -4,6 +4,7 @@ import configparser
 import glob
 import logging
 import os
+import re
 import signal
 import subprocess
 import sys
@@ -92,6 +93,128 @@ LAUNCHER_DESKTOP_IDS = (
     "io.github.archisman_panigrahi.typhoon.desktop",
     "typhoon_typhoon.desktop",
 )
+
+# Window managers do not expose one cross-platform capability flag for tiling.
+# Keep aliases here normalized to the executable/session names they commonly use.
+TILING_WINDOW_MANAGER_IDENTIFIERS = frozenset({
+    "2bwm",
+    "aerospace",
+    "aewm",
+    "aewm++",
+    "amethyst",
+    "awesome",
+    "berry",
+    "bluetile",
+    "bspwm",
+    "cagebreak",
+    "cardboard",
+    "catwm",
+    "dwm",
+    "dwl",
+    "echinus",
+    "euclid-wm",
+    "exwm",
+    "frankenwm",
+    "glazewm",
+    "goomwwm",
+    "herbstluftwm",
+    "hikari",
+    "hypr",
+    "hyprland",
+    "i3",
+    "i3wm",
+    "instantwm",
+    "ion",
+    "ion3",
+    "japokwm",
+    "komorebi",
+    "larswm",
+    "leftwm",
+    "mangowc",
+    "matwm2",
+    "miracle-wm",
+    "monsterwm",
+    "musca",
+    "newm",
+    "niri",
+    "notion",
+    "qtile",
+    "ratpoison",
+    "river",
+    "snapwm",
+    "scrotwm",
+    "spectrwm",
+    "stumpwm",
+    "subtle",
+    "sway",
+    "swayfx",
+    "velox",
+    "vivarium",
+    "way-cooler",
+    "wmfs",
+    "wmii",
+    "workspacer",
+    "xmonad",
+    "yabai",
+})
+
+TILING_WINDOW_MANAGER_ENVIRONMENT_MARKERS = (
+    "HYPRLAND_INSTANCE_SIGNATURE",
+    "I3SOCK",
+    "NIRI_SOCKET",
+    "RIVER_SOCKET",
+    "SWAYSOCK",
+)
+
+
+def _contains_tiling_window_manager(value):
+    """Return whether a session/process description names a known tiling WM."""
+    if not value:
+        return False
+    tokens = re.findall(r"[a-z0-9+_.-]+", str(value).lower())
+    return any(token.removesuffix(".desktop").removesuffix(".exe")
+               in TILING_WINDOW_MANAGER_IDENTIFIERS for token in tokens)
+
+
+def is_tiling_window_manager(environ=None):
+    """Best-effort detection across Linux, Windows, and macOS sessions."""
+    environment = os.environ if environ is None else environ
+
+    if any(
+        environment.get(name)
+        for name in TILING_WINDOW_MANAGER_ENVIRONMENT_MARKERS
+    ):
+        return True
+
+    session_description = " ".join(
+        environment.get(name, "")
+        for name in (
+            "XDG_CURRENT_DESKTOP",
+            "XDG_SESSION_DESKTOP",
+            "DESKTOP_SESSION",
+            "GDMSESSION",
+            "WINDOWMANAGER",
+        )
+    )
+    if _contains_tiling_window_manager(session_description):
+        return True
+
+    # Session variables are inconsistent (especially for hand-written X init
+    # files), so fall back to the current process names. Failure is harmless on
+    # restricted systems and leaves the normal controls enabled.
+    process_command = ["tasklist", "/fo", "csv", "/nh"] if IS_WINDOWS else [
+        "ps", "-u", str(os.getuid()), "-o", "comm="
+    ]
+    try:
+        processes = subprocess.check_output(
+            process_command,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=2,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return _contains_tiling_window_manager(processes)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -344,6 +467,9 @@ class TyphoonWindow(QWidget):
         self._tray_enabled = False
         self._tray_temperature = None
         self._rendered_tray_temperature = None
+        self._tiling_window_manager = is_tiling_window_manager()
+        if self._tiling_window_manager:
+            logger.info("Tiling window manager detected; hiding window controls")
 
         self._initialize_window()
         # Windows notifications use QSystemTrayIcon as their backend, so it
@@ -683,6 +809,11 @@ class TyphoonWindow(QWidget):
         if not ok:
             logger.error("Failed to load local UI")
             return
+
+        self.webview.page().runJavaScript(
+            "if (window.setTilingWindowManager) "
+            f"setTilingWindowManager({'true' if self._tiling_window_manager else 'false'});"
+        )
 
         try:
             wallpaper_path = self.get_wallpaper_path()

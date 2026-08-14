@@ -8,8 +8,10 @@
 <div id="appWrapper">
     <div id="container">
         <div class="border">
-            <div class="close">&#10005;</div>
-            <div class="minimize">&#150;</div>
+            <div id="windowControls" class="window-controls" aria-label="Window controls">
+                <div class="close" role="button" aria-label="Hide or close Typhoon">&#10005;</div>
+                <div class="minimize" role="button" aria-label="Minimize Typhoon">&#150;</div>
+            </div>
             <div id="locationNav">
                 <span id="prevLocation" class="nav-arrow location-switch-control" title="Previous location">‹</span>
                 <span id="removeLocation" class="nav-remove location-switch-control" title="Remove this location">×</span>
