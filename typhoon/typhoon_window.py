@@ -38,6 +38,7 @@ else:
 QT_MAJOR = 6
 try:
     from PyQt6.QtCore import QEvent, QPoint, Qt, QTimer, QUrl
+    from PyQt6.QtNetwork import QLocalServer, QLocalSocket
     from PyQt6.QtGui import QColor, QDesktopServices, QFont, QIcon, QImage, QPainter, QPixmap
     from PyQt6.QtWebEngineCore import (
         QWebEnginePage,
@@ -49,6 +50,7 @@ try:
 except ImportError:
     QT_MAJOR = 5
     from PyQt5.QtCore import QEvent, QPoint, Qt, QTimer, QUrl
+    from PyQt5.QtNetwork import QLocalServer, QLocalSocket
     from PyQt5.QtGui import QColor, QDesktopServices, QFont, QIcon, QImage, QPainter, QPixmap
     from PyQt5.QtWebEngineWidgets import (
         QWebEnginePage,
@@ -132,6 +134,7 @@ if QT_MAJOR == 6:
     QT_TRAY_INFO = QSystemTrayIcon.MessageIcon.Information
     QT_TRAY_TRIGGER = QSystemTrayIcon.ActivationReason.Trigger
     QT_STYLE_INFO_ICON = QStyle.StandardPixmap.SP_MessageBoxInformation
+    QT_LOCAL_SERVER_USER_ACCESS = QLocalServer.SocketOption.UserAccessOption
 else:
     QT_NAV_LINK_CLICKED = QWebEnginePage.NavigationTypeLinkClicked
     QT_CURSOR_BDIAG = Qt.SizeBDiagCursor
@@ -166,6 +169,7 @@ else:
     QT_TRAY_INFO = QSystemTrayIcon.Information
     QT_TRAY_TRIGGER = QSystemTrayIcon.Trigger
     QT_STYLE_INFO_ICON = QStyle.SP_MessageBoxInformation
+    QT_LOCAL_SERVER_USER_ACCESS = QLocalServer.UserAccessOption
 
 
 def event_global_point(event):
@@ -214,6 +218,24 @@ def app_resource_path(filename):
     if os.path.exists(nested):
         return nested
     return direct
+
+
+def create_single_instance_server(app):
+    user = os.getuid() if hasattr(os, "getuid") else os.environ.get("USERNAME", "")
+    server_name = "io.github.archisman_panigrahi.typhoon-" + str(user)
+    socket = QLocalSocket(app)
+    socket.connectToServer(server_name)
+    if socket.waitForConnected(500):
+        return None, True
+
+    QLocalServer.removeServer(server_name)
+    server = QLocalServer(app)
+    server.setSocketOptions(QT_LOCAL_SERVER_USER_ACCESS)
+    if server.listen(server_name):
+        return server, False
+
+    logger.warning("Could not create the single-instance server; continuing normally")
+    return None, False
 
 
 class TyphoonWebPage(QWebEnginePage):
@@ -638,13 +660,16 @@ class TyphoonWindow(QWidget):
     def _toggle_window_visibility(self):
         if self.isVisible() and not self.isMinimized():
             self.hide()
-        elif self.isMinimized():
+            return
+        self._show_and_activate()
+
+    def _show_and_activate(self):
+        if self.isMinimized():
             self.showNormal()
-        else:
+        elif not self.isVisible():
             self.show()
-        if self.isVisible():
-            self.raise_()
-            self.activateWindow()
+        self.raise_()
+        self.activateWindow()
 
     def _quit_from_tray(self):
         self._toggle_unity_launcher("disable_launcher")
@@ -1352,8 +1377,21 @@ def main():
     app.setQuitOnLastWindowClosed(True)
     if hasattr(app, "setDesktopFileName") and not IS_WINDOWS:
         app.setDesktopFileName("io.github.archisman_panigrahi.typhoon")
+
+    instance_server, existing_instance = create_single_instance_server(app)
+    if existing_instance:
+        return
+
     window = TyphoonWindow()
     window.show()
+
+    def activate_from_launch():
+        connection = instance_server.nextPendingConnection()
+        connection.deleteLater()
+        window._show_and_activate()
+
+    if instance_server is not None:
+        instance_server.newConnection.connect(activate_from_launch)
 
     # Let Python process SIGINT while Qt owns the event loop, then use Qt's
     # normal shutdown path so WebEngine and other application objects clean up.
