@@ -11,6 +11,16 @@ var navigationRefreshTimeout = null;
 const NAVIGATION_REFRESH_DEBOUNCE_MS = 2000; // 2 seconds after navigation/delete to trigger refresh
 var displayedHourlyForecast = null;
 var hourlyForecastView = localStorage.typhoon_hourly_view === 'list' ? 'list' : 'chart';
+
+function setTilingWindowManager(enabled) {
+    const tiling = Boolean(enabled);
+    document.documentElement.classList.toggle('tiling-window-manager', tiling);
+    $('#windowControls')
+        .prop('hidden', tiling)
+        .attr('aria-hidden', tiling ? 'true' : 'false');
+}
+window.setTilingWindowManager = setTilingWindowManager;
+
 function initOpaqueTooltips() {
     if ($('#typhoonTooltip').length === 0) {
         $('body').append('<div id="typhoonTooltip" aria-hidden="true"></div>');
