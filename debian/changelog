@@ -1,3 +1,9 @@
+typhoon (1.9.2) noble; urgency=medium
+
+  * Hide controls in twms
+
+ -- Archisman Panigrahi <apandada1@gmail.com>  Fri, 21 Aug 2026 07:51:03 -0400
+
 typhoon (1.9.1) noble; urgency=medium
 
   * Don't open a second instance
