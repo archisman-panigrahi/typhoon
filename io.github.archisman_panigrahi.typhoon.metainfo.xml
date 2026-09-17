@@ -89,6 +89,14 @@
     <color type="primary" scheme_preference="dark">#17638e</color>
   </branding>
   <releases>
+  <release version="1.9.3" date="2026-09-16">
+      <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.9.3</url>
+      <description>
+        <ul>
+          <li>Chameleonic background in hyprland</li>
+        </ul>
+      </description>
+  </release>
   <release version="1.9.2" date="2026-08-21">
       <url type="details">https://github.com/archisman-panigrahi/typhoon/releases/tag/v1.9.2</url>
       <description>
