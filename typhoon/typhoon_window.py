@@ -1311,6 +1311,31 @@ class TyphoonWindow(QWidget):
                                         wallpaper = os.path.join(images_dir, candidate)
                                         break
                         break
+        elif "hyprland" in de or os.environ.get("HYPRLAND_INSTANCE_SIGNATURE"):
+            wallpaper = None
+            omarchy_bg = os.path.expanduser("~/.local/state/omarchy/current/background")
+            if os.path.islink(omarchy_bg) or os.path.isfile(omarchy_bg):
+                target = os.path.realpath(omarchy_bg)
+                if os.path.isfile(target):
+                    wallpaper = target
+            if not wallpaper:
+                try:
+                    output = subprocess.check_output(
+                        ["hyprctl", "hyprpaper", "listloaded"],
+                        stderr=subprocess.DEVNULL,
+                        text=True,
+                        timeout=2,
+                    )
+                    for line in output.splitlines():
+                        if line.startswith("/"):
+                            candidate = line.strip().split(",")[0].strip()
+                            if os.path.isfile(candidate):
+                                wallpaper = candidate
+                                break
+                except (OSError, subprocess.SubprocessError):
+                    pass
+            if not wallpaper:
+                raise RuntimeError("Could not find Hyprland wallpaper")
         elif "lxde" in de or "labwc:wlroots" in de:
             config_pattern = os.path.expanduser(
                 "~/.config/pcmanfm/*/desktop-items-*.conf"
